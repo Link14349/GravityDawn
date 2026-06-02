@@ -99,9 +99,10 @@
     const fA = freeBuilding.addPoint({ x: triX - 15, y: triBaseY, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fB = freeBuilding.addPoint({ x: triX + 15, y: triBaseY, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fC = freeBuilding.addPoint({ x: triX, y: triBaseY - 25, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
-    freeBuilding.addSpring({ a: fA, b: fB, stiffness: 25000, damping: 15, breakTension: 50000 });
-    freeBuilding.addSpring({ a: fB, b: fC, stiffness: 25000, damping: 15, breakTension: 50000 });
-    freeBuilding.addSpring({ a: fC, b: fA, stiffness: 25000, damping: 15, breakTension: 50000 });
+    // 刚度需抵消重力: F_gravity ≈ 10×450 = 4500, 压缩 1.5px 需 k=3000
+    freeBuilding.addSpring({ a: fA, b: fB, stiffness: 3000, damping: 15, breakTension: 15000 });
+    freeBuilding.addSpring({ a: fB, b: fC, stiffness: 3000, damping: 15, breakTension: 15000 });
+    freeBuilding.addSpring({ a: fC, b: fA, stiffness: 3000, damping: 15, breakTension: 15000 });
 
     // 水平稳定弹簧
     for (let row = 0; row < 2; row++) {
