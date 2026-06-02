@@ -210,8 +210,9 @@
 
             // 碰撞检测：星体
             if (col) {
-              explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || 50 });
-              b.alive = false;
+              explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || (b.maxHp > 0 ? 15 : 50) });
+              if (b.maxHp > 0) b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7);
+              else b.alive = false;
             }
             // 建筑碰撞（动能弹用大一点的碰撞半径）
             for (const bld of allBuildings) {
