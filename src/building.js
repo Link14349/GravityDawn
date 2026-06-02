@@ -90,10 +90,14 @@ export class Spring {
    * @param {number} [options.damping=5]
    * @param {number} [options.breakTension=500]
    */
-  constructor({ a, b, stiffness = 200, damping = 15, breakTension = 800 }) {
+  constructor({ a, b, stiffness = 200, damping = 15, breakTension = 800, restLength }) {
     this.a = a; this.b = b;
-    const dx = b.x - a.x, dy = b.y - a.y;
-    this.restLength = Math.sqrt(dx * dx + dy * dy);
+    if (restLength != null) {
+      this.restLength = restLength;
+    } else {
+      const dx = b.x - a.x, dy = b.y - a.y;
+      this.restLength = Math.sqrt(dx * dx + dy * dy);
+    }
     this.stiffness = stiffness;
     this.damping = damping;
     this.breakTension = breakTension;
