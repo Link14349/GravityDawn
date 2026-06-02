@@ -240,6 +240,66 @@ export class Renderer {
     }
   }
 
+  /**
+   * 绘制瞄准叠加层：预测轨迹 + 碰撞点 + 行星虚线轮廓 + 拖拽线 + ΔV 箭头
+   * @param {Object} ctrl - GameController 实例（需提供 getPredictedPath/getPredictedCollision/getDragVector）
+   * @param {import('./celestial.js').CelestialBody[]} bodies - 所有星体（用于碰撞轮廓）
+   */
+  drawAimOverlay(ctrl, bodies = []) {
+    const ctx = this.ctx;
+
+    // 预测轨迹虚线
+    const pred = ctrl.getPredictedPath();
+    if (pred.length > 0) {
+      this.drawPredictionPath(pred, 'rgba(255, 230, 60, 0.7)');
+    }
+
+    // 预测碰撞点 + 虚线行星轮廓
+    const predCol = ctrl.getPredictedCollision();
+    if (predCol && predCol.sourceIndex < bodies.length) {
+      const colBody = bodies[predCol.sourceIndex];
+      const cp = colBody.orbitFn(predCol.time);
+      // 橙色碰撞点
+      ctx.fillStyle = '#ff6633';
+      ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#ff6633'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 10, 0, Math.PI * 2); ctx.stroke();
+      // 碰撞时刻行星虚线轮廓
+      ctx.strokeStyle = colBody.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.arc(cp.x, cp.y, colBody.collisionRadius, 0, Math.PI * 2);
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    // 拖拽线 + Delta-V 方向小箭头
+    const dv = ctrl.getDragVector();
+    if (dv) {
+      // 淡色虚线连接子弹与鼠标
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.lineWidth = 1;
+      ctx.setLineDash([2, 6]);
+      ctx.beginPath(); ctx.moveTo(dv.startX, dv.startY); ctx.lineTo(dv.endX, dv.endY);
+      ctx.stroke(); ctx.setLineDash([]);
+      // Delta-V 方向绿色小箭头（背离拖拽方向）
+      const dvAng = Math.atan2(dv.dvy, dv.dvx);
+      const bx = dv.startX;
+      const by = dv.startY;
+      const arrowLen = Math.min(dv.magnitude * 0.4, 25);
+      const tipX = bx + arrowLen * Math.cos(dvAng);
+      const tipY = by + arrowLen * Math.sin(dvAng);
+      ctx.strokeStyle = '#44ff88'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.lineTo(tipX, tipY);
+      ctx.stroke();
+      ctx.fillStyle = '#44ff88';
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      ctx.lineTo(tipX - 7 * Math.cos(dvAng - 0.6), tipY - 7 * Math.sin(dvAng - 0.6));
+      ctx.lineTo(tipX - 7 * Math.cos(dvAng + 0.6), tipY - 7 * Math.sin(dvAng + 0.6));
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
   // --- 颜色工具 ---
 
   /** 调亮颜色 */

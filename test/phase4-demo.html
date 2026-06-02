@@ -188,55 +188,8 @@
         r.drawFadingTrail(b._trail);
       }
 
-      // 预测轨迹
-      const pred = ctrl.getPredictedPath();
-      if (pred.length > 0) r.drawPredictionPath(pred, 'rgba(255, 230, 60, 0.7)');
-
-      // 预测碰撞点 + 虚线行星轮廓（只在拖拽瞄准时显示）
-      const predCol = ctrl.getPredictedCollision();
-      if (predCol && predCol.sourceIndex < allBodies.length) {
-        const colBody = allBodies[predCol.sourceIndex];
-        // 用碰撞时刻的行星轨道位置
-        const cp = colBody.orbitFn(predCol.time);
-        // 橙色碰撞点
-        ctx.fillStyle = '#ff6633';
-        ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 6, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#ff6633'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 10, 0, Math.PI * 2); ctx.stroke();
-        // 碰撞时刻行星虚线轮廓（用行星自身颜色）
-        ctx.strokeStyle = colBody.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
-        ctx.beginPath();
-        ctx.arc(cp.x, cp.y, colBody.collisionRadius, 0, Math.PI * 2);
-        ctx.stroke(); ctx.setLineDash([]);
-      }
-
-      // 拖拽线 + Delta-V 方向小箭头
-      const dv = ctrl.getDragVector();
-      if (dv) {
-        // 淡色虚线连接子弹与鼠标
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.lineWidth = 1;
-        ctx.setLineDash([2, 6]);
-        ctx.beginPath(); ctx.moveTo(dv.startX, dv.startY); ctx.lineTo(dv.endX, dv.endY);
-        ctx.stroke(); ctx.setLineDash([]);
-        // Delta-V 方向小箭头（在子弹位置，背离拖拽方向）
-        const dvAng = Math.atan2(dv.dvy, dv.dvx);
-        const bx = dv.startX;
-        const by = dv.startY;
-        const arrowLen = Math.min(dv.magnitude * 0.4, 25);
-        const tipX = bx + arrowLen * Math.cos(dvAng);
-        const tipY = by + arrowLen * Math.sin(dvAng);
-        ctx.strokeStyle = '#44ff88'; ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(bx, by);
-        ctx.lineTo(tipX, tipY);
-        ctx.stroke();
-        ctx.fillStyle = '#44ff88';
-        ctx.beginPath();
-        ctx.moveTo(tipX, tipY);
-        ctx.lineTo(tipX - 7 * Math.cos(dvAng - 0.6), tipY - 7 * Math.sin(dvAng - 0.6));
-        ctx.lineTo(tipX - 7 * Math.cos(dvAng + 0.6), tipY - 7 * Math.sin(dvAng + 0.6));
-        ctx.closePath(); ctx.fill();
-      }
+      // 瞄准叠加层（预测轨迹、碰撞点、行星轮廓、拖拽线、ΔV 箭头）
+      r.drawAimOverlay(ctrl, allBodies);
 
       // 子弹（委托给 Renderer）
       const hoveredBullet = ctrl.getHoveredBullet();
