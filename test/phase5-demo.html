@@ -101,13 +101,14 @@
     const fB = freeBuilding.addPoint({ x: sqX + sqSize, y: sqBaseY, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fC = freeBuilding.addPoint({ x: sqX - sqSize, y: sqBaseY - sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fD = freeBuilding.addPoint({ x: sqX + sqSize, y: sqBaseY - sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
-    // 4 边 + 1 对角线
+    // 4 边 + 2 对角线
     const K = 500, BT = 50000;
     freeBuilding.addSpring({ a: fA, b: fB, stiffness: K, damping: 20, breakTension: BT });
     freeBuilding.addSpring({ a: fB, b: fD, stiffness: K, damping: 20, breakTension: BT });
     freeBuilding.addSpring({ a: fD, b: fC, stiffness: K, damping: 20, breakTension: BT });
     freeBuilding.addSpring({ a: fC, b: fA, stiffness: K, damping: 20, breakTension: BT });
     freeBuilding.addSpring({ a: fA, b: fD, stiffness: K, damping: 20, breakTension: BT });
+    freeBuilding.addSpring({ a: fB, b: fC, stiffness: K, damping: 20, breakTension: BT });
 
     // 水平稳定弹簧
     for (let row = 0; row < 2; row++) {

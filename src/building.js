@@ -204,8 +204,8 @@ export class Building {
         if (!p.alive || p.isCore) continue;
         p.vx += (forces[i].fx / p.mass) * subDt;
         p.vy += (forces[i].fy / p.mass) * subDt;
-        p.vx *= 0.998;
-        p.vy *= 0.998;
+        p.vx *= 0.85;
+        p.vy *= 0.85;
         p.x += p.vx * subDt;
         p.y += p.vy * subDt;
       }
