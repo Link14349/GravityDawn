@@ -185,7 +185,8 @@ export class GameController {
       mass: this.dragBullet.totalMass,
     };
 
-    const result = this.physics.predictTrajectory(simState, 400, 1 / 30, this._getTime());
+    // 使用和实际物理相同的 dt + subSteps，保证预测精度完全一致
+    const result = this.physics.predictTrajectory(simState, 800, this.physics.dt, this._getTime());
     this.predictedPath = result.path;
     this.predictedCollision = result.collision;
   }
