@@ -141,9 +141,9 @@ export class GameController {
 
   _onMouseUp(e) {
     if (!this.dragging) return;
-    // 拖动方向 = Delta-V 方向（无需取反）
-    const dvx = (this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
-    const dvy = (this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
+    // 弹弓式：拖动方向与 Delta-V 方向相反
+    const dvx = -(this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
+    const dvy = -(this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
 
     this.dragBullet.applyDeltaV(dvx, dvy);
     this.dragging = false;
@@ -173,8 +173,8 @@ export class GameController {
   _updatePrediction() {
     if (!this.dragBullet) return;
 
-    const dvx = (this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
-    const dvy = (this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
+    const dvx = -(this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
+    const dvy = -(this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
 
     // 临时应用 Delta-V 来预测轨迹
     const simState = {
@@ -197,8 +197,9 @@ export class GameController {
    */
   getDragVector() {
     if (!this.dragging) return null;
-    const dvx = (this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
-    const dvy = (this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
+    // 弹弓式：拖动方向与 Delta-V 方向相反
+    const dvx = -(this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
+    const dvy = -(this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
     return {
       startX: this.dragStartX,
       startY: this.dragStartY,
