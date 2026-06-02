@@ -96,10 +96,14 @@
     const ctx = r.ctx;
 
     // =====================
-    // 轨迹 + 爆炸
+    // 爆炸效果
     // =====================
-    const trail = [];
     const explosions = []; // { x, y, r, maxR, t }
+
+    // 每个子弹独立的轨迹数组
+    for (const b of bullets) {
+      b._trail = [];
+    }
 
     // =====================
     // HUD
@@ -141,7 +145,7 @@
           } else {
             // stepParticle 内部自动碰撞检测，返回碰撞信息
             const col = phys.stepParticle(b, undefined, BULLET_R);
-            trail.push({ x: b.x, y: b.y });
+            b._trail.push({ x: b.x, y: b.y });
             if (col) {
               explosions.push({
                 x: b.x, y: b.y, r: 0,
@@ -177,8 +181,10 @@
         ctx.setLineDash([]);
       }
 
-      // 飞行轨迹
-      if (trail.length > 1) r.drawTrail(trail, 'rgba(255, 160, 80, 0.55)');
+      // 各子弹独立飞行轨迹
+      for (const b of bullets) {
+        if (b._trail.length > 1) r.drawTrail(b._trail, 'rgba(255, 160, 80, 0.55)');
+      }
 
       // 预测轨迹
       const pred = ctrl.getPredictedPath();
@@ -220,31 +226,11 @@
         ctx.beginPath(); ctx.arc(dv.startX, dv.startY, 5, 0, Math.PI * 2); ctx.stroke();
       }
 
-      // 子弹
+      // 子弹（委托给 Renderer）
       const hoveredBullet = ctrl.getHoveredBullet();
       for (const b of bullets) {
         if (!b.alive || !isFinite(b.x) || !isFinite(b.y)) continue;
-        const hov = b === hoveredBullet;
-        if (hov) {
-          ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(b.x, b.y, BULLET_R + 7, 0, Math.PI * 2); ctx.stroke();
-        }
-        const col = b.launched ? '#ff7744' : '#44ccff';
-        const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, BULLET_R);
-        g.addColorStop(0, '#fff');
-        g.addColorStop(0.4, col);
-        g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(b.x, b.y, BULLET_R, 0, Math.PI * 2); ctx.fill();
-        // 方向线
-        const sp = Math.sqrt(b.vx ** 2 + b.vy ** 2);
-        if (sp > 1) {
-          ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(b.x, b.y);
-          ctx.lineTo(b.x + b.vx / sp * 12, b.y + b.vy / sp * 12);
-          ctx.stroke();
-        }
+        r.drawBullet(b.x, b.y, b.vx, b.vy, BULLET_R, b.launched, b === hoveredBullet);
       }
 
       // 爆炸效果

@@ -143,6 +143,42 @@ export class Renderer {
   }
 
   /**
+   * 绘制子弹
+   * @param {number} x
+   * @param {number} y
+   * @param {number} vx
+   * @param {number} vy
+   * @param {number} radius
+   * @param {boolean} launched - 是否已发射（影响颜色）
+   * @param {boolean} hovered - 是否悬停（加光环）
+   */
+  drawBullet(x, y, vx, vy, radius, launched, hovered) {
+    const ctx = this.ctx;
+    // 悬停光环
+    if (hovered) {
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(x, y, radius + 7, 0, Math.PI * 2); ctx.stroke();
+    }
+    // 主体渐变
+    const col = launched ? '#ff7744' : '#44ccff';
+    const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    g.addColorStop(0, '#fff');
+    g.addColorStop(0.4, col);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
+    // 速度方向线
+    const sp = Math.sqrt(vx * vx + vy * vy);
+    if (sp > 1) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + vx / sp * 12, y + vy / sp * 12);
+      ctx.stroke();
+    }
+  }
+
+  /**
    * 绘制粒子点
    * @param {number} x
    * @param {number} y
