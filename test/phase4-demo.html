@@ -183,24 +183,9 @@
         ctx.setLineDash([]);
       }
 
-      // 各子弹独立飞行轨迹（随时间衰减消失）
+      // 各子弹独立飞行轨迹（委托给 Renderer，含衰减+绘制）
       for (const b of bullets) {
-        // 衰减生命值
-        for (let i = b._trail.length - 1; i >= 0; i--) {
-          b._trail[i].life -= 0.008;
-          if (b._trail[i].life <= 0) b._trail.splice(i, 1);
-        }
-        if (b._trail.length < 2) continue;
-        // 逐段绘制，alpha 随生命值变化
-        for (let i = 1; i < b._trail.length; i++) {
-          const a = b._trail[i].life * 0.5;
-          ctx.strokeStyle = `rgba(255, 160, 80, ${a})`;
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(b._trail[i - 1].x, b._trail[i - 1].y);
-          ctx.lineTo(b._trail[i].x, b._trail[i].y);
-          ctx.stroke();
-        }
+        r.drawFadingTrail(b._trail);
       }
 
       // 预测轨迹

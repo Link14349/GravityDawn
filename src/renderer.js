@@ -213,6 +213,33 @@ export class Renderer {
     ctx.globalAlpha = 1;
   }
 
+  /**
+   * 绘制随时间衰减的轨迹线（含生命值衰减）
+   * @param {{ x: number, y: number, life: number }[]} points - 会被直接修改
+   * @param {string} color - 基础颜色（不含 alpha 的 rgb 格式）
+   * @param {number} [decay=0.008] - 每帧生命衰减量
+   * @param {number} [maxAlpha=0.5] - 最大透明度
+   */
+  drawFadingTrail(points, color = '255, 160, 80', decay = 0.008, maxAlpha = 0.5) {
+    // 衰减生命值并移除死亡点
+    for (let i = points.length - 1; i >= 0; i--) {
+      points[i].life -= decay;
+      if (points[i].life <= 0) points.splice(i, 1);
+    }
+    if (points.length < 2) return;
+    const ctx = this.ctx;
+    // 逐段绘制，alpha 随生命值变化
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i].life * maxAlpha;
+      ctx.strokeStyle = `rgba(${color}, ${a})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(points[i - 1].x, points[i - 1].y);
+      ctx.lineTo(points[i].x, points[i].y);
+      ctx.stroke();
+    }
+  }
+
   // --- 颜色工具 ---
 
   /** 调亮颜色 */
