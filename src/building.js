@@ -375,6 +375,42 @@ export class Building {
     }
   }
 
+  /**
+   * 处理子弹撞击（碰撞检测 + 爆炸 + 弹簧切断 + 记分）
+   * @param {number} bx - 子弹 x
+   * @param {number} by - 子弹 y
+   * @param {number} br - 子弹半径
+   * @param {number} bulletImpulse - 子弹爆炸冲量 P0
+   * @param {number} bulletRadius - 子弹爆炸半径 r0
+   * @returns {{ hit: boolean, explosion: {x:number,y:number,radius:number,impulse:number}|null }}
+   */
+  handleBulletImpact(bx, by, br, bulletImpulse, bulletRadius) {
+    // 检测质点碰撞
+    const hitPoint = this.checkBulletCollision(bx, by, br);
+    const hitSpring = hitPoint ? null : this.checkSpringCollision(bx, by, br);
+
+    if (!hitPoint && !hitSpring) return { hit: false, explosion: null };
+
+    let combinedR = bulletRadius;
+    let combinedP = bulletImpulse;
+
+    if (hitPoint) {
+      // 子弹+质点爆炸属性叠加
+      combinedP += hitPoint.explosionImpulse;
+      combinedR = Math.max(combinedR, hitPoint.explosionRadius);
+      this._triggerPointExplosion(hitPoint, combinedP, combinedR);
+      hitPoint.alive = false;
+      this.score += hitPoint.score;
+    } else if (hitSpring) {
+      this.cutSpringAndTransferImpulse(hitSpring, bulletImpulse);
+    }
+
+    // 区域爆炸效果
+    this.applyExplosion(bx, by, combinedR, combinedP);
+
+    return { hit: true, explosion: { x: bx, y: by, radius: combinedR, impulse: combinedP } };
+  }
+
   checkBulletCollision(bx, by, br) {
     for (const p of this.points) {
       if (!p.alive) continue;

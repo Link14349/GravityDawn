@@ -196,26 +196,11 @@
               explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || 50 });
               b.alive = false;
             }
-            // 碰撞检测：遍历所有建筑
+            // 建筑碰撞（委托给 Building.handleBulletImpact）
             for (const bld of allBuildings) {
-              const hitPoint = bld.checkBulletCollision(b.x, b.y, BULLET_R);
-              const hitSpring = hitPoint ? null : bld.checkSpringCollision(b.x, b.y, BULLET_R);
-              if (hitPoint || hitSpring) {
-                let combinedR = b.getEffectiveExplosionRadius();
-                let combinedP = b.getEffectiveExplosionImpulse();
-                if (hitPoint) {
-                  // 直接命中质点→子弹+质点爆炸属性叠加
-                  combinedP += hitPoint.explosionImpulse;
-                  combinedR = Math.max(combinedR, hitPoint.explosionRadius);
-                  bld._triggerPointExplosion(hitPoint, combinedP, combinedR);
-                  hitPoint.alive = false;
-                  bld.score += hitPoint.score;
-                } else if (hitSpring) {
-                  bld.cutSpringAndTransferImpulse(hitSpring, b.getEffectiveExplosionImpulse());
-                }
-                // 区域爆炸效果
-                bld.applyExplosion(b.x, b.y, combinedR, combinedP);
-                explosions.push({ x: b.x, y: b.y, r: 0, maxR: combinedR || 50 });
+              const impact = bld.handleBulletImpact(b.x, b.y, BULLET_R, b.getEffectiveExplosionImpulse(), b.getEffectiveExplosionRadius());
+              if (impact.hit) {
+                explosions.push({ x: impact.explosion.x, y: impact.explosion.y, r: 0, maxR: impact.explosion.radius || 50 });
                 b.alive = false;
                 break;
               }
