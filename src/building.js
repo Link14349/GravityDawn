@@ -13,6 +13,8 @@ import { VAPOR_RATIO, calcExplosionImpulse } from './explosion.js';
 export const PP_COLLISION_THRESHOLD = 80;
 /** 质点-星体碰撞爆炸速度阈值 */
 export const PS_COLLISION_THRESHOLD = 120;
+/** 质点离游戏中心超过此距离则消失记分 */
+export const DESPAWN_RADIUS = 2000;
 
 // ========================
 // 工具函数
@@ -222,6 +224,15 @@ export class Building {
 
     this._checkPointCollisions(explosions);
     this._checkPointSpringCollisions(explosions);
+
+    // 质点飞太远→消失记分
+    for (const p of this.points) {
+      if (!p.alive) continue;
+      if (Math.abs(p.x) > DESPAWN_RADIUS || Math.abs(p.y) > DESPAWN_RADIUS) {
+        p.alive = false;
+        this.score += p.score;
+      }
+    }
 
     return { explosions };
   }
