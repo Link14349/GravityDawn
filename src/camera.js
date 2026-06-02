@@ -16,9 +16,12 @@ const ZOOM_STEP = 0.1;
 export class Camera {
   /**
    * @param {HTMLCanvasElement} canvas
+   * @param {Object} [options]
+   * @param {() => boolean} [options.shouldBlockPan] - 返回 true 时阻止平移（如鼠标在子弹上）
    */
-  constructor(canvas) {
+  constructor(canvas, options = {}) {
     this.canvas = canvas;
+    this._shouldBlockPan = options.shouldBlockPan || (() => false);
     /** 镜头中心在世界坐标中的位置 */
     this.x = 0;
     this.y = 0;
@@ -110,18 +113,18 @@ export class Camera {
     this.y += worldBefore.y - worldAfter.y;
   }
 
-  /** 平移：中键点击或空白处按住拖动 */
+  /** 平移：左键在空白处按住拖动 */
   _onPanStart(e) {
-    // 中键(middle button=1) 或 空格+左键 或 右键平移
-    if (e.button === 1 || (e.button === 0 && e.altKey)) {
-      e.preventDefault();
-      const rect = this.canvas.getBoundingClientRect();
-      this._panning = true;
-      this._panStartX = e.clientX - rect.left;
-      this._panStartY = e.clientY - rect.top;
-      this._panCamStartX = this.x;
-      this._panCamStartY = this.y;
-    }
+    if (e.button !== 0) return;
+    // 如果鼠标在交互目标（如子弹）上，不启动平移
+    if (this._shouldBlockPan()) return;
+    e.preventDefault();
+    const rect = this.canvas.getBoundingClientRect();
+    this._panning = true;
+    this._panStartX = e.clientX - rect.left;
+    this._panStartY = e.clientY - rect.top;
+    this._panCamStartX = this.x;
+    this._panCamStartY = this.y;
   }
 
   _onPanMove(e) {

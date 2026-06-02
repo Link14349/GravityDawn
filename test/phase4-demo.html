@@ -31,15 +31,12 @@
     const canvas = document.getElementById('c');
     canvas.width = 1200;
     canvas.height = 800;
-    const camera = new Camera(canvas);
-    const r = new Renderer(canvas);
-    const ctx = r.ctx;
 
     // ---- 场景参数 ----
     const G_PHYS = 300;
     const ORBIT_ALT = 100;
 
-    // ---- 中心恒星（世界坐标原点附近）----
+    // ---- 中心恒星 ----
     const star = new CelestialBody({
       mass: 2000,
       orbit: CelestialBody.fixedPosition(600, 400),
@@ -66,10 +63,16 @@
       { x: starPos.x, y: starPos.y, mass: star.mass },
       ORBIT_ALT, star.radius, 0, G_PHYS
     );
-    console.log('Init bullet:', { x: bullet.x, y: bullet.y, vx: bullet.vx, vy: bullet.vy, alive: bullet.alive, totalMass: bullet.totalMass });
 
-    // ---- 控制器 ----
-    const ctrl = new GameController(canvas, { physics: phys, bullets: [bullet], camera });
+    // ---- 控制器（需要先创建才能传给 camera 做命中检测）----
+    const ctrl = new GameController(canvas, { physics: phys, bullets: [bullet], camera: null });
+    // 补注 camera（先创建 controller 再创建 camera 以避免循环依赖）
+    const camera = new Camera(canvas, {
+      shouldBlockPan: () => ctrl.getHoveredBullet() !== null,
+    });
+    ctrl.camera = camera;
+    const r = new Renderer(canvas);
+    const ctx = r.ctx;
 
     // ---- 轨迹 ----
     const trail = [];
@@ -187,7 +190,7 @@
       ctx.fillStyle = 'rgba(255,255,255,0.5)';
       ctx.font = '11px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(`缩放: ${camera.zoom.toFixed(1)}x | 镜头: (${camera.x.toFixed(0)}, ${camera.y.toFixed(0)}) | 滚轮缩放 | Alt+拖拽平移`, 10, 790);
+      ctx.fillText(`缩放: ${camera.zoom.toFixed(1)}x | 镜头: (${camera.x.toFixed(0)}, ${camera.y.toFixed(0)}) | 滚轮缩放 | 空白处拖拽平移`, 10, 790);
 
       requestAnimationFrame(loop);
     }
