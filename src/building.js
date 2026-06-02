@@ -260,7 +260,7 @@ export class Building {
           const starThresh = p.isEnemy ? ENEMY_PS_THRESHOLD : PS_COLLISION_THRESHOLD;
           if (relSpeed > starThresh) {
             if (p.isEnemy) {
-              this._damageEnemy(p, relSpeed * 0.5);
+              this._damageEnemy(p, relSpeed * 0.8);
             } else {
               explosions.push({ x: p.x, y: p.y, radius: p.explosionRadius, impulse: p.explosionImpulse });
               this._triggerPointExplosion(p, p.explosionImpulse, p.explosionRadius);
@@ -358,7 +358,7 @@ export class Building {
         const psThresh = p.isEnemy ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
         if (relSpeed > psThresh) {
           if (p.isEnemy) {
-            this._damageEnemy(p, relSpeed * 0.5);
+            this._damageEnemy(p, relSpeed * 0.8);
           } else {
             const combinedImpulse = p.explosionImpulse;
             const maxRadius = p.explosionRadius;
