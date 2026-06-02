@@ -343,9 +343,11 @@ export class Renderer {
       if (!p.alive) continue;
       ctx.fillStyle = p.color;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius, 0, Math.PI * 2); ctx.fill();
-      // 敌人：绿色光晕+金边
+      // 敌人：血量>2/3绿色，≤2/3紫色
       if (p.isEnemy) {
-        ctx.strokeStyle = '#44ff44'; ctx.lineWidth = 2;
+        const hpRatio = p.hp / p.maxHp;
+        const ringColor = hpRatio > 2/3 ? '#44ff44' : '#cc44ff';
+        ctx.strokeStyle = ringColor; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 3, 0, Math.PI * 2); ctx.stroke();
         ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 1, 0, Math.PI * 2); ctx.stroke();

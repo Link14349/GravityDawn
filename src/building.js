@@ -56,7 +56,7 @@ export class MassPoint {
    * @param {string} [options.color='#888']
    * @param {number} [options.renderRadius]
    */
-  constructor({ x, y, mass = 10, radius = 8, score = 10, important = false, fixed = false, isCore = false, isEnemy = false, orbitFn = null, explosionRadius = 0, explosionImpulse = 0, color = '#888', renderRadius }) {
+  constructor({ x, y, mass = 10, radius = 8, score = 10, important = false, fixed = false, isCore = false, isEnemy = false, hp = 100, orbitFn = null, explosionRadius = 0, explosionImpulse = 0, color = '#888', renderRadius }) {
     this.x = x; this.y = y;
     this.vx = 0; this.vy = 0;
     this.mass = mass;
@@ -67,6 +67,8 @@ export class MassPoint {
     this.fixed = fixed;
     this.isCore = isCore || fixed;
     this.isEnemy = isEnemy || false;
+    this.hp = hp;
+    this.maxHp = hp;
     this.orbitFn = orbitFn || (() => ({ x: this._initX ?? x, y: this._initY ?? y }));
     this._initX = x;
     this._initY = y;
@@ -75,7 +77,6 @@ export class MassPoint {
     this.color = color;
     this.alive = true;
     this.detached = false;
-    /** 轨道时间（核心点专用） */
     this._orbitTime = 0;
   }
 }
@@ -258,11 +259,15 @@ export class Building {
           const relSpeed = Math.sqrt(relVx * relVx + relVy * relVy);
           const starThresh = p.isEnemy ? ENEMY_PS_THRESHOLD : PS_COLLISION_THRESHOLD;
           if (relSpeed > starThresh) {
-            explosions.push({ x: p.x, y: p.y, radius: p.explosionRadius, impulse: p.explosionImpulse });
-            this._triggerPointExplosion(p, p.explosionImpulse, p.explosionRadius);
-            p.alive = false;
-            if (p.important) this.score += p.score;
-            else this.score += p.score * 0.7;
+            if (p.isEnemy) {
+              this._damageEnemy(p, relSpeed * 0.5);
+            } else {
+              explosions.push({ x: p.x, y: p.y, radius: p.explosionRadius, impulse: p.explosionImpulse });
+              this._triggerPointExplosion(p, p.explosionImpulse, p.explosionRadius);
+              p.alive = false;
+              if (p.important) this.score += p.score;
+              else this.score += p.score * 0.7;
+            }
           } else {
             // 完全非弹性碰撞：法向归零 + 切向摩擦衰减 0.95
             const nx = dx / dist, ny = dy / dist;
@@ -300,15 +305,19 @@ export class Building {
 
         const ppThresh = (a.isEnemy || b.isEnemy) ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
         if (relSpeed > ppThresh) {
-          // 高速碰撞→爆炸
-          const combinedImpulse = a.explosionImpulse + b.explosionImpulse;
-          const maxRadius = Math.max(a.explosionRadius, b.explosionRadius);
-          const midX = (a.x + b.x) / 2, midY = (a.y + b.y) / 2;
-          explosions.push({ x: midX, y: midY, radius: maxRadius, impulse: combinedImpulse });
-          this._triggerPointExplosion(a, combinedImpulse, maxRadius);
-          this._triggerPointExplosion(b, combinedImpulse, maxRadius);
-          if (a.alive) { a.alive = false; this.score += a.score; }
-          if (b.alive) { b.alive = false; this.score += b.score; }
+          if (a.isEnemy) { this._damageEnemy(a, relSpeed * 0.5); }
+          else if (b.isEnemy) { this._damageEnemy(b, relSpeed * 0.5); }
+          else {
+            // 普通质点高速碰撞→爆炸
+            const combinedImpulse = a.explosionImpulse + b.explosionImpulse;
+            const maxRadius = Math.max(a.explosionRadius, b.explosionRadius);
+            const midX = (a.x + b.x) / 2, midY = (a.y + b.y) / 2;
+            explosions.push({ x: midX, y: midY, radius: maxRadius, impulse: combinedImpulse });
+            this._triggerPointExplosion(a, combinedImpulse, maxRadius);
+            this._triggerPointExplosion(b, combinedImpulse, maxRadius);
+            if (a.alive) { a.alive = false; this.score += a.score; }
+            if (b.alive) { b.alive = false; this.score += b.score; }
+          }
         } else {
           // 低速→非弹性碰撞
           const totalMass = a.mass + b.mass;
@@ -348,14 +357,17 @@ export class Building {
 
         const psThresh = p.isEnemy ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
         if (relSpeed > psThresh) {
-          // 高速→爆炸
-          const combinedImpulse = p.explosionImpulse;
-          const maxRadius = p.explosionRadius;
-          explosions.push({ x: cx, y: cy, radius: maxRadius, impulse: combinedImpulse });
-          this._triggerPointExplosion(p, combinedImpulse, maxRadius);
-          p.alive = false;
-          this.score += p.score;
-          sp.alive = false;
+          if (p.isEnemy) {
+            this._damageEnemy(p, relSpeed * 0.5);
+          } else {
+            const combinedImpulse = p.explosionImpulse;
+            const maxRadius = p.explosionRadius;
+            explosions.push({ x: cx, y: cy, radius: maxRadius, impulse: combinedImpulse });
+            this._triggerPointExplosion(p, combinedImpulse, maxRadius);
+            p.alive = false;
+            this.score += p.score;
+            sp.alive = false;
+          }
         } else if (p.isEnemy) {
           // 敌人低速撞弹簧→完全非弹性碰撞（不切断弹簧，只弹开）
           const nx = (cx - p.x) / dist;
@@ -378,9 +390,37 @@ export class Building {
     }
   }
 
+  /**
+   * 对敌人造成碰撞伤害
+   * @returns {boolean} 敌人是否死亡
+   */
+  _damageEnemy(enemy, damage) {
+    if (!enemy.isEnemy) return false;
+    enemy.hp -= damage;
+    if (enemy.hp <= 0) {
+      enemy.hp = 0;
+      enemy.alive = false;
+      this.score += enemy.score;
+      return true;
+    }
+    return false;
+  }
+
   /** 触发单点爆炸，影响周围质点和弹簧 */
   _triggerPointExplosion(point, impulse, radius) {
     if (radius <= 0) return;
+
+    // 爆炸半径 1/2 内的敌人直接死亡
+    const instaKillR = radius * 0.5;
+    for (const p of this.points) {
+      if (!p.alive || !p.isEnemy) continue;
+      const dx = p.x - point.x, dy = p.y - point.y;
+      if (Math.sqrt(dx * dx + dy * dy) < instaKillR) {
+        p.hp = 0;
+        p.alive = false;
+        this.score += p.score;
+      }
+    }
 
     // 与该点相连的所有弹簧断裂，并传递爆炸冲量给连接点
     for (const sp of this.springs) {
@@ -521,6 +561,19 @@ export class Building {
     const vaporizedPoints = [], detachedPoints = [], destroyedSprings = [];
     let totalScore = 0;
     if (radius <= 0) return { vaporizedPoints, detachedPoints, destroyedSprings, totalScore };
+
+    // 爆炸半径 1/2 内的敌人直接死亡
+    const instaKillR = radius * 0.5;
+    for (const p of this.points) {
+      if (!p.alive || !p.isEnemy) continue;
+      const dx = p.x - ex, dy = p.y - ey;
+      if (Math.sqrt(dx * dx + dy * dy) < instaKillR) {
+        p.hp = 0; p.alive = false;
+        this.score += p.score;
+        vaporizedPoints.push(p);
+      }
+    }
+
     const vapR = radius * VAPOR_RATIO;
     for (const p of this.points) {
       if (!p.alive) continue;
