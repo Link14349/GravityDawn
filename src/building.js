@@ -15,8 +15,8 @@
 
 /** 质点-质点碰撞爆炸速度阈值 */
 export const PP_COLLISION_THRESHOLD = 80;
-/** 质点-星体碰撞爆炸速度阈值（更高，防止轻微触碰就爆炸） */
-export const PS_COLLISION_THRESHOLD = 300;
+/** 质点-星体碰撞爆炸速度阈值 */
+export const PS_COLLISION_THRESHOLD = 120;
 
 // ========================
 // 工具函数
