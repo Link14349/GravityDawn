@@ -98,7 +98,7 @@
     const surfY = star.getPosition().y + star.radius + 5;
     const fA = freeBuilding.addPoint({ x: surfX - 15, y: surfY, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fB = freeBuilding.addPoint({ x: surfX + 15, y: surfY, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
-    const fC = freeBuilding.addPoint({ x: surfX, y: surfY - 25, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fC = freeBuilding.addPoint({ x: surfX, y: surfY - 50, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     freeBuilding.addSpring({ a: fA, b: fB, stiffness: 5000, damping: 15, breakTension: 10000 });
     freeBuilding.addSpring({ a: fB, b: fC, stiffness: 5000, damping: 15, breakTension: 10000 });
     freeBuilding.addSpring({ a: fC, b: fA, stiffness: 5000, damping: 15, breakTension: 10000 });
