@@ -53,14 +53,13 @@
     const tp = targetPlanet.getPosition();
     const building = new Building();
 
-    // 底部锚点（固定在行星表面）
-    const anchors = [];
+    // 核心质点（参数方程静止，高分值，建筑依托于此）
     const anchorY = tp.y - targetPlanet.radius - 5;
-    for (let i = 0; i < 3; i++) {
-      const ax = tp.x - 30 + i * 30;
-      const a = building.addPoint({ x: ax, y: anchorY, mass: 100, radius: 6, score: 0, fixed: true, color: '#4488aa' });
-      anchors.push(a);
-    }
+    const coreX = tp.x;
+    const core = building.addPoint({
+      x: coreX, y: anchorY, mass: 200, radius: 8, score: 200, important: true,
+      isCore: true, color: '#ffdd44', explosionRadius: 50, explosionImpulse: 2000,
+    });
 
     // 塔身质点（2 层，每层 3 个）
     const towerPoints = [];
@@ -68,17 +67,23 @@
       const rowY = anchorY - 30 - row * 35;
       for (let col = 0; col < 3; col++) {
         const px = tp.x - 30 + col * 30;
-        const p = building.addPoint({ x: px, y: rowY, mass: 8, radius: 5, score: 20, important: row === 0, color: '#cccccc' });
+        const p = building.addPoint({
+          x: px, y: rowY, mass: 8, radius: 5, score: 20, important: row === 0,
+          color: '#cccccc', explosionRadius: 15, explosionImpulse: 800,
+        });
         towerPoints.push(p);
       }
     }
 
     // 屋顶质点（重要目标）
-    const roof = building.addPoint({ x: tp.x, y: anchorY - 100, mass: 5, radius: 7, score: 100, important: true, color: '#ff6644' });
+    const roof = building.addPoint({
+      x: tp.x, y: anchorY - 100, mass: 5, radius: 7, score: 100, important: true,
+      color: '#ff6644', explosionRadius: 25, explosionImpulse: 1500,
+    });
 
-    // 弹簧：锚点 → 第一层
+    // 弹簧：核心 → 第一层
     for (let i = 0; i < 3; i++) {
-      building.addSpring({ a: anchors[i], b: towerPoints[i], stiffness: 300, breakTension: 400 });
+      building.addSpring({ a: core, b: towerPoints[i], stiffness: 300, breakTension: 400 });
     }
     // 弹簧：第一层 → 第二层
     for (let i = 0; i < 3; i++) {
@@ -159,8 +164,11 @@
       // 物理步进
       if (!ctrl.shouldPause()) {
         physicsTime += 1 / 60;
-        // 建筑弹簧质点模拟
-        building.step(1 / 60);
+        // 建筑物理模拟（重力+弹簧+碰撞+爆炸）
+        const bResult = building.step(1 / 60, phys, allBodies);
+        for (const ex of bResult.explosions) {
+          explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
+        }
         // 子弹
         for (const b of bullets) {
           if (!b.alive) continue;

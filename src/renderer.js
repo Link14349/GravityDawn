@@ -341,9 +341,13 @@ export class Renderer {
     // 质点
     for (const p of building.points) {
       if (!p.alive) continue;
-      ctx.fillStyle = p.fixed ? '#446688' : p.color;
+      ctx.fillStyle = p.color;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius, 0, Math.PI * 2); ctx.fill();
-      if (p.important) {
+      // 核心点：金色粗边框
+      if (p.isCore) {
+        ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 3, 0, Math.PI * 2); ctx.stroke();
+      } else if (p.important) {
         ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 2, 0, Math.PI * 2); ctx.stroke();
       }
