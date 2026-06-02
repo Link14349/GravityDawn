@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 3 Demo — 星体轨道系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas { display: block; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script type="module">
+    import { CelestialBody } from '../src/celestial.js';
+    import { Renderer } from '../src/renderer.js';
+
+    const canvas = document.getElementById('c');
+    canvas.width = 1200;
+    canvas.height = 800;
+    const renderer = new Renderer(canvas);
+
+    // 中心恒星（固定）
+    const star = new CelestialBody({
+      mass: 20000,
+      orbit: CelestialBody.fixedPosition(600, 400),
+      radius: 50,
+      color: '#ffbb33',
+      label: '恒星',
+    });
+
+    // 近地行星（圆形轨道）
+    const planet1 = new CelestialBody({
+      mass: 3000,
+      orbit: CelestialBody.circularOrbit(600, 400, 160, 5, 0),
+      radius: 22,
+      color: '#44ccbb',
+      label: '水蓝星',
+    });
+
+    // 远地行星（椭圆轨道）
+    const planet2 = new CelestialBody({
+      mass: 5000,
+      orbit: CelestialBody.ellipticalOrbit(600, 400, 300, 200, 12, Math.PI / 3),
+      radius: 28,
+      color: '#ff6688',
+      label: '赤红星',
+    });
+
+    // 外圈小行星（圆形轨道，快）
+    const planet3 = new CelestialBody({
+      mass: 1500,
+      orbit: CelestialBody.circularOrbit(600, 400, 220, 7, Math.PI),
+      radius: 16,
+      color: '#bb88ff',
+      label: '紫矮星',
+    });
+
+    // 远轨道冰巨星
+    const planet4 = new CelestialBody({
+      mass: 8000,
+      orbit: CelestialBody.ellipticalOrbit(600, 400, 400, 320, 20, Math.PI * 1.5),
+      radius: 32,
+      color: '#66aaff',
+      label: '冰巨星',
+    });
+
+    const bodies = [star, planet1, planet2, planet3, planet4];
+
+    // 暂停/播放
+    let paused = false;
+    canvas.addEventListener('click', () => { paused = !paused; });
+
+    function loop() {
+      if (!paused) {
+        for (const b of bodies) b.update(1 / 60);
+      }
+
+      renderer.clear();
+
+      // 先画轨道线
+      for (const b of bodies) {
+        renderer.drawOrbitPath(b);
+      }
+
+      // 再画星体
+      for (const b of bodies) {
+        renderer.drawCelestialBody(b);
+      }
+
+      // 状态提示
+      const ctx = renderer.ctx;
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = '13px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(paused ? '⏸ 已暂停 — 点击继续' : '▶ 运行中 — 点击暂停', 600, 780);
+
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

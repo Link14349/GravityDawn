@@ -41,12 +41,12 @@ index.html            — 主页面
   - 粒子状态管理 (position, velocity, acceleration)
 - [x] 产物：test/phase2-demo.html — 两个星体 + 一个受引力影响的测试粒子自由运动
 
-## Phase 3：星体系统 [ ]
-- [ ] 实现 src/celestial.js：CelestialBody 类
+## Phase 3：星体系统 [x]
+- [x] 实现 src/celestial.js：CelestialBody 类
   - 属性：质量、轨道参数方程 x(t), y(t)
   - 渲染绘制方法
-- [ ] 实现 src/renderer.js 基础：星空背景 + 星体渲染
-- [ ] 产物：test/phase3-demo.html — 多个星体按各自参数方程轨道运行
+- [x] 实现 src/renderer.js 基础：星空背景 + 星体渲染
+- [x] 产物：test/phase3-demo.html — 多个星体按各自参数方程轨道运行
 
 ## Phase 4：子弹系统 [ ]
 - [ ] 实现 src/bullet.js：Bullet 类
