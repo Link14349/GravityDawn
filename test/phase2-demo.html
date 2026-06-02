@@ -32,22 +32,25 @@
     canvas.width = 1200;
     canvas.height = 800;
 
-    const engine = new PhysicsEngine({ G: 1500 });
+    const engine = new PhysicsEngine({ G: 500, dt: 1/60, subSteps: 2 });
 
-    // 两个星体作为引力源
-    engine.addGravitySource(400, 350, 8e10);
-    engine.addGravitySource(800, 450, 5e10);
+    // 两个星体作为引力源（质量已调至游戏尺度）
+    engine.addGravitySource(400, 400, 12000);
+    engine.addGravitySource(800, 400, 8000);
 
     // 轨迹记录
     const trails = [];
     const COLORS = ['#ff6644', '#44ccff', '#ffcc33', '#66ff88', '#ff88cc'];
 
-    // 鼠标发射粒子
+    // 鼠标发射粒子（带随机初始速度，产生有趣轨道）
     canvas.addEventListener('click', (e) => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
-      const idx = engine.addParticle(mx, my, 0, 2, 1);
+      // 给粒子一个随机的初始切向速度，让轨道更多样
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 30 + Math.random() * 80;
+      const idx = engine.addParticle(mx, my, Math.cos(angle) * speed, Math.sin(angle) * speed, 1);
       trails.push({ idx, points: [], color: COLORS[trails.length % COLORS.length] });
     });
 
@@ -58,7 +61,7 @@
     });
 
     function draw() {
-      engine.stepN(3);
+      engine.stepN(2);
 
       // 背景
       ctx.fillStyle = '#080820';
@@ -97,7 +100,7 @@
         ctx.fillStyle = '#fff';
         ctx.font = '11px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(`M=${(src.mass / 1e10).toFixed(1)}e10`, src.x, src.y - 50);
+        ctx.fillText(`M=${src.mass}`, src.x, src.y - 50);
       }
 
       // 轨迹 + 粒子
