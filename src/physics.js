@@ -183,19 +183,21 @@ export class PhysicsEngine {
     const subDt = predDt / predSubSteps;
 
     for (let i = 0; i < steps; i++) {
-      for (let s = 0; s < predSubSteps; s++) {
-        t += subDt;
-
-        // 推进引力源轨道位置
-        for (const src of simSources) {
-          if (src.orbitFn) {
-            const pos = src.orbitFn(t);
-            src.x = pos.x;
-            src.y = pos.y;
-          }
+      // 推进引力源轨道位置（每帧一次，与实际物理一致）
+      t += predDt;
+      for (const src of simSources) {
+        if (src.orbitFn) {
+          const pos = src.orbitFn(t);
+          src.x = pos.x;
+          src.y = pos.y;
         }
+      }
 
-        // 计算引力加速度（基于推进后的源位置）
+      // 子步积分（源位置不变，与实际物理一致）
+      let st = t - predDt;
+      for (let s = 0; s < predSubSteps; s++) {
+        st += subDt;
+
         let ax = 0, ay = 0;
         for (const src of simSources) {
           const dx = src.x - x;
