@@ -208,22 +208,32 @@
         ctx.stroke(); ctx.setLineDash([]);
       }
 
-      // 拖拽箭头
+      // 拖拽线 + Delta-V 方向小箭头
       const dv = ctrl.getDragVector();
       if (dv) {
-        ctx.strokeStyle = '#ffe044'; ctx.lineWidth = 2.5;
-        ctx.setLineDash([5, 3]);
+        // 淡色虚线连接子弹与鼠标
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.lineWidth = 1;
+        ctx.setLineDash([2, 6]);
         ctx.beginPath(); ctx.moveTo(dv.startX, dv.startY); ctx.lineTo(dv.endX, dv.endY);
         ctx.stroke(); ctx.setLineDash([]);
-        const ang = Math.atan2(dv.endY - dv.startY, dv.endX - dv.startX);
-        ctx.fillStyle = '#ffe044';
+        // Delta-V 方向小箭头（在子弹位置，背离拖拽方向）
+        const dvAng = Math.atan2(dv.dvy, dv.dvx);
+        const bx = dv.startX;
+        const by = dv.startY;
+        const arrowLen = Math.min(dv.magnitude * 0.4, 25);
+        const tipX = bx + arrowLen * Math.cos(dvAng);
+        const tipY = by + arrowLen * Math.sin(dvAng);
+        ctx.strokeStyle = '#44ff88'; ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(dv.endX, dv.endY);
-        ctx.lineTo(dv.endX - 12 * Math.cos(ang - 0.5), dv.endY - 12 * Math.sin(ang - 0.5));
-        ctx.lineTo(dv.endX - 12 * Math.cos(ang + 0.5), dv.endY - 12 * Math.sin(ang + 0.5));
+        ctx.moveTo(bx, by);
+        ctx.lineTo(tipX, tipY);
+        ctx.stroke();
+        ctx.fillStyle = '#44ff88';
+        ctx.beginPath();
+        ctx.moveTo(tipX, tipY);
+        ctx.lineTo(tipX - 7 * Math.cos(dvAng - 0.6), tipY - 7 * Math.sin(dvAng - 0.6));
+        ctx.lineTo(tipX - 7 * Math.cos(dvAng + 0.6), tipY - 7 * Math.sin(dvAng + 0.6));
         ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = '#ffe044'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(dv.startX, dv.startY, 5, 0, Math.PI * 2); ctx.stroke();
       }
 
       // 子弹（委托给 Renderer）
