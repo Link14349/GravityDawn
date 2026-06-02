@@ -1,0 +1,219 @@
+/**
+ * 游戏控制器 — 输入处理 + 状态机
+ *
+ * 核心交互：
+ *   鼠标悬停子弹 → 时间暂停
+ *   点击拖拽子弹 → Delta-V 矢量（方向=拖动方向，大小=拖动长度）
+ *   松开鼠标 → 发射（应用 Delta-V）
+ */
+
+// 游戏状态
+export const GameState = Object.freeze({
+  PLAYING: 'playing',     // 正常运行
+  AIMING: 'aiming',       // 悬停/拖拽瞄准中（时间暂停）
+  LAUNCHED: 'launched',   // 子弹已发射飞行中
+  SETTLING: 'settling',   // 等待结算
+});
+
+// 缩放因子：鼠标拖动像素 → Delta-V 单位
+const DRAG_TO_DV_SCALE = 0.5;
+
+// 子弹悬停检测半径（像素）
+const HOVER_RADIUS = 30;
+
+export class GameController {
+  /**
+   * @param {HTMLCanvasElement} canvas
+   * @param {Object} options
+   * @param {import('./physics.js').PhysicsEngine} options.physics
+   * @param {import('./bullet.js').Bullet[]} options.bullets
+   */
+  constructor(canvas, { physics, bullets }) {
+    this.canvas = canvas;
+    this.physics = physics;
+    this.bullets = bullets;
+
+    this.state = GameState.PLAYING;
+    this.paused = false;
+
+    // 鼠标状态
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.mouseInCanvas = false;
+
+    // 拖拽状态
+    this.dragging = false;
+    this.dragBullet = null;       // 正在拖拽的子弹
+    this.dragStartX = 0;
+    this.dragStartY = 0;
+    this.dragCurrentX = 0;
+    this.dragCurrentY = 0;
+
+    // 预测轨迹缓存
+    this.predictedPath = [];
+
+    this._bindEvents();
+  }
+
+  /** 绑定 Canvas 鼠标事件 */
+  _bindEvents() {
+    this.canvas.addEventListener('mousemove', (e) => this._onMouseMove(e));
+    this.canvas.addEventListener('mousedown', (e) => this._onMouseDown(e));
+    this.canvas.addEventListener('mouseup', (e) => this._onMouseUp(e));
+    this.canvas.addEventListener('mouseleave', (e) => this._onMouseLeave(e));
+    this.canvas.addEventListener('mouseenter', (e) => this._onMouseEnter(e));
+  }
+
+  /** 获取鼠标在 canvas 中的坐标 */
+  _getCanvasPos(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  }
+
+  /** 检测鼠标是否悬停在可机动的子弹上 */
+  _findBulletUnderMouse(mx, my) {
+    for (const b of this.bullets) {
+      if (!b.alive) { console.log('[ctrl] find: dead'); continue; }
+      if (b.remainingIgnitions <= 0) { console.log('[ctrl] find: no ignitions'); continue; }
+      if (b.remainingDeltaV <= 0) { console.log('[ctrl] find: no dv'); continue; }
+      const dx = mx - b.x;
+      const dy = my - b.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < HOVER_RADIUS) {
+        console.log('[ctrl] find: FOUND', { dist, bx: b.x.toFixed(1), by: b.y.toFixed(1), mx: mx.toFixed(1), my: my.toFixed(1) });
+        return b;
+      }
+    }
+    return null;
+  }
+
+  _onMouseMove(e) {
+    const pos = this._getCanvasPos(e);
+    this.mouseX = pos.x;
+    this.mouseY = pos.y;
+
+    if (this.dragging) {
+      this.dragCurrentX = pos.x;
+      this.dragCurrentY = pos.y;
+      this._updatePrediction();
+      return;
+    }
+
+    // 非拖拽时检测悬停
+    if (this.state === GameState.PLAYING || this.state === GameState.AIMING) {
+      const hovered = this._findBulletUnderMouse(pos.x, pos.y);
+      if (hovered && this.state === GameState.PLAYING) {
+        console.log('[ctrl] hover → AIMING', { remIgn: hovered.remainingIgnitions, remDV: hovered.remainingDeltaV.toFixed(0) });
+        this.state = GameState.AIMING;
+        this.paused = true;
+      } else if (!hovered && this.state === GameState.AIMING && !this.dragging) {
+        console.log('[ctrl] unhover → PLAYING');
+        this.state = GameState.PLAYING;
+        this.paused = false;
+        this.predictedPath = [];
+      }
+    }
+  }
+
+  _onMouseDown(e) {
+    if (e.button !== 0) return; // 只处理左键
+    const pos = this._getCanvasPos(e);
+
+    if (this.state === GameState.AIMING) {
+      const bullet = this._findBulletUnderMouse(pos.x, pos.y);
+      if (bullet && bullet.remainingIgnitions > 0 && bullet.remainingDeltaV > 0) {
+        this.dragging = true;
+        this.dragBullet = bullet;
+        this.dragStartX = bullet.x;
+        this.dragStartY = bullet.y;
+        this.dragCurrentX = pos.x;
+        this.dragCurrentY = pos.y;
+        this._updatePrediction();
+      }
+    }
+  }
+
+  _onMouseUp(e) {
+    if (!this.dragging) return;
+    // 拖动方向 = Delta-V 方向（无需取反）
+    const dvx = (this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
+    const dvy = (this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
+
+    this.dragBullet.applyDeltaV(dvx, dvy);
+    this.dragging = false;
+    this.dragBullet = null;
+    this.predictedPath = [];
+    this.paused = false;
+    // 回到 PLAYING 状态，允许再次悬停进行二次点火
+    this.state = GameState.PLAYING;
+  }
+
+  _onMouseLeave() {
+    this.mouseInCanvas = false;
+    if (!this.dragging) {
+      this.paused = false;
+      this.state = GameState.PLAYING;
+      this.predictedPath = [];
+    }
+  }
+
+  _onMouseEnter() {
+    this.mouseInCanvas = true;
+  }
+
+  /** 更新预测轨迹（拖拽时调用） */
+  _updatePrediction() {
+    if (!this.dragBullet) return;
+
+    const dvx = (this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
+    const dvy = (this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
+
+    // 临时应用 Delta-V 来预测轨迹
+    const simState = {
+      x: this.dragBullet.x,
+      y: this.dragBullet.y,
+      vx: this.dragBullet.vx + dvx,
+      vy: this.dragBullet.vy + dvy,
+      mass: this.dragBullet.totalMass,
+    };
+
+    this.predictedPath = this.physics.predictTrajectory(simState, 300, 1 / 30);
+  }
+
+  /**
+   * 获取 Delta-V 矢量信息（供渲染用）
+   * @returns {{ startX: number, startY: number, endX: number, endY: number, magnitude: number } | null}
+   */
+  getDragVector() {
+    if (!this.dragging) return null;
+    const dvx = (this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
+    const dvy = (this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
+    return {
+      startX: this.dragStartX,
+      startY: this.dragStartY,
+      endX: this.dragCurrentX,
+      endY: this.dragCurrentY,
+      dvx,
+      dvy,
+      magnitude: Math.sqrt(dvx * dvx + dvy * dvy),
+    };
+  }
+
+  /** 获取预测轨迹 */
+  getPredictedPath() {
+    return this.predictedPath;
+  }
+
+  /** 获取当前悬停的子弹 */
+  getHoveredBullet() {
+    return this._findBulletUnderMouse(this.mouseX, this.mouseY);
+  }
+
+  /** 是否应该暂停物理模拟 */
+  shouldPause() {
+    return this.paused;
+  }
+}

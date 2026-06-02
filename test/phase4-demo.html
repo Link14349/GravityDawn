@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 4 Demo — 子弹系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas { display: block; margin: 0 auto; cursor: crosshair; }
+    #hud {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      color: #ddd; font-family: monospace; font-size: 13px; pointer-events: none;
+      text-align: center; line-height: 1.5;
+      background: rgba(0,0,0,0.5); padding: 4px 16px; border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="hud"></div>
+  <script type="module">
+    import { PhysicsEngine } from '../src/physics.js';
+    import { Renderer } from '../src/renderer.js';
+    import { CelestialBody } from '../src/celestial.js';
+    import { Bullet } from '../src/bullet.js';
+    import { GameController, GameState } from '../src/game-controller.js';
+    import { DT, SUB_STEPS } from '../src/constants.js';
+
+    const canvas = document.getElementById('c');
+    canvas.width = 1200;
+    canvas.height = 800;
+    const r = new Renderer(canvas);
+    const ctx = r.ctx;
+
+    // ---- 场景参数 ----
+    const G_PHYS = 300;
+    const ORBIT_ALT = 100;
+
+    // ---- 中心恒星 ----
+    const star = new CelestialBody({
+      mass: 2000,
+      orbit: CelestialBody.fixedPosition(600, 400),
+      radius: 45,
+      color: '#ffbb33',
+      label: '恒星',
+    });
+    const starPos = star.getPosition();
+
+    // ---- 物理引擎 ----
+    const phys = new PhysicsEngine({ G: G_PHYS });
+    phys.addGravitySource(starPos.x, starPos.y, star.mass);
+
+    // ---- 子弹 ----
+    const bullet = new Bullet({
+      payloadMass: 10,
+      fuelMass: 50,
+      ve: 300,
+      ignitionCount: 2,
+      explosionRadius: 60,
+      explosionImpulse: 5000,
+    });
+    bullet.placeInOrbit(
+      { x: starPos.x, y: starPos.y, mass: star.mass },
+      ORBIT_ALT, star.radius, 0, G_PHYS
+    );
+    console.log('Init bullet:', { x: bullet.x, y: bullet.y, vx: bullet.vx, vy: bullet.vy, alive: bullet.alive, totalMass: bullet.totalMass });
+
+    // ---- 控制器 ----
+    const ctrl = new GameController(canvas, { physics: phys, bullets: [bullet] });
+
+    // ---- 轨迹 ----
+    const trail = [];
+    const BULLET_R = 8;
+
+    // ---- 物理步进 ----
+    function stepPhysics(b) {
+      const { ax, ay } = phys.calcGravityAccel(b.x, b.y);
+      const subDt = DT / SUB_STEPS;
+      for (let s = 0; s < SUB_STEPS; s++) {
+        b.vx += ax * subDt;
+        b.vy += ay * subDt;
+        b.x += b.vx * subDt;
+        b.y += b.vy * subDt;
+      }
+    }
+
+    // ---- HUD ----
+    function hud() {
+      const h = document.getElementById('hud');
+      const st = ctrl.state;
+      let status = '';
+      if (st === GameState.PLAYING) status = '▶ 运行中 — 鼠标移向子弹暂停';
+      else if (st === GameState.AIMING) status = '⏸ 已暂停 — 拖拽发射';
+      else if (st === GameState.LAUNCHED) status = '🚀 已发射';
+      h.innerHTML = `${status} | ΔV:${bullet.remainingDeltaV.toFixed(0)} | 点火:${bullet.remainingIgnitions} | 质量:${bullet.totalMass.toFixed(1)}`;
+    }
+
+    // ---- 主循环 ----
+    function loop() {
+      hud();
+
+      // 物理
+      if (!ctrl.shouldPause()) {
+        stepPhysics(bullet);
+        if (bullet.launched && bullet.alive) {
+          trail.push({ x: bullet.x, y: bullet.y });
+        }
+      }
+
+      // 渲染
+      r.clear();
+      r.drawCelestialBody(star);
+
+      // 子弹轨道虚线圆
+      const orbR = star.radius + ORBIT_ALT;
+      ctx.strokeStyle = 'rgba(120, 200, 255, 0.3)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 7]);
+      ctx.beginPath();
+      ctx.arc(starPos.x, starPos.y, orbR, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 飞行轨迹
+      if (trail.length > 1) r.drawTrail(trail, 'rgba(255, 160, 80, 0.55)');
+
+      // 预测轨迹
+      const pred = ctrl.getPredictedPath();
+      if (pred.length > 0) r.drawPredictionPath(pred, 'rgba(255, 230, 60, 0.7)');
+
+      // 拖拽箭头
+      const dv = ctrl.getDragVector();
+      if (dv) {
+        ctx.strokeStyle = '#ffe044';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath(); ctx.moveTo(dv.startX, dv.startY); ctx.lineTo(dv.endX, dv.endY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // 箭头
+        const ang = Math.atan2(dv.endY - dv.startY, dv.endX - dv.startX);
+        ctx.fillStyle = '#ffe044';
+        ctx.beginPath();
+        ctx.moveTo(dv.endX, dv.endY);
+        ctx.lineTo(dv.endX - 12 * Math.cos(ang - 0.5), dv.endY - 12 * Math.sin(ang - 0.5));
+        ctx.lineTo(dv.endX - 12 * Math.cos(ang + 0.5), dv.endY - 12 * Math.sin(ang + 0.5));
+        ctx.closePath(); ctx.fill();
+        // 起点圈
+        ctx.strokeStyle = '#ffe044'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(dv.startX, dv.startY, 6, 0, Math.PI * 2); ctx.stroke();
+      }
+
+      // 子弹
+      if (bullet.alive && isFinite(bullet.x) && isFinite(bullet.y)) {
+        const hov = ctrl.getHoveredBullet() === bullet;
+        if (hov) {
+          ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(bullet.x, bullet.y, BULLET_R + 6, 0, Math.PI * 2); ctx.stroke();
+        }
+        // 主体
+        const col = bullet.launched ? '#ff7744' : '#44ccff';
+        const g = ctx.createRadialGradient(bullet.x, bullet.y, 0, bullet.x, bullet.y, BULLET_R);
+        g.addColorStop(0, '#fff');
+        g.addColorStop(0.4, col);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(bullet.x, bullet.y, BULLET_R, 0, Math.PI * 2); ctx.fill();
+        // 速度方向线
+        const sp = Math.sqrt(bullet.vx ** 2 + bullet.vy ** 2);
+        if (sp > 1) {
+          ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(bullet.x, bullet.y);
+          ctx.lineTo(bullet.x + bullet.vx / sp * 14, bullet.y + bullet.vy / sp * 14);
+          ctx.stroke();
+        }
+      }
+
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>
