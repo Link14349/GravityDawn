@@ -139,17 +139,16 @@
           if (!b.launched) {
             b.updateOrbitPosition(1 / 60);
           } else {
-            phys.stepParticle(b);
+            // stepParticle 内部自动碰撞检测，返回碰撞信息
+            const col = phys.stepParticle(b, undefined, BULLET_R);
             trail.push({ x: b.x, y: b.y });
-          }
-          // 碰撞检测
-          const col = phys.checkSourceCollision(b.x, b.y, BULLET_R);
-          if (col) {
-            explosions.push({
-              x: b.x, y: b.y, r: 0,
-              maxR: b.getEffectiveExplosionRadius() || 50,
-            });
-            b.alive = false;
+            if (col) {
+              explosions.push({
+                x: b.x, y: b.y, r: 0,
+                maxR: b.getEffectiveExplosionRadius() || 50,
+              });
+              b.alive = false;
+            }
           }
         }
       }

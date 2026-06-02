@@ -137,7 +137,14 @@ export class PhysicsEngine {
    * @param {{ x: number, y: number, vx: number, vy: number }} p
    * @param {number} [dtOverride] - 可选的时间步长覆盖
    */
-  stepParticle(p, dtOverride) {
+  /**
+   * 推进单个外部粒子一帧（含碰撞检测）
+   * @param {{ x: number, y: number, vx: number, vy: number }} p
+   * @param {number} [dtOverride]
+   * @param {number} [objRadius=0] - 粒子自身碰撞半径
+   * @returns {{ index: number, source: object } | null} 碰撞信息或 null
+   */
+  stepParticle(p, dtOverride, objRadius = 0) {
     const dt = dtOverride ?? this.dt;
     const subDt = dt / this.subSteps;
     for (let s = 0; s < this.subSteps; s++) {
@@ -147,6 +154,8 @@ export class PhysicsEngine {
       p.x += p.vx * subDt;
       p.y += p.vy * subDt;
     }
+    // 步进完成后自动检测碰撞
+    return this.checkSourceCollision(p.x, p.y, objRadius);
   }
 
   /** 推进多步 */
