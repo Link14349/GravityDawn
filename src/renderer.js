@@ -343,8 +343,13 @@ export class Renderer {
       if (!p.alive) continue;
       ctx.fillStyle = p.color;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius, 0, Math.PI * 2); ctx.fill();
-      // 核心点：金色粗边框
-      if (p.isCore) {
+      // 敌人：绿色光晕+金边
+      if (p.isEnemy) {
+        ctx.strokeStyle = '#44ff44'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 3, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 1, 0, Math.PI * 2); ctx.stroke();
+      } else if (p.isCore) {
         ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 2.5;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 3, 0, Math.PI * 2); ctx.stroke();
       } else if (p.important) {

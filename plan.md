@@ -81,7 +81,12 @@ index.html            — 主页面
   - VAPOR_RATIO = 1/3 常量
 - [x] building.js 引用 explosion 模块公式，统一爆炸计算
 - [x] 建筑物毁伤记分：气化=100%分数，脱离主体=70%分数，弹簧不计分
-- [x] 产物：test/phase6-demo.html — HUD 显示各建筑得分+总分
+- [x] 敌人系统（MassPoint isEnemy）：
+  - 敌人=不连弹簧的孤立质点，放在建筑结构内部，绿色渲染
+  - 碰撞爆炸阈值高于普通质点（ENEMY_PP=150, ENEMY_PS=200）
+  - 敌人撞弹簧：高速→爆炸+切断弹簧；低速→完全非弹性碰撞（不切断弹簧）
+  - 敌人撞质点/星体：高阈值判定，更难误爆
+- [x] 产物：test/phase6-demo.html — HUD 显示各建筑得分+总分+敌人
 
 ## Phase 7：界面系统 [ ]
 - [ ] 实现 src/ui.js：
