@@ -355,36 +355,39 @@ export class Building {
         const midVy = (sp.a.vy + sp.b.vy) / 2;
         const relSpeed = Math.sqrt((p.vx - midVx) ** 2 + (p.vy - midVy) ** 2);
 
-        const psThresh = p.isEnemy ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
-        if (relSpeed > psThresh) {
-          if (p.isEnemy) {
+        if (p.isEnemy) {
+          if (relSpeed > ENEMY_PP_THRESHOLD) {
             this._damageEnemy(p, relSpeed * 0.8);
           } else {
+            // 低速→完全非弹性碰撞
+            const nx = (cx - p.x) / dist, ny = (cy - p.y) / dist;
+            p.x -= nx * (minDist - dist);
+            p.y -= ny * (minDist - dist);
+            p.vx = midVx; p.vy = midVy;
+          }
+        } else {
+          if (relSpeed > PS_COLLISION_THRESHOLD) {
+            // 高速(>120)→质点爆炸+弹簧断裂
             const combinedImpulse = p.explosionImpulse;
             const maxRadius = p.explosionRadius;
             explosions.push({ x: cx, y: cy, radius: maxRadius, impulse: combinedImpulse });
             this._triggerPointExplosion(p, combinedImpulse, maxRadius);
-            p.alive = false;
+            this._killPoint(p);
             this.score += p.score;
             sp.alive = false;
+          } else if (relSpeed > PP_COLLISION_THRESHOLD) {
+            // 中速(80-120)→切断弹簧+传递冲量
+            this.cutSpringAndTransferImpulse(sp, p.explosionImpulse || 200);
+            const nx = (cx - p.x) / dist, ny = (cy - p.y) / dist;
+            p.x -= nx * (minDist - dist);
+            p.y -= ny * (minDist - dist);
+          } else {
+            // 低速(≤80)→完全非弹性碰撞，不切断弹簧
+            const nx = (cx - p.x) / dist, ny = (cy - p.y) / dist;
+            p.x -= nx * (minDist - dist);
+            p.y -= ny * (minDist - dist);
+            p.vx = midVx; p.vy = midVy;
           }
-        } else if (p.isEnemy) {
-          // 敌人低速撞弹簧→完全非弹性碰撞（不切断弹簧，只弹开）
-          const nx = (cx - p.x) / dist;
-          const ny = (cy - p.y) / dist;
-          const overlap = minDist - dist;
-          p.x -= nx * overlap;
-          p.y -= ny * overlap;
-          p.vx = midVx;
-          p.vy = midVy;
-        } else {
-          // 普通质点低速→切断弹簧+传递冲量
-          this.cutSpringAndTransferImpulse(sp, p.explosionImpulse || 200);
-          const nx = (cx - p.x) / dist;
-          const ny = (cy - p.y) / dist;
-          const overlap = minDist - dist;
-          p.x -= nx * overlap;
-          p.y -= ny * overlap;
         }
       }
     }
@@ -696,18 +699,17 @@ export class Building {
             if (dist >= minDist) continue;
             const midVx = (sp.a.vx + sp.b.vx) / 2, midVy = (sp.a.vy + sp.b.vy) / 2;
             const relSpeed = Math.sqrt((pa.vx - midVx) ** 2 + (pa.vy - midVy) ** 2);
-            const thresh = pa.isEnemy ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
-            if (relSpeed > thresh) {
-              if (pa.isEnemy) { a._damageEnemy(pa, relSpeed * 0.5); }
-              else { a._triggerPointExplosion(pa, pa.explosionImpulse, pa.explosionRadius); a._killPoint(pa); a.score += pa.score; b.cutSpringAndTransferImpulse(sp, pa.explosionImpulse || 200); }
-            } else if (pa.isEnemy) {
-              const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist;
-              pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist);
-              pa.vx = midVx; pa.vy = midVy;
+            if (pa.isEnemy) {
+              if (relSpeed > ENEMY_PP_THRESHOLD) { a._damageEnemy(pa, relSpeed * 0.5); }
+              else { const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist; pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist); pa.vx = midVx; pa.vy = midVy; }
             } else {
-              b.cutSpringAndTransferImpulse(sp, pa.explosionImpulse || 200);
-              const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist;
-              pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist);
+              if (relSpeed > PS_COLLISION_THRESHOLD) {
+                a._triggerPointExplosion(pa, pa.explosionImpulse, pa.explosionRadius); a._killPoint(pa); a.score += pa.score; sp.alive = false;
+              } else if (relSpeed > PP_COLLISION_THRESHOLD) {
+                b.cutSpringAndTransferImpulse(sp, pa.explosionImpulse || 200); const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist; pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist);
+              } else {
+                const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist; pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist); pa.vx = midVx; pa.vy = midVy;
+              }
             }
           }
         }
@@ -722,18 +724,17 @@ export class Building {
             if (dist >= minDist) continue;
             const midVx = (sp.a.vx + sp.b.vx) / 2, midVy = (sp.a.vy + sp.b.vy) / 2;
             const relSpeed = Math.sqrt((pb.vx - midVx) ** 2 + (pb.vy - midVy) ** 2);
-            const thresh = pb.isEnemy ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
-            if (relSpeed > thresh) {
-              if (pb.isEnemy) { b._damageEnemy(pb, relSpeed * 0.5); }
-              else { b._triggerPointExplosion(pb, pb.explosionImpulse, pb.explosionRadius); b._killPoint(pb); b.score += pb.score; a.cutSpringAndTransferImpulse(sp, pb.explosionImpulse || 200); }
-            } else if (pb.isEnemy) {
-              const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist;
-              pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist);
-              pb.vx = midVx; pb.vy = midVy;
+            if (pb.isEnemy) {
+              if (relSpeed > ENEMY_PP_THRESHOLD) { b._damageEnemy(pb, relSpeed * 0.5); }
+              else { const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist; pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist); pb.vx = midVx; pb.vy = midVy; }
             } else {
-              a.cutSpringAndTransferImpulse(sp, pb.explosionImpulse || 200);
-              const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist;
-              pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist);
+              if (relSpeed > PS_COLLISION_THRESHOLD) {
+                b._triggerPointExplosion(pb, pb.explosionImpulse, pb.explosionRadius); b._killPoint(pb); b.score += pb.score; sp.alive = false;
+              } else if (relSpeed > PP_COLLISION_THRESHOLD) {
+                a.cutSpringAndTransferImpulse(sp, pb.explosionImpulse || 200); const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist; pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist);
+              } else {
+                const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist; pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist); pb.vx = midVx; pb.vy = midVy;
+              }
             }
           }
         }
