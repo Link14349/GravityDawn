@@ -33,6 +33,7 @@ export class Bullet {
     explosionImpulse = 0,
     color = '#44ccff',
     renderRadius,
+    hp = 0,
   }) {
     this.payloadMass = payloadMass;
     this.fuelMass = fuelMass;
@@ -40,6 +41,8 @@ export class Bullet {
     this.ve = ve;
     this.color = color;
     this.renderRadius = renderRadius;
+    this.hp = hp;
+    this.maxHp = hp;
 
     // Delta-V 预算：由燃料质量推导
     this.maxDeltaV = ve * Math.log((payloadMass + fuelMass) / payloadMass);
@@ -184,6 +187,22 @@ export class Bullet {
     if (this.launched) return;
     this._orbitPhase += this._orbitOmega * dt;
     this._syncOrbitState();
+  }
+
+  /**
+   * 受到伤害（动能弹用）
+   * @param {number} damage
+   * @returns {boolean} 是否死亡
+   */
+  takeDamage(damage) {
+    if (this.maxHp <= 0) return true; // 无血量=爆炸弹，一击即毁
+    this.hp -= damage;
+    if (this.hp <= 0) {
+      this.hp = 0;
+      this.alive = false;
+      return true;
+    }
+    return false;
   }
 
   /** 获取位置 */
