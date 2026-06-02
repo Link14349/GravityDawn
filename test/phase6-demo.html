@@ -102,8 +102,9 @@
     const fC = freeBuilding.addPoint({ x: sqX - sqSize, y: sqBaseY + sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fD = freeBuilding.addPoint({ x: sqX + sqSize, y: sqBaseY + sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     // 敌人（孤立质点，不连弹簧，放在结构内部）
-    building.addPoint({ x: tp.x, y: surfaceY - 45, mass: 12, radius: 9, score: 200, important: true, isEnemy: true, hp: 300, color: '#44ff44', renderRadius: 12, explosionRadius: 30, explosionImpulse: 2000 });
-    building.addPoint({ x: tp.x + 25, y: surfaceY - 75, mass: 12, radius: 9, score: 200, important: true, isEnemy: true, hp: 300, color: '#44ff44', renderRadius: 12, explosionRadius: 30, explosionImpulse: 2000 });
+    // 敌人夹在塔楼弹簧网格内部（row 0 下方，row 1 上方，被弹簧兜住）
+    building.addPoint({ x: tp.x - 10, y: surfaceY - 55, mass: 15, radius: 9, score: 200, important: true, isEnemy: true, hp: 300, color: '#44ff44', renderRadius: 12, explosionRadius: 30, explosionImpulse: 2000 });
+    building.addPoint({ x: tp.x + 15, y: surfaceY - 55, mass: 15, radius: 9, score: 200, important: true, isEnemy: true, hp: 300, color: '#44ff44', renderRadius: 12, explosionRadius: 30, explosionImpulse: 2000 });
 
     // 4 边 + 2 对角线
     const K = 500, BT = 50000;
