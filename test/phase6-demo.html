@@ -213,13 +213,13 @@
               explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || 50 });
               b.alive = false;
             }
-            // 建筑碰撞
+            // 建筑碰撞（动能弹用大一点的碰撞半径）
             for (const bld of allBuildings) {
-              const impact = bld.handleBulletImpact(b.x, b.y, BULLET_R, b.getEffectiveExplosionImpulse(), b.getEffectiveExplosionRadius());
+              const colR = b.maxHp > 0 ? (b.renderRadius || BULLET_R) : BULLET_R;
+              const impact = bld.handleBulletImpact(b.x, b.y, colR, b.getEffectiveExplosionImpulse(), b.getEffectiveExplosionRadius());
               if (impact.hit) {
                 const speed = Math.sqrt(b.vx ** 2 + b.vy ** 2);
                 if (b.maxHp > 0) {
-                  // 动能弹：扣血，不立即销毁
                   b.takeDamage(speed * 0.4);
                 } else {
                   // 爆炸弹：立即销毁
