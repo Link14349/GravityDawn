@@ -220,7 +220,7 @@
                 const speed = Math.sqrt(b.vx ** 2 + b.vy ** 2);
                 if (b.maxHp > 0) {
                   // 动能弹：扣血，不立即销毁
-                  b.takeDamage(speed * 0.5);
+                  b.takeDamage(speed * 1.5);
                 } else {
                   // 爆炸弹：立即销毁
                   b.alive = false;
