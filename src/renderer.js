@@ -333,9 +333,9 @@ export class Renderer {
    */
   drawBuilding(building) {
     const ctx = this.ctx;
-    // 弹簧
+    // 弹簧（端点死亡则跳过）
     for (const sp of building.springs) {
-      if (!sp.alive) continue;
+      if (!sp.alive || !sp.a.alive || !sp.b.alive) continue;
       ctx.strokeStyle = 'rgba(180, 200, 220, 0.6)'; ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(sp.a.x, sp.a.y);

@@ -185,10 +185,10 @@ export class Building {
         p.vy += ay * subDt;
       }
 
-      // 3. 弹簧力
+      // 3. 弹簧力（端点死亡则弹簧无效）
       const forces = this.points.map(() => ({ fx: 0, fy: 0 }));
       for (const sp of this.springs) {
-        if (!sp.alive) continue;
+        if (!sp.alive || !sp.a.alive || !sp.b.alive) continue;
         const dx = sp.b.x - sp.a.x, dy = sp.b.y - sp.a.y;
         const len = Math.sqrt(dx * dx + dy * dy);
         if (len < 0.001) continue;
@@ -234,7 +234,7 @@ export class Building {
     for (const p of this.points) {
       if (!p.alive) continue;
       if (Math.abs(p.x) > DESPAWN_RADIUS || Math.abs(p.y) > DESPAWN_RADIUS) {
-        p.alive = false;
+        this._killPoint(p);
         this.score += p.score;
       }
     }
@@ -390,6 +390,15 @@ export class Building {
     }
   }
 
+  /** 杀死质点并断裂所有连接弹簧 */
+  _killPoint(p) {
+    if (!p.alive) return;
+    p.alive = false;
+    for (const sp of this.springs) {
+      if (sp.alive && (sp.a === p || sp.b === p)) sp.alive = false;
+    }
+  }
+
   /**
    * 对敌人造成碰撞伤害
    * @returns {boolean} 敌人是否死亡
@@ -448,7 +457,7 @@ export class Building {
       const dx = p.x - point.x, dy = p.y - point.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < vapR) {
-        p.alive = false;
+        this._killPoint(p);
         this.score += p.score;
         continue;
       }
@@ -509,7 +518,7 @@ export class Building {
       combinedP += hitPoint.explosionImpulse;
       combinedR = Math.max(combinedR, hitPoint.explosionRadius);
       this._triggerPointExplosion(hitPoint, combinedP, combinedR);
-      hitPoint.alive = false;
+      this._killPoint(hitPoint);
       this.score += hitPoint.score;
     } else if (hitSpring) {
       this.cutSpringAndTransferImpulse(hitSpring, bulletImpulse);
@@ -580,7 +589,7 @@ export class Building {
       const dx = p.x - ex, dy = p.y - ey;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < vapR) {
-        p.alive = false; vaporizedPoints.push(p);
+        this._killPoint(p); vaporizedPoints.push(p);
         totalScore += p.score;
       } else if (dist < radius && !p.isCore) {
         const pVal = calcExplosionImpulse(dist, impulse, radius);
