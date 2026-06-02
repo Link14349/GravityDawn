@@ -10,9 +10,9 @@
     canvas { display: block; margin: 0 auto; cursor: crosshair; }
     #hud {
       position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-      color: #ddd; font-family: monospace; font-size: 13px; pointer-events: none;
+      color: #ddd; font-family: monospace; font-size: 12px; pointer-events: none;
       text-align: center; line-height: 1.5;
-      background: rgba(0,0,0,0.5); padding: 4px 16px; border-radius: 6px;
+      background: rgba(0,0,0,0.55); padding: 4px 16px; border-radius: 6px;
     }
   </style>
 </head>
@@ -31,91 +31,139 @@
     canvas.width = 1200;
     canvas.height = 800;
 
-    // ---- 场景参数 ----
     const G_PHYS = 300;
-    const ORBIT_ALT = 100;
+    const BULLET_R = 6;
 
-    // ---- 中心恒星 ----
+    // =====================
+    // 星体
+    // =====================
+
+    // 中心恒星（固定）
     const star = new CelestialBody({
-      mass: 2000,
-      orbit: CelestialBody.fixedPosition(600, 400),
-      radius: 45,
-      color: '#ffbb33',
-      label: '恒星',
+      mass: 8000, orbit: CelestialBody.fixedPosition(600, 400),
+      radius: 50, collisionRadius: 45, color: '#ffbb33', label: '恒星',
     });
-    const starPos = star.getPosition();
 
-    // ---- 物理引擎 ----
+    // 行星 A — 子弹绕它转
+    const planetA = new CelestialBody({
+      mass: 800, orbit: CelestialBody.circularOrbit(600, 400, 200, 10, 0),
+      radius: 28, collisionRadius: 25, color: '#44ccbb', label: '水蓝星',
+    });
+
+    // 行星 B — 远处目标
+    const planetB = new CelestialBody({
+      mass: 500, orbit: CelestialBody.ellipticalOrbit(600, 400, 350, 280, 18, Math.PI/2),
+      radius: 22, collisionRadius: 20, color: '#ff6688', label: '赤红星',
+    });
+
+    const allBodies = [star, planetA, planetB];
+
+    // =====================
+    // 物理引擎
+    // =====================
     const phys = new PhysicsEngine({ G: G_PHYS });
-    phys.addGravitySource(starPos.x, starPos.y, star.mass);
+    for (const b of allBodies) {
+      const p = b.getPosition();
+      phys.addGravitySource(p.x, p.y, b.mass, b.collisionRadius);
+    }
 
-    // ---- 子弹 ----
+    // =====================
+    // 子弹 — 绕行星 A 轨道
+    // =====================
     const bullet = new Bullet({
-      payloadMass: 10,
-      fuelMass: 50,
-      ve: 300,
-      ignitionCount: 2,
-      explosionRadius: 60,
-      explosionImpulse: 5000,
+      payloadMass: 5, fuelMass: 30, ve: 300, ignitionCount: 2,
+      explosionRadius: 70, explosionImpulse: 4000,
     });
     bullet.placeInOrbit(
-      { x: starPos.x, y: starPos.y, mass: star.mass },
-      ORBIT_ALT, star.radius, 0, G_PHYS
+      { x: planetA.getPosition().x, y: planetA.getPosition().y, mass: planetA.mass },
+      50, planetA.radius, 0, G_PHYS
     );
 
-    // ---- 控制器（需要先创建才能传给 camera 做命中检测）----
+    // =====================
+    // 控制器 + 镜头
+    // =====================
     const ctrl = new GameController(canvas, { physics: phys, bullets: [bullet], camera: null });
-    // 补注 camera（先创建 controller 再创建 camera 以避免循环依赖）
     const camera = new Camera(canvas, {
       shouldBlockPan: () => ctrl.getHoveredBullet() !== null,
     });
     ctrl.camera = camera;
+    // 镜头对准恒星
+    camera.x = 600; camera.y = 400; camera.zoom = 0.85;
+
     const r = new Renderer(canvas);
     const ctx = r.ctx;
 
-    // ---- 轨迹 ----
+    // =====================
+    // 轨迹 + 爆炸
+    // =====================
     const trail = [];
-    const BULLET_R = 8;
+    const explosions = []; // { x, y, r, maxR, t }
 
-    // ---- HUD ----
+    // =====================
+    // HUD
+    // =====================
     function hud() {
       const h = document.getElementById('hud');
       const st = ctrl.state;
-      let status = '';
-      if (st === GameState.PLAYING) status = '▶ 运行中 — 鼠标移向子弹暂停';
-      else if (st === GameState.AIMING) status = '⏸ 已暂停 — 拖拽发射';
-      else if (st === GameState.LAUNCHED) status = '🚀 已发射';
-      h.innerHTML = `${status} | ΔV:${bullet.remainingDeltaV.toFixed(0)} | 点火:${bullet.remainingIgnitions} | 质量:${bullet.totalMass.toFixed(1)}`;
+      let s = '';
+      if (st === GameState.PLAYING) s = '▶ 运行中';
+      else if (st === GameState.AIMING) s = '⏸ 瞄准中 — 拖拽发射';
+      h.innerHTML = `${s} | ΔV:${bullet.remainingDeltaV.toFixed(0)} | 点火:${bullet.remainingIgnitions}/${bullet.ignitionCount} | 质量:${bullet.totalMass.toFixed(1)}`;
     }
 
-    // ---- 主循环 ----
+    // =====================
+    // 主循环
+    // =====================
     function loop() {
       hud();
 
-      // 物理（委托给 PhysicsEngine，不在 HTML 中重写积分逻辑）
-      if (!ctrl.shouldPause()) {
+      // --- 更新星体位置到物理引擎 ---
+      for (let i = 0; i < allBodies.length; i++) {
+        const b = allBodies[i];
+        if (!ctrl.shouldPause()) b.update(1 / 60);
+        const p = b.getPosition();
+        phys.updateSourcePosition(i, p.x, p.y);
+      }
+
+      // --- 物理步进 ---
+      if (!ctrl.shouldPause() && bullet.alive) {
         phys.stepParticle(bullet);
-        if (bullet.launched && bullet.alive) {
-          trail.push({ x: bullet.x, y: bullet.y });
+        if (bullet.launched) trail.push({ x: bullet.x, y: bullet.y });
+
+        // 碰撞检测
+        const col = phys.checkSourceCollision(bullet.x, bullet.y, BULLET_R);
+        if (col) {
+          explosions.push({
+            x: bullet.x, y: bullet.y, r: 0,
+            maxR: bullet.getEffectiveExplosionRadius() || 50,
+          });
+          bullet.alive = false;
         }
       }
 
-      // 渲染（先清屏，再应用镜头变换）
+      // --- 更新爆炸动画 ---
+      for (const ex of explosions) {
+        ex.r += 4;
+      }
+
+      // =====================
+      // 渲染
+      // =====================
       r.clear();
-
-      // 世界空间内渲染
       camera.applyTransform(ctx);
-      r.drawCelestialBody(star);
 
-      // 子弹轨道虚线圆
-      const orbR = star.radius + ORBIT_ALT;
-      ctx.strokeStyle = 'rgba(120, 200, 255, 0.3)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([3, 7]);
-      ctx.beginPath();
-      ctx.arc(starPos.x, starPos.y, orbR, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
+      // 星体
+      for (const b of allBodies) r.drawCelestialBody(b);
+
+      // 子弹轨道虚线圆（绕行星A）
+      {
+        const pa = planetA.getPosition();
+        const orbR = planetA.radius + 50;
+        ctx.strokeStyle = 'rgba(120, 200, 255, 0.22)';
+        ctx.lineWidth = 1; ctx.setLineDash([2, 6]);
+        ctx.beginPath(); ctx.arc(pa.x, pa.y, orbR, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+      }
 
       // 飞行轨迹
       if (trail.length > 1) r.drawTrail(trail, 'rgba(255, 160, 80, 0.55)');
@@ -127,13 +175,10 @@
       // 拖拽箭头
       const dv = ctrl.getDragVector();
       if (dv) {
-        ctx.strokeStyle = '#ffe044';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#ffe044'; ctx.lineWidth = 2.5;
         ctx.setLineDash([5, 3]);
         ctx.beginPath(); ctx.moveTo(dv.startX, dv.startY); ctx.lineTo(dv.endX, dv.endY);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        // 箭头
+        ctx.stroke(); ctx.setLineDash([]);
         const ang = Math.atan2(dv.endY - dv.startY, dv.endX - dv.startX);
         ctx.fillStyle = '#ffe044';
         ctx.beginPath();
@@ -141,9 +186,8 @@
         ctx.lineTo(dv.endX - 12 * Math.cos(ang - 0.5), dv.endY - 12 * Math.sin(ang - 0.5));
         ctx.lineTo(dv.endX - 12 * Math.cos(ang + 0.5), dv.endY - 12 * Math.sin(ang + 0.5));
         ctx.closePath(); ctx.fill();
-        // 起点圈
         ctx.strokeStyle = '#ffe044'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(dv.startX, dv.startY, 6, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(dv.startX, dv.startY, 5, 0, Math.PI * 2); ctx.stroke();
       }
 
       // 子弹
@@ -151,9 +195,8 @@
         const hov = ctrl.getHoveredBullet() === bullet;
         if (hov) {
           ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(bullet.x, bullet.y, BULLET_R + 6, 0, Math.PI * 2); ctx.stroke();
+          ctx.beginPath(); ctx.arc(bullet.x, bullet.y, BULLET_R + 7, 0, Math.PI * 2); ctx.stroke();
         }
-        // 主体
         const col = bullet.launched ? '#ff7744' : '#44ccff';
         const g = ctx.createRadialGradient(bullet.x, bullet.y, 0, bullet.x, bullet.y, BULLET_R);
         g.addColorStop(0, '#fff');
@@ -161,23 +204,35 @@
         g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g;
         ctx.beginPath(); ctx.arc(bullet.x, bullet.y, BULLET_R, 0, Math.PI * 2); ctx.fill();
-        // 速度方向线
+        // 方向线
         const sp = Math.sqrt(bullet.vx ** 2 + bullet.vy ** 2);
         if (sp > 1) {
           ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(bullet.x, bullet.y);
-          ctx.lineTo(bullet.x + bullet.vx / sp * 14, bullet.y + bullet.vy / sp * 14);
+          ctx.lineTo(bullet.x + bullet.vx / sp * 12, bullet.y + bullet.vy / sp * 12);
           ctx.stroke();
         }
       }
+
+      // 爆炸效果
+      for (let i = explosions.length - 1; i >= 0; i--) {
+        const ex = explosions[i];
+        const alpha = 1 - ex.r / ex.maxR;
+        if (alpha <= 0) { explosions.splice(i, 1); continue; }
+        ctx.strokeStyle = `rgba(255, 180, 60, ${alpha})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(ex.x, ex.y, ex.r, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = `rgba(255, 200, 80, ${alpha * 0.3})`;
+        ctx.beginPath(); ctx.arc(ex.x, ex.y, ex.r, 0, Math.PI * 2); ctx.fill();
+      }
+
       camera.restoreTransform(ctx);
 
-      // HUD（屏幕空间，不受镜头影响）显示缩放和镜头位置
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.font = '11px monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(`缩放: ${camera.zoom.toFixed(1)}x | 镜头: (${camera.x.toFixed(0)}, ${camera.y.toFixed(0)}) | 滚轮缩放 | 空白处拖拽平移`, 10, 790);
+      // 屏幕空间 HUD
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '11px monospace'; ctx.textAlign = 'left';
+      ctx.fillText(`缩放:${camera.zoom.toFixed(1)}x | 镜头:(${camera.x.toFixed(0)},${camera.y.toFixed(0)}) | 滚轮缩放 | 空白处拖拽平移`, 10, 790);
 
       requestAnimationFrame(loop);
     }

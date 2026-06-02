@@ -59,8 +59,11 @@ index.html            — 主页面
   - 点击拖拽 → ΔV 矢量输入（方向=拖动方向，大小=拖动长度）
   - 松开鼠标 → 发射
 - [x] 产物：test/phase4-demo.html — 一颗星体 + 可交互发射的子弹 + 虚线轨迹预测
-- [x] 额外：实现 src/camera.js — Camera 类（世界↔屏幕坐标转换、滚轮缩放、Alt+拖拽平移）
+- [x] 额外：实现 src/camera.js — Camera 类（世界↔屏幕坐标转换、滚轮缩放、左键空白处拖拽平移）
 - [x] 集成 Camera 到 game-controller（坐标转换）和渲染管线（applyTransform/restoreTransform）
+- [x] CelestialBody 新增 collisionRadius 碰撞半径属性
+- [x] PhysicsEngine 新增：重力源碰撞半径、updateSourcePosition、checkSourceCollision
+- [x] Demo 场景重构：恒星 + 多行星 + 子弹绕行星轨道 + 碰撞爆炸效果
 
 ## Phase 5：建筑与目标系统 [ ]
 - [ ] 实现 src/building.js：Building、MassPoint、Spring、Ship 类

@@ -11,13 +11,15 @@ export class CelestialBody {
    * @param {number} options.mass - 引力质量
    * @param {Function} options.orbit - 轨道函数 (t) => { x, y }
    * @param {number} [options.radius=35] - 渲染半径（像素）
+   * @param {number} [options.collisionRadius] - 碰撞半径（默认等于渲染半径）
    * @param {string} [options.color='#ff9933'] - 主体颜色
    * @param {string} [options.label=''] - 标签名
    */
-  constructor({ mass, orbit, radius = 35, color = '#ff9933', label = '' }) {
+  constructor({ mass, orbit, radius = 35, collisionRadius, color = '#ff9933', label = '' }) {
     this.mass = mass;
     this.orbitFn = orbit;
     this.radius = radius;
+    this.collisionRadius = collisionRadius ?? radius;
     this.color = color;
     this.label = label;
     this.t = 0; // 当前轨道时间

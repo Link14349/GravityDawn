@@ -20,9 +20,40 @@ export class PhysicsEngine {
     this.particles = [];
   }
 
-  /** 添加引力源（星体） */
-  addGravitySource(x, y, mass) {
-    this.gravitySources.push({ x, y, mass });
+  /** 添加引力源（星体），可选碰撞半径 */
+  addGravitySource(x, y, mass, collisionRadius = 0) {
+    this.gravitySources.push({ x, y, mass, collisionRadius });
+  }
+
+  /**
+   * 更新引力源位置（用于移动的星体）
+   * @param {number} index
+   * @param {number} x
+   * @param {number} y
+   */
+  updateSourcePosition(index, x, y) {
+    if (index < this.gravitySources.length) {
+      this.gravitySources[index].x = x;
+      this.gravitySources[index].y = y;
+    }
+  }
+
+  /**
+   * 检测某点是否与引力源碰撞
+   * @returns {{ index: number, source: object } | null}
+   */
+  checkSourceCollision(px, py, objectRadius = 0) {
+    for (let i = 0; i < this.gravitySources.length; i++) {
+      const src = this.gravitySources[i];
+      if (src.collisionRadius <= 0) continue;
+      const dx = src.x - px;
+      const dy = src.y - py;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < src.collisionRadius + objectRadius) {
+        return { index: i, source: src };
+      }
+    }
+    return null;
   }
 
   /** 移除引力源 */
