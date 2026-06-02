@@ -204,8 +204,6 @@ export class Building {
         if (!p.alive || p.isCore) continue;
         p.vx += (forces[i].fx / p.mass) * subDt;
         p.vy += (forces[i].fy / p.mass) * subDt;
-        p.vx *= 0.85;
-        p.vy *= 0.85;
         p.x += p.vx * subDt;
         p.y += p.vy * subDt;
       }
@@ -260,8 +258,8 @@ export class Building {
             p.vx -= relVn * nx; // 清零法向
             p.vy -= relVn * ny;
             // 切向摩擦
-            p.vx = bv.vx + (p.vx - bv.vx) * 0.95;
-            p.vy = bv.vy + (p.vy - bv.vy) * 0.95;
+            p.vx = bv.vx + (p.vx - bv.vx) * 0.85;
+            p.vy = bv.vy + (p.vy - bv.vy) * 0.85;
           }
         }
       }
