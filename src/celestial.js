@@ -30,6 +30,13 @@ export class CelestialBody {
     return this.orbitFn(this.t);
   }
 
+  /** 获取当前轨道速度（有限差分法） */
+  getVelocity(eps = 0.001) {
+    const p0 = this.orbitFn(this.t);
+    const p1 = this.orbitFn(this.t + eps);
+    return { vx: (p1.x - p0.x) / eps, vy: (p1.y - p0.y) / eps };
+  }
+
   /** 推进轨道时间 */
   update(dt) {
     this.t += dt;

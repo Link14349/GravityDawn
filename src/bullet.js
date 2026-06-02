@@ -132,26 +132,54 @@ export class Bullet {
   }
 
   /**
-   * 将子弹置于某星体的圆形近地轨道
-   * @param {Object} body - { x, y, mass }
+   * 将子弹绑定到某星体的圆形近地轨道（发射前用参数方程，非物理模拟）
+   * @param {Object} homeBody - CelestialBody 实例（需有 getPosition/getVelocity/mass）
    * @param {number} altitude - 轨道高度（距星体表面）
-   * @param {number} bodyRadius - 星体半径
+   * @param {number} bodyRadius - 星体渲染半径
    * @param {number} [phase=0] - 初始相位角（弧度），0 = 正右方
    * @param {number} [gravConstant] - 引力常量（默认使用 constants.G）
    */
-  placeInOrbit(body, altitude, bodyRadius, phase = 0, gravConstant = null) {
+  bindOrbit(homeBody, altitude, bodyRadius, phase = 0, gravConstant = null) {
     const bigG = gravConstant ?? G;
-    const orbitRadius = bodyRadius + altitude;
-    this.x = body.x + orbitRadius * Math.cos(phase);
-    this.y = body.y + orbitRadius * Math.sin(phase);
+    this._homeBody = homeBody;
+    this._orbitRadius = bodyRadius + altitude;
+    this._orbitPhase = phase;
+    this._orbitOmega = Math.sqrt(bigG * homeBody.mass / Math.pow(this._orbitRadius, 3));
+    this._orbitG = bigG;
 
-    // 圆形轨道速度：v = sqrt(G·M/r)，方向为切向（逆时针 90°）
-    const vOrbit = Math.sqrt(bigG * body.mass / orbitRadius);
-    const tangentAngle = phase + Math.PI / 2;
-    this.vx = vOrbit * Math.cos(tangentAngle);
-    this.vy = vOrbit * Math.sin(tangentAngle);
-
+    // 设置初始位置和速度
+    this._syncOrbitState();
     this.launched = false;
+  }
+
+  /** 根据母星体当前位置和速度同步子弹世界坐标 */
+  _syncOrbitState() {
+    const hp = this._homeBody.getPosition();
+    const hv = this._homeBody.getVelocity();
+    const r = this._orbitRadius;
+    const ph = this._orbitPhase;
+
+    // 世界坐标 = 母星体位置 + 轨道偏移
+    this.x = hp.x + r * Math.cos(ph);
+    this.y = hp.y + r * Math.sin(ph);
+
+    // 子弹相对母星体的轨道速度
+    const vOrbit = Math.sqrt(this._orbitG * this._homeBody.mass / r);
+    const tanAngle = ph + Math.PI / 2;
+
+    // 世界速度 = 母星体速度 + 轨道速度
+    this.vx = hv.vx + vOrbit * Math.cos(tanAngle);
+    this.vy = hv.vy + vOrbit * Math.sin(tanAngle);
+  }
+
+  /**
+   * 推进轨道相位并更新世界坐标（发射前每帧调用）
+   * @param {number} dt - 时间步长
+   */
+  updateOrbitPosition(dt) {
+    if (this.launched) return;
+    this._orbitPhase += this._orbitOmega * dt;
+    this._syncOrbitState();
   }
 
   /** 获取位置 */

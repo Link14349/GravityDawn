@@ -69,16 +69,13 @@
     }
 
     // =====================
-    // 子弹 — 绕行星 A 轨道
+    // 子弹 — 绕行星 A 轨道（发射前用参数方程，发射后物理模拟）
     // =====================
     const bullet = new Bullet({
       payloadMass: 5, fuelMass: 30, ve: 300, ignitionCount: 2,
       explosionRadius: 70, explosionImpulse: 4000,
     });
-    bullet.placeInOrbit(
-      { x: planetA.getPosition().x, y: planetA.getPosition().y, mass: planetA.mass },
-      50, planetA.radius, 0, G_PHYS
-    );
+    bullet.bindOrbit(planetA, 50, planetA.radius, 0, G_PHYS);
 
     // =====================
     // 控制器 + 镜头
@@ -129,8 +126,15 @@
       // --- 物理步进 ---
       if (!ctrl.shouldPause() && bullet.alive) {
         physicsTime += 1 / 60;
-        phys.stepParticle(bullet);
-        if (bullet.launched) trail.push({ x: bullet.x, y: bullet.y });
+
+        if (!bullet.launched) {
+          // 发射前：参数方程轨道，绑定在母星体上
+          bullet.updateOrbitPosition(1 / 60);
+        } else {
+          // 发射后：物理模拟
+          phys.stepParticle(bullet);
+          trail.push({ x: bullet.x, y: bullet.y });
+        }
 
         // 碰撞检测
         const col = phys.checkSourceCollision(bullet.x, bullet.y, BULLET_R);
