@@ -201,17 +201,21 @@
               const hitPoint = bld.checkBulletCollision(b.x, b.y, BULLET_R);
               const hitSpring = hitPoint ? null : bld.checkSpringCollision(b.x, b.y, BULLET_R);
               if (hitPoint || hitSpring) {
+                let combinedR = b.getEffectiveExplosionRadius();
+                let combinedP = b.getEffectiveExplosionImpulse();
                 if (hitPoint) {
-                  // 直接命中质点→触发该质点爆炸（断连弹簧+传冲量）
-                  bld._triggerPointExplosion(hitPoint, b.getEffectiveExplosionImpulse(), b.getEffectiveExplosionRadius());
+                  // 直接命中质点→子弹+质点爆炸属性叠加
+                  combinedP += hitPoint.explosionImpulse;
+                  combinedR = Math.max(combinedR, hitPoint.explosionRadius);
+                  bld._triggerPointExplosion(hitPoint, combinedP, combinedR);
                   hitPoint.alive = false;
                   bld.score += hitPoint.score;
                 } else if (hitSpring) {
                   bld.cutSpringAndTransferImpulse(hitSpring, b.getEffectiveExplosionImpulse());
                 }
                 // 区域爆炸效果
-                bld.applyExplosion(b.x, b.y, b.getEffectiveExplosionRadius(), b.getEffectiveExplosionImpulse());
-                explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || 50 });
+                bld.applyExplosion(b.x, b.y, combinedR, combinedP);
+                explosions.push({ x: b.x, y: b.y, r: 0, maxR: combinedR || 50 });
                 b.alive = false;
                 break;
               }
