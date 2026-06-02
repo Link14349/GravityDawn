@@ -371,11 +371,20 @@ export class Renderer {
     const alpha = 1 - r / maxR;
     if (alpha <= 0) return true;
     const ctx = this.ctx;
-    ctx.strokeStyle = `rgba(255, 180, 60, ${alpha})`;
-    ctx.lineWidth = 3;
+    // 橙色冲击波环
+    ctx.strokeStyle = `rgba(255, 160, 40, ${alpha})`;
+    ctx.lineWidth = 5;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = `rgba(255, 200, 80, ${alpha * 0.3})`;
+    ctx.fillStyle = `rgba(255, 200, 80, ${alpha * 0.2})`;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    // 白色十字（爆心标记）
+    const crossLen = 4;
+    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x - crossLen, y); ctx.lineTo(x + crossLen, y);
+    ctx.moveTo(x, y - crossLen); ctx.lineTo(x, y + crossLen);
+    ctx.stroke();
     return false;
   }
 
