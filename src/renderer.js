@@ -305,6 +305,33 @@ export class Renderer {
     }
   }
 
+  /**
+   * 绘制建筑（弹簧质点结构）
+   * @param {import('./building.js').Building} building
+   */
+  drawBuilding(building) {
+    const ctx = this.ctx;
+    // 弹簧
+    for (const sp of building.springs) {
+      if (!sp.alive) continue;
+      ctx.strokeStyle = 'rgba(180, 200, 220, 0.6)'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(sp.a.x, sp.a.y);
+      ctx.lineTo(sp.b.x, sp.b.y);
+      ctx.stroke();
+    }
+    // 质点
+    for (const p of building.points) {
+      if (!p.alive) continue;
+      ctx.fillStyle = p.fixed ? '#446688' : p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius, 0, Math.PI * 2); ctx.fill();
+      if (p.important) {
+        ctx.strokeStyle = '#ffdd44'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 2, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+  }
+
   // --- 颜色工具 ---
 
   /** 调亮颜色 */

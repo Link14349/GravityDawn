@@ -65,14 +65,14 @@ index.html            — 主页面
 - [x] PhysicsEngine 新增：重力源碰撞半径、updateSourcePosition、checkSourceCollision
 - [x] Demo 场景重构：恒星 + 多行星 + 子弹绕行星轨道 + 碰撞爆炸效果
 
-## Phase 5：建筑与目标系统 [ ]
-- [ ] 实现 src/building.js：Building、MassPoint、Spring、Ship 类
-  - MassPoint：质点（碰撞箱 + 绑定纹理/形状用于渲染，携带分值）
-  - Spring：弹簧连接（张力超阈值断裂）
-  - Ship：飞船（质点目标，击中且冲量足够即摧毁）
-  - Building：弹簧质点模型物理模拟
-- [ ] 碰撞检测：子弹与质点/飞船的碰撞判定
-- [ ] 产物：test/phase5-demo.html — 一个弹簧质点建筑结构 + 子弹碰撞交互
+## Phase 5：建筑与目标系统 [x]
+- [x] 实现 src/building.js：Building、MassPoint、Spring、Ship 类
+  - MassPoint：质点（碰撞箱 + 分值 + 固定/重要标记）
+  - Spring：弹簧连接（胡克定律 + 阻尼 + 张力超阈值断裂）
+  - Ship：飞船（质点目标，冲量足够即摧毁）
+  - Building：弹簧质点物理模拟 + checkBulletCollision + applyExplosion
+- [x] Renderer.drawBuilding() 建筑渲染（弹簧线 + 质点圆 + 重要目标金边）
+- [x] 产物：test/phase5-demo.html — 行星表面塔楼 + 子弹碰撞 + 弹簧断裂
 
 ## Phase 6：爆炸毁伤系统 [ ]
 - [ ] 实现 src/explosion.js：
