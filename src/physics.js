@@ -100,6 +100,24 @@ export class PhysicsEngine {
     }
   }
 
+  /**
+   * 推进单个外部粒子一帧（直接修改传入对象的 x, y, vx, vy）
+   * 供 Demo 等场景使用，避免在 HTML 中重写物理积分
+   * @param {{ x: number, y: number, vx: number, vy: number }} p
+   * @param {number} [dtOverride] - 可选的时间步长覆盖
+   */
+  stepParticle(p, dtOverride) {
+    const dt = dtOverride ?? this.dt;
+    const subDt = dt / this.subSteps;
+    for (let s = 0; s < this.subSteps; s++) {
+      const { ax, ay } = this.calcGravityAccel(p.x, p.y);
+      p.vx += ax * subDt;
+      p.vy += ay * subDt;
+      p.x += p.vx * subDt;
+      p.y += p.vy * subDt;
+    }
+  }
+
   /** 推进多步 */
   stepN(n) {
     for (let i = 0; i < n; i++) {

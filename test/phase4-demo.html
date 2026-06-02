@@ -26,7 +26,6 @@
     import { Bullet } from '../src/bullet.js';
     import { GameController, GameState } from '../src/game-controller.js';
     import { Camera } from '../src/camera.js';
-    import { DT, SUB_STEPS } from '../src/constants.js';
 
     const canvas = document.getElementById('c');
     canvas.width = 1200;
@@ -78,18 +77,6 @@
     const trail = [];
     const BULLET_R = 8;
 
-    // ---- 物理步进 ----
-    function stepPhysics(b) {
-      const { ax, ay } = phys.calcGravityAccel(b.x, b.y);
-      const subDt = DT / SUB_STEPS;
-      for (let s = 0; s < SUB_STEPS; s++) {
-        b.vx += ax * subDt;
-        b.vy += ay * subDt;
-        b.x += b.vx * subDt;
-        b.y += b.vy * subDt;
-      }
-    }
-
     // ---- HUD ----
     function hud() {
       const h = document.getElementById('hud');
@@ -105,9 +92,9 @@
     function loop() {
       hud();
 
-      // 物理
+      // 物理（委托给 PhysicsEngine，不在 HTML 中重写积分逻辑）
       if (!ctrl.shouldPause()) {
-        stepPhysics(bullet);
+        phys.stepParticle(bullet);
         if (bullet.launched && bullet.alive) {
           trail.push({ x: bullet.x, y: bullet.y });
         }
