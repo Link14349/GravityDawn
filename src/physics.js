@@ -179,47 +179,51 @@ export class PhysicsEngine {
       orbitFn: s.orbitFn || null,
     }));
     let t = startTime;
+    const predSubSteps = this.subSteps; // 与实际物理步进保持相同子步精度
+    const subDt = predDt / predSubSteps;
 
     for (let i = 0; i < steps; i++) {
-      t += predDt;
+      for (let s = 0; s < predSubSteps; s++) {
+        t += subDt;
 
-      // 推进引力源轨道位置
-      for (const s of simSources) {
-        if (s.orbitFn) {
-          const pos = s.orbitFn(t);
-          s.x = pos.x;
-          s.y = pos.y;
+        // 推进引力源轨道位置
+        for (const src of simSources) {
+          if (src.orbitFn) {
+            const pos = src.orbitFn(t);
+            src.x = pos.x;
+            src.y = pos.y;
+          }
         }
-      }
 
-      // 计算引力加速度（基于推进后的源位置）
-      let ax = 0, ay = 0;
-      for (const s of simSources) {
-        const dx = s.x - x;
-        const dy = s.y - y;
-        const distSq = dx * dx + dy * dy;
-        const dist = Math.sqrt(distSq);
-        const r = Math.max(dist, MIN_DISTANCE);
-        const aMag = this.G * s.mass / (r * r);
-        ax += aMag * dx / dist;
-        ay += aMag * dy / dist;
-      }
+        // 计算引力加速度（基于推进后的源位置）
+        let ax = 0, ay = 0;
+        for (const src of simSources) {
+          const dx = src.x - x;
+          const dy = src.y - y;
+          const distSq = dx * dx + dy * dy;
+          const dist = Math.sqrt(distSq);
+          const r = Math.max(dist, MIN_DISTANCE);
+          const aMag = this.G * src.mass / (r * r);
+          ax += aMag * dx / dist;
+          ay += aMag * dy / dist;
+        }
 
-      // 半隐式欧拉
-      vx += ax * predDt;
-      vy += ay * predDt;
-      x += vx * predDt;
-      y += vy * predDt;
+        // 半隐式欧拉
+        vx += ax * subDt;
+        vy += ay * subDt;
+        x += vx * subDt;
+        y += vy * subDt;
+      }
 
       path.push({ x, y });
 
-      // 碰撞检测
+      // 碰撞检测（每个完整预测步检测一次）
       for (let j = 0; j < simSources.length; j++) {
-        const s = simSources[j];
-        if (s.collisionRadius <= 0) continue;
-        const dx = s.x - x;
-        const dy = s.y - y;
-        if (Math.sqrt(dx * dx + dy * dy) < s.collisionRadius) {
+        const src = simSources[j];
+        if (src.collisionRadius <= 0) continue;
+        const dx = src.x - x;
+        const dy = src.y - y;
+        if (Math.sqrt(dx * dx + dy * dy) < src.collisionRadius) {
           return { path, collision: { x, y, sourceIndex: j, time: t } };
         }
       }
