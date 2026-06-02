@@ -52,6 +52,7 @@
     // =====================
     const tp = targetPlanet.getPosition();
     const building = new Building();
+    const freeBuilding = new Building(); // 无核心建筑
 
     // 核心质点（在建筑顶部中央，静止悬挂整个结构，高分值）
     const surfaceY = tp.y - targetPlanet.radius - 5;
@@ -92,6 +93,14 @@
     building.addSpring({ a: towerPoints[0], b: base, stiffness: 250, breakTension: 350 });
     building.addSpring({ a: towerPoints[1], b: base, stiffness: 300, breakTension: 400 });
     building.addSpring({ a: towerPoints[2], b: base, stiffness: 250, breakTension: 350 });
+    // ---- 无核心建筑（自由漂浮三角结构，在恒星左上方）----
+    const fA = freeBuilding.addPoint({ x: 480, y: 280, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fB = freeBuilding.addPoint({ x: 520, y: 270, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fC = freeBuilding.addPoint({ x: 500, y: 310, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    freeBuilding.addSpring({ a: fA, b: fB, stiffness: 250, damping: 10, breakTension: 600 });
+    freeBuilding.addSpring({ a: fB, b: fC, stiffness: 250, damping: 10, breakTension: 600 });
+    freeBuilding.addSpring({ a: fC, b: fA, stiffness: 250, damping: 10, breakTension: 600 });
+
     // 水平稳定弹簧
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < 2; col++) {
@@ -132,7 +141,8 @@
     // =====================
     // 控制器 + 镜头
     // =====================
-    const ctrl = new GameController(canvas, { physics: phys, bullets, camera: null, getTime: () => physicsTime, buildings: [building] });
+    const allBuildings = [building, freeBuilding];
+    const ctrl = new GameController(canvas, { physics: phys, bullets, camera: null, getTime: () => physicsTime, buildings: allBuildings });
     const camera = new Camera(canvas, { shouldBlockPan: () => ctrl.getHoveredBullet() !== null });
     ctrl.camera = camera;
     camera.x = 700; camera.y = 400; camera.zoom = 0.9;
@@ -170,10 +180,12 @@
       // 物理步进
       if (!ctrl.shouldPause()) {
         physicsTime += 1 / 60;
-        // 建筑物理模拟（重力+弹簧+碰撞+爆炸）
-        const bResult = building.step(1 / 60, phys, allBodies);
-        for (const ex of bResult.explosions) {
-          explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
+        // 建筑物理模拟
+        for (const bld of allBuildings) {
+          const bResult = bld.step(1 / 60, phys, allBodies);
+          for (const ex of bResult.explosions) {
+            explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
+          }
         }
         // 子弹
         for (const b of bullets) {
@@ -190,19 +202,21 @@
               explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || 50 });
               b.alive = false;
             }
-            // 碰撞检测：建筑质点 + 弹簧
-            const hitPoint = building.checkBulletCollision(b.x, b.y, BULLET_R);
-            const hitSpring = hitPoint ? null : building.checkSpringCollision(b.x, b.y, BULLET_R);
-            if (hitPoint || hitSpring) {
-              if (hitSpring) {
-                // 弹簧命中：切断弹簧 + 冲量传递给两端质点
-                building.cutSpringAndTransferImpulse(hitSpring, b.getEffectiveExplosionImpulse());
+            // 碰撞检测：遍历所有建筑
+            for (const bld of allBuildings) {
+              const hitPoint = bld.checkBulletCollision(b.x, b.y, BULLET_R);
+              const hitSpring = hitPoint ? null : bld.checkSpringCollision(b.x, b.y, BULLET_R);
+              if (hitPoint || hitSpring) {
+                if (hitSpring) {
+                  bld.cutSpringAndTransferImpulse(hitSpring, b.getEffectiveExplosionImpulse());
+                }
+                const effR = b.getEffectiveExplosionRadius();
+                const effP = b.getEffectiveExplosionImpulse();
+                bld.applyExplosion(b.x, b.y, effR, effP);
+                explosions.push({ x: b.x, y: b.y, r: 0, maxR: effR || 50 });
+                b.alive = false;
+                break;
               }
-              const effR = b.getEffectiveExplosionRadius();
-              const effP = b.getEffectiveExplosionImpulse();
-              building.applyExplosion(b.x, b.y, effR, effP);
-              explosions.push({ x: b.x, y: b.y, r: 0, maxR: effR || 50 });
-              b.alive = false;
             }
           }
         }
@@ -221,7 +235,7 @@
       for (const b of allBodies) r.drawCelestialBody(b);
 
       // 建筑（委托给 Renderer）
-      r.drawBuilding(building);
+      for (const bld of allBuildings) r.drawBuilding(bld);
 
       // 轨迹
       for (const b of bullets) r.drawFadingTrail(b._trail);
