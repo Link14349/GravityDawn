@@ -116,7 +116,7 @@
       else if (st === GameState.AIMING) s = '⏸ 瞄准中 — 拖拽发射';
       // 显示悬停子弹信息
       const hb = ctrl.getHoveredBullet();
-      const info = hb ? ` | 悬停: 点火${hb.remainingIgnitions}/${hb.ignitionCount} ΔV${hb.remainingDeltaV.toFixed(0)} 质量${hb.totalMass.toFixed(1)}` : '';
+      const info = hb ? ` | 悬停: 点火${hb.remainingIgnitions}/${hb.ignitionCount} ΔV${hb.remainingDeltaV.toFixed(0)}m/s 质量${hb.totalMass.toFixed(1)}` : '';
       const alive = bullets.filter(b => b.alive).length;
       h.innerHTML = `${s} | 存活:${alive}/${bullets.length}${info}`;
     }

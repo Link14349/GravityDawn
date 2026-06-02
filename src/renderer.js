@@ -301,7 +301,7 @@ export class Renderer {
       const labelX = tipX + 14 * Math.cos(dvAng);
       const labelY = tipY + 14 * Math.sin(dvAng);
       ctx.fillStyle = '#44ff88'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
-      ctx.fillText(`ΔV ${dv.magnitude.toFixed(0)}`, labelX, labelY);
+      ctx.fillText(`ΔV ${dv.magnitude.toFixed(0)} m/s`, labelX, labelY);
     }
   }
 
