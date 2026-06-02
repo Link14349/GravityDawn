@@ -80,14 +80,11 @@ export class GameController {
   /** 检测鼠标是否悬停在可机动的子弹上 */
   _findBulletUnderMouse(mx, my) {
     for (const b of this.bullets) {
-      if (!b.alive) { console.log('[ctrl] find: dead'); continue; }
-      if (b.remainingIgnitions <= 0) { console.log('[ctrl] find: no ignitions'); continue; }
-      if (b.remainingDeltaV <= 0) { console.log('[ctrl] find: no dv'); continue; }
+      if (!b.alive) continue;
+      if (b.remainingIgnitions <= 0 || b.remainingDeltaV <= 0) continue;
       const dx = mx - b.x;
       const dy = my - b.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < HOVER_RADIUS) {
-        console.log('[ctrl] find: FOUND', { dist, bx: b.x.toFixed(1), by: b.y.toFixed(1), mx: mx.toFixed(1), my: my.toFixed(1) });
+      if (Math.sqrt(dx * dx + dy * dy) < HOVER_RADIUS) {
         return b;
       }
     }
@@ -110,11 +107,9 @@ export class GameController {
     if (this.state === GameState.PLAYING || this.state === GameState.AIMING) {
       const hovered = this._findBulletUnderMouse(pos.x, pos.y);
       if (hovered && this.state === GameState.PLAYING) {
-        console.log('[ctrl] hover → AIMING', { remIgn: hovered.remainingIgnitions, remDV: hovered.remainingDeltaV.toFixed(0) });
         this.state = GameState.AIMING;
         this.paused = true;
       } else if (!hovered && this.state === GameState.AIMING && !this.dragging) {
-        console.log('[ctrl] unhover → PLAYING');
         this.state = GameState.PLAYING;
         this.paused = false;
         this.predictedPath = [];
