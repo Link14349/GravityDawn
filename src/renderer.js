@@ -152,7 +152,7 @@ export class Renderer {
    * @param {boolean} launched - 是否已发射（影响颜色）
    * @param {boolean} hovered - 是否悬停（加光环）
    */
-  drawBullet(x, y, vx, vy, radius, launched, hovered) {
+  drawBullet(x, y, vx, vy, radius, launched, hovered, color = '#44ccff') {
     const ctx = this.ctx;
     // 悬停光环
     if (hovered) {
@@ -160,13 +160,17 @@ export class Renderer {
       ctx.beginPath(); ctx.arc(x, y, radius + 7, 0, Math.PI * 2); ctx.stroke();
     }
     // 主体渐变
-    const col = launched ? '#ff7744' : '#44ccff';
     const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
     g.addColorStop(0, '#fff');
-    g.addColorStop(0.4, col);
+    g.addColorStop(0.4, color);
     g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
+    // 未发射有描边，已发射无描边
+    if (!launched) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, y, radius + 1, 0, Math.PI * 2); ctx.stroke();
+    }
     // 速度方向线
     const sp = Math.sqrt(vx * vx + vy * vy);
     if (sp > 1) {

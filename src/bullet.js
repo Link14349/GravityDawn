@@ -31,11 +31,13 @@ export class Bullet {
     ignitionCount,
     explosionRadius = 0,
     explosionImpulse = 0,
+    color = '#44ccff',
   }) {
     this.payloadMass = payloadMass;
     this.fuelMass = fuelMass;
     this.initialFuelMass = fuelMass;
     this.ve = ve;
+    this.color = color;
 
     // Delta-V 预算：由燃料质量推导
     this.maxDeltaV = ve * Math.log((payloadMass + fuelMass) / payloadMass);
