@@ -33,13 +33,13 @@ index.html            — 主页面
 - [x] 最小化 canvas 渲染 Demo，验证构建链跑通
 - [x] 产物：test/phase1-demo.html — 黑底 canvas + "Hello Gravity Shooter"
 
-## Phase 2：物理引擎 [ ]
-- [ ] 实现 src/constants.js：引力常量 G、时间步长等
-- [ ] 实现 src/physics.js：PhysicsEngine 类
+## Phase 2：物理引擎 [x]
+- [x] 实现 src/constants.js：引力常量 G、时间步长等
+- [x] 实现 src/physics.js：PhysicsEngine 类
   - 半隐式欧拉积分器
   - 牛顿万有引力公式（多星体对粒子的合力）
   - 粒子状态管理 (position, velocity, acceleration)
-- [ ] 产物：test/phase2-demo.html — 两个星体 + 一个受引力影响的测试粒子自由运动
+- [x] 产物：test/phase2-demo.html — 两个星体 + 一个受引力影响的测试粒子自由运动
 
 ## Phase 3：星体系统 [ ]
 - [ ] 实现 src/celestial.js：CelestialBody 类

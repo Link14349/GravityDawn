@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 2 Demo — 物理引擎</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas { display: block; margin: 0 auto; }
+    #info {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #aaa;
+      font-family: monospace;
+      font-size: 13px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="info">左键点击空白处发射粒子 | 右键清空轨迹</div>
+  <script type="module">
+    import { PhysicsEngine } from '../src/physics.js';
+    import { G } from '../src/constants.js';
+
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 1200;
+    canvas.height = 800;
+
+    const engine = new PhysicsEngine({ G: 1500 });
+
+    // 两个星体作为引力源
+    engine.addGravitySource(400, 350, 8e10);
+    engine.addGravitySource(800, 450, 5e10);
+
+    // 轨迹记录
+    const trails = [];
+    const COLORS = ['#ff6644', '#44ccff', '#ffcc33', '#66ff88', '#ff88cc'];
+
+    // 鼠标发射粒子
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const idx = engine.addParticle(mx, my, 0, 2, 1);
+      trails.push({ idx, points: [], color: COLORS[trails.length % COLORS.length] });
+    });
+
+    canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      engine.clearParticles();
+      trails.length = 0;
+    });
+
+    function draw() {
+      engine.stepN(3);
+
+      // 背景
+      ctx.fillStyle = '#080820';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 星空
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      for (let i = 0; i < 150; i++) {
+        const sx = (i * 7919 + 123) % canvas.width;
+        const sy = (i * 6271 + 456) % canvas.height;
+        ctx.fillRect(sx, sy, 1.5, 1.5);
+      }
+
+      // 引力场可视化（淡圈）
+      for (const src of engine.getSources()) {
+        ctx.strokeStyle = 'rgba(100, 140, 255, 0.08)';
+        for (let r = 50; r < 400; r += 50) {
+          ctx.beginPath();
+          ctx.arc(src.x, src.y, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      // 星体
+      for (const src of engine.getSources()) {
+        const grad = ctx.createRadialGradient(src.x, src.y, 0, src.x, src.y, 40);
+        grad.addColorStop(0, '#ffdd88');
+        grad.addColorStop(0.4, '#ff9933');
+        grad.addColorStop(1, 'rgba(255,100,0,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(src.x, src.y, 40, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 质量标签
+        ctx.fillStyle = '#fff';
+        ctx.font = '11px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`M=${(src.mass / 1e10).toFixed(1)}e10`, src.x, src.y - 50);
+      }
+
+      // 轨迹 + 粒子
+      const particles = engine.getParticles();
+      for (const t of trails) {
+        if (t.idx >= particles.length) continue;
+        const p = particles[t.idx];
+        t.points.push({ x: p.x, y: p.y });
+
+        // 绘制轨迹线
+        if (t.points.length > 1) {
+          ctx.strokeStyle = t.color;
+          ctx.lineWidth = 1;
+          ctx.globalAlpha = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(t.points[0].x, t.points[0].y);
+          for (let i = 1; i < t.points.length; i++) {
+            ctx.lineTo(t.points[i].x, t.points[i].y);
+          }
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+
+        // 粒子
+        ctx.fillStyle = t.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
