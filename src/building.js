@@ -5,13 +5,9 @@
  * - Spring: 弹簧连接（张力超阈值断裂）
  * - Ship: 飞船（质点目标，冲量足够即摧毁）
  * - Building: 弹簧质点物理模拟 + 重力 + 碰撞 + 爆炸毁伤
- *
- * 物理规则：
- *   - 所有质点感受万有引力（核心点除外，核心点走参数方程）
- *   - 质点与星体碰撞：相对速度超阈值→爆炸消失记分
- *   - 质点间碰撞：低速→非弹性碰撞，高速→爆炸（取最大半径+综合冲量）
- *   - 核心点：参数方程轨道（或静止），脱离后全体结构崩溃
  */
+
+import { VAPOR_RATIO, calcExplosionImpulse } from './explosion.js';
 
 /** 质点-质点碰撞爆炸速度阈值 */
 export const PP_COLLISION_THRESHOLD = 80;
@@ -381,7 +377,7 @@ export class Building {
       }
     }
 
-    const vapR = radius / 3;
+    const vapR = radius * VAPOR_RATIO;
     for (const p of this.points) {
       if (p === point || !p.alive) continue;
       const dx = p.x - point.x, dy = p.y - point.y;
@@ -392,7 +388,7 @@ export class Building {
         continue;
       }
       if (dist < radius && !p.isCore) {
-        const pVal = impulse * Math.exp(-dist / radius);
+        const pVal = calcExplosionImpulse(dist, impulse, radius);
         const nx = dx / dist, ny = dy / dist;
         p.vx += pVal * nx / p.mass;
         p.vy += pVal * ny / p.mass;
@@ -500,7 +496,7 @@ export class Building {
     const vaporizedPoints = [], detachedPoints = [], destroyedSprings = [];
     let totalScore = 0;
     if (radius <= 0) return { vaporizedPoints, detachedPoints, destroyedSprings, totalScore };
-    const vapR = radius / 3;
+    const vapR = radius * VAPOR_RATIO;
     for (const p of this.points) {
       if (!p.alive) continue;
       const dx = p.x - ex, dy = p.y - ey;
@@ -509,7 +505,7 @@ export class Building {
         p.alive = false; vaporizedPoints.push(p);
         totalScore += p.score;
       } else if (dist < radius && !p.isCore) {
-        const pVal = impulse * Math.exp(-dist / radius);
+        const pVal = calcExplosionImpulse(dist, impulse, radius);
         const nx = dx / dist, ny = dy / dist;
         p.vx += pVal * nx / p.mass;
         p.vy += pVal * ny / p.mass;

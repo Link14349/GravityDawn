@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 6 Demo — 爆炸毁伤与记分</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas { display: block; margin: 0 auto; cursor: crosshair; }
+    #hud {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      color: #ddd; font-family: monospace; font-size: 12px; pointer-events: none;
+      text-align: center; line-height: 1.5;
+      background: rgba(0,0,0,0.55); padding: 4px 16px; border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="hud"></div>
+  <script type="module">
+    import { PhysicsEngine } from '../src/physics.js';
+    import { Renderer } from '../src/renderer.js';
+    import { CelestialBody } from '../src/celestial.js';
+    import { Bullet } from '../src/bullet.js';
+    import { GameController, GameState } from '../src/game-controller.js';
+    import { Camera } from '../src/camera.js';
+    import { Building } from '../src/building.js';
+
+    const canvas = document.getElementById('c');
+    canvas.width = 1200; canvas.height = 800;
+    const G_PHYS = 300;
+    const BULLET_R = 6;
+
+    // =====================
+    // 星体
+    // =====================
+    const star = new CelestialBody({
+      mass: 8000, orbit: CelestialBody.fixedPosition(600, 400),
+      radius: 50, collisionRadius: 45, color: '#ffbb33', label: '恒星',
+    });
+    // 目标行星（固定，建筑在它上面）
+    const targetPlanet = new CelestialBody({
+      mass: 1500, orbit: CelestialBody.fixedPosition(850, 400),
+      radius: 55, collisionRadius: 50, color: '#66aaff', label: '目标行星',
+    });
+    const allBodies = [star, targetPlanet];
+
+    // =====================
+    // 建筑（在目标行星表面）
+    // =====================
+    const tp = targetPlanet.getPosition();
+    const building = new Building();
+    const freeBuilding = new Building(); // 无核心建筑
+
+    // 核心质点（在建筑顶部中央，静止悬挂整个结构，高分值）
+    const surfaceY = tp.y - targetPlanet.radius - 5;
+    const core = building.addPoint({
+      x: tp.x, y: surfaceY - 110, mass: 200, radius: 8, score: 300, important: true,
+      isCore: true, color: '#ffdd44', explosionRadius: 60, explosionImpulse: 3000,
+    });
+
+    // 塔身质点（2 层，每层 3 个，核心下方悬挂）
+    const towerPoints = [];
+    for (let row = 0; row < 2; row++) {
+      const rowY = surfaceY - 30 - row * 35;
+      for (let col = 0; col < 3; col++) {
+        const px = tp.x - 30 + col * 30;
+        const p = building.addPoint({
+          x: px, y: rowY, mass: 8, radius: 5, score: 20, important: row === 0,
+          color: '#cccccc', explosionRadius: 15, explosionImpulse: 800,
+        });
+        towerPoints.push(p);
+      }
+    }
+
+    // 底部质点（接触行星表面，重要目标）
+    const base = building.addPoint({
+      x: tp.x, y: surfaceY, mass: 10, radius: 6, score: 50, important: true,
+      color: '#88aacc', explosionRadius: 20, explosionImpulse: 1000,
+    });
+
+    // 弹簧：核心悬挂 → 第二层
+    for (let i = 0; i < 3; i++) {
+      building.addSpring({ a: core, b: towerPoints[i + 3], stiffness: 4000, damping: 20, breakTension: 7500 });
+    }
+    // 弹簧：第二层 → 第一层
+    for (let i = 0; i < 3; i++) {
+      building.addSpring({ a: towerPoints[i + 3], b: towerPoints[i], stiffness: 3000, damping: 15, breakTension: 5000 });
+    }
+    // 弹簧：第一层 → 底部
+    building.addSpring({ a: towerPoints[0], b: base, stiffness: 2500, damping: 15, breakTension: 4000 });
+    building.addSpring({ a: towerPoints[1], b: base, stiffness: 3000, damping: 15, breakTension: 5000 });
+    building.addSpring({ a: towerPoints[2], b: base, stiffness: 2500, damping: 15, breakTension: 4000 });
+    // ---- 无核心建筑（正方形，目标行星南极表面）----
+    const sqX = tp.x;
+    const sqBaseY = tp.y + targetPlanet.collisionRadius + 10;
+    const sqSize = 18;
+    const fA = freeBuilding.addPoint({ x: sqX - sqSize, y: sqBaseY, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fB = freeBuilding.addPoint({ x: sqX + sqSize, y: sqBaseY, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fC = freeBuilding.addPoint({ x: sqX - sqSize, y: sqBaseY - sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fD = freeBuilding.addPoint({ x: sqX + sqSize, y: sqBaseY - sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    // 4 边 + 2 对角线
+    const K = 500, BT = 50000;
+    freeBuilding.addSpring({ a: fA, b: fB, stiffness: K, damping: 20, breakTension: BT });
+    freeBuilding.addSpring({ a: fB, b: fD, stiffness: K, damping: 20, breakTension: BT });
+    freeBuilding.addSpring({ a: fD, b: fC, stiffness: K, damping: 20, breakTension: BT });
+    freeBuilding.addSpring({ a: fC, b: fA, stiffness: K, damping: 20, breakTension: BT });
+    freeBuilding.addSpring({ a: fA, b: fD, stiffness: K, damping: 20, breakTension: BT });
+    freeBuilding.addSpring({ a: fB, b: fC, stiffness: K, damping: 20, breakTension: BT });
+
+    // 水平稳定弹簧
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 2; col++) {
+        const idx = row * 3 + col;
+        building.addSpring({ a: towerPoints[idx], b: towerPoints[idx + 1], stiffness: 1500, damping: 10, breakTension: 2500 });
+      }
+    }
+
+    // =====================
+    // 物理引擎
+    // =====================
+    const phys = new PhysicsEngine({ G: G_PHYS });
+    let physicsTime = 0;
+    for (const b of allBodies) {
+      const p = b.getPosition();
+      phys.addGravitySource(p.x, p.y, b.mass, b.collisionRadius, b.orbitFn);
+    }
+
+    // =====================
+    // 子弹 — 绕恒星轨道
+    // =====================
+    const bullets = [
+      new Bullet({ payloadMass: 5, fuelMass: 30, ve: 300, ignitionCount: 2, explosionRadius: 60, explosionImpulse: 3000 }),
+      new Bullet({ payloadMass: 8, fuelMass: 20, ve: 250, ignitionCount: 3, explosionRadius: 40, explosionImpulse: 2000 }),
+    ];
+    for (let i = 0; i < bullets.length; i++) {
+      bullets[i].bindOrbit(star, 80 + i * 30, star.radius, i * Math.PI, G_PHYS);
+    }
+
+    // =====================
+    // 控制器 + 镜头
+    // =====================
+    const allBuildings = [building, freeBuilding];
+    const ctrl = new GameController(canvas, { physics: phys, bullets, camera: null, getTime: () => physicsTime, buildings: allBuildings });
+    const camera = new Camera(canvas, { shouldBlockPan: () => ctrl.getHoveredBullet() !== null });
+    ctrl.camera = camera;
+    camera.x = 700; camera.y = 400; camera.zoom = 0.9;
+
+    const r = new Renderer(canvas);
+    const ctx = r.ctx;
+    const explosions = [];
+    for (const b of bullets) b._trail = [];
+
+    // =====================
+    // HUD
+    // =====================
+    function hud() {
+      const h = document.getElementById('hud');
+      const hb = ctrl.getHoveredBullet();
+      const aliveB = bullets.filter(b => b.alive).length;
+      const info = hb ? ` | 悬停: 点火${hb.remainingIgnitions}/${hb.ignitionCount} ΔV${hb.remainingDeltaV.toFixed(0)}m/s` : '';
+      const totalScore = building.score + freeBuilding.score;
+      const b1Status = `塔楼: ${building.alivePointCount}/${building.points.length}点 [${building.score}分]`;
+      const b2Status = `方块: ${freeBuilding.alivePointCount}/${freeBuilding.points.length}点 [${freeBuilding.score}分]`;
+      h.innerHTML = `子弹:${aliveB}/${bullets.length}${info} | ${b1Status} ${b2Status} | <b>总分: ${totalScore}</b>`;
+    }
+
+    // =====================
+    // 主循环
+    // =====================
+    function loop() {
+      hud();
+
+      // 星体位置
+      for (let i = 0; i < allBodies.length; i++) {
+        const b = allBodies[i];
+        if (!ctrl.shouldPause()) b.update(1 / 60);
+        phys.updateSourcePosition(i, b.getPosition().x, b.getPosition().y);
+      }
+
+      // 物理步进
+      if (!ctrl.shouldPause()) {
+        physicsTime += 1 / 60;
+        // 建筑物理模拟
+        for (const bld of allBuildings) {
+          const bResult = bld.step(1 / 60, phys, allBodies);
+          for (const ex of bResult.explosions) {
+            explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
+          }
+        }
+        // 子弹
+        for (const b of bullets) {
+          if (!b.alive) continue;
+          if (!b.launched) {
+            b.updateOrbitPosition(1 / 60);
+          } else {
+            const col = phys.stepParticle(b, undefined, BULLET_R);
+            b._trail.push({ x: b.x, y: b.y, life: 1.0 });
+            if (b._trail.length > 300) b._trail.shift();
+
+            // 碰撞检测：星体
+            if (col) {
+              explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || 50 });
+              b.alive = false;
+            }
+            // 建筑碰撞（委托给 Building.handleBulletImpact）
+            for (const bld of allBuildings) {
+              const impact = bld.handleBulletImpact(b.x, b.y, BULLET_R, b.getEffectiveExplosionImpulse(), b.getEffectiveExplosionRadius());
+              if (impact.hit) {
+                explosions.push({ x: impact.explosion.x, y: impact.explosion.y, r: 0, maxR: impact.explosion.radius || 50 });
+                b.alive = false;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      // 爆炸动画
+      for (const ex of explosions) ex.r += 4;
+
+      // =====================
+      // 渲染
+      // =====================
+      r.clear();
+      camera.applyTransform(ctx);
+
+      // 星体
+      for (const b of allBodies) r.drawCelestialBody(b);
+
+      // 建筑（委托给 Renderer）
+      for (const bld of allBuildings) r.drawBuilding(bld);
+
+      // 轨迹
+      for (const b of bullets) r.drawFadingTrail(b._trail);
+
+      // 瞄准叠加层
+      r.drawAimOverlay(ctrl, allBodies);
+
+      // 子弹
+      const hoveredBullet = ctrl.getHoveredBullet();
+      for (const b of bullets) {
+        if (!b.alive || !isFinite(b.x)) continue;
+        r.drawBullet(b.x, b.y, b.vx, b.vy, BULLET_R, b.launched, b === hoveredBullet);
+      }
+
+      // 爆炸（委托给 Renderer）
+      for (let i = explosions.length - 1; i >= 0; i--) {
+        const ex = explosions[i];
+        if (r.drawExplosion(ex.x, ex.y, ex.r, ex.maxR)) {
+          explosions.splice(i, 1);
+        }
+      }
+
+      camera.restoreTransform(ctx);
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '11px monospace'; ctx.textAlign = 'left';
+      ctx.fillText(`缩放:${camera.zoom.toFixed(1)}x | 滚轮缩放 | 空白处拖拽平移`, 10, 790);
+
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>

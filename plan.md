@@ -74,13 +74,14 @@ index.html            — 主页面
 - [x] Renderer.drawBuilding() 建筑渲染（弹簧线 + 质点圆 + 重要目标金边）
 - [x] 产物：test/phase5-demo.html — 行星表面塔楼 + 子弹碰撞 + 弹簧断裂
 
-## Phase 6：爆炸毁伤系统 [ ]
-- [ ] 实现 src/explosion.js：
-  - 径向冲量：P(r) = P₀ · exp(-r/r₀)（动能武器 r₀=0 时冲量为 0）
-  - 爆心 1/3 爆炸半径内：质点+弹簧直接气化消失
-  - 弹簧受张力断裂判定
-- [ ] 建筑物毁伤记分：气化=100%分数，脱离主体=70%分数，弹簧不计分
-- [ ] 产物：test/phase6-demo.html — 子弹击中建筑 → 爆炸 → 结构碎裂动画
+## Phase 6：爆炸毁伤系统 [x]
+- [x] 实现 src/explosion.js：
+  - calcExplosionImpulse(dist, p0, r0) — P(r) = P₀ · exp(-r/r₀)
+  - isVaporized(dist, r0) — 爆心 1/3 半径判定
+  - VAPOR_RATIO = 1/3 常量
+- [x] building.js 引用 explosion 模块公式，统一爆炸计算
+- [x] 建筑物毁伤记分：气化=100%分数，脱离主体=70%分数，弹簧不计分
+- [x] 产物：test/phase6-demo.html — HUD 显示各建筑得分+总分
 
 ## Phase 7：界面系统 [ ]
 - [ ] 实现 src/ui.js：
