@@ -354,6 +354,26 @@ export class Renderer {
     }
   }
 
+  /**
+   * 绘制爆炸效果（膨胀光环）
+   * @param {number} x
+   * @param {number} y
+   * @param {number} r - 当前半径
+   * @param {number} maxR - 最大半径
+   * @returns {boolean} 是否已完全消失（true 则可移除该爆炸）
+   */
+  drawExplosion(x, y, r, maxR) {
+    const alpha = 1 - r / maxR;
+    if (alpha <= 0) return true;
+    const ctx = this.ctx;
+    ctx.strokeStyle = `rgba(255, 180, 60, ${alpha})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = `rgba(255, 200, 80, ${alpha * 0.3})`;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    return false;
+  }
+
   // --- 颜色工具 ---
 
   /** 调亮颜色 */

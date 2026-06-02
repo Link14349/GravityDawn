@@ -237,14 +237,12 @@
         r.drawBullet(b.x, b.y, b.vx, b.vy, BULLET_R, b.launched, b === hoveredBullet);
       }
 
-      // 爆炸
+      // 爆炸（委托给 Renderer）
       for (let i = explosions.length - 1; i >= 0; i--) {
         const ex = explosions[i];
-        const alpha = 1 - ex.r / ex.maxR;
-        if (alpha <= 0) { explosions.splice(i, 1); continue; }
-        ctx.strokeStyle = `rgba(255, 180, 60, ${alpha})`;
-        ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(ex.x, ex.y, ex.r, 0, Math.PI * 2); ctx.stroke();
+        if (r.drawExplosion(ex.x, ex.y, ex.r, ex.maxR)) {
+          explosions.splice(i, 1);
+        }
       }
 
       camera.restoreTransform(ctx);
