@@ -95,14 +95,14 @@
     building.addSpring({ a: towerPoints[2], b: base, stiffness: 2500, damping: 15, breakTension: 4000 });
     // ---- 无核心建筑（正方形，目标行星南极表面）----
     const sqX = tp.x;
-    const sqBaseY = tp.y + targetPlanet.collisionRadius + 6;
+    const sqBaseY = tp.y + targetPlanet.collisionRadius + 10;
     const sqSize = 18;
     const fA = freeBuilding.addPoint({ x: sqX - sqSize, y: sqBaseY, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fB = freeBuilding.addPoint({ x: sqX + sqSize, y: sqBaseY, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fC = freeBuilding.addPoint({ x: sqX - sqSize, y: sqBaseY - sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fD = freeBuilding.addPoint({ x: sqX + sqSize, y: sqBaseY - sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     // 4 边 + 1 对角线
-    const K = 5000, BT = 300000;
+    const K = 500, BT = 50000;
     freeBuilding.addSpring({ a: fA, b: fB, stiffness: K, damping: 20, breakTension: BT });
     freeBuilding.addSpring({ a: fB, b: fD, stiffness: K, damping: 20, breakTension: BT });
     freeBuilding.addSpring({ a: fD, b: fC, stiffness: K, damping: 20, breakTension: BT });

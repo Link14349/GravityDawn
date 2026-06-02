@@ -250,15 +250,18 @@ export class Building {
             if (p.important) this.score += p.score;
             else this.score += p.score * 0.7;
           } else {
-            // 完全非弹性碰撞：法向归零，推到表面
+            // 完全非弹性碰撞：法向归零 + 切向摩擦衰减 0.95
             const nx = dx / dist, ny = dy / dist;
             p.x = bp.x + (colR + p.radius) * nx;
             p.y = bp.y + (colR + p.radius) * ny;
             const rvx = p.vx - bv.vx;
             const rvy = p.vy - bv.vy;
             const relVn = rvx * nx + rvy * ny;
-            p.vx -= relVn * nx;
+            p.vx -= relVn * nx; // 清零法向
             p.vy -= relVn * ny;
+            // 切向摩擦
+            p.vx = bv.vx + (p.vx - bv.vx) * 0.95;
+            p.vy = bv.vy + (p.vy - bv.vy) * 0.95;
           }
         }
       }
