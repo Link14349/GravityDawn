@@ -198,6 +198,8 @@
             explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
           }
         }
+        // 跨建筑碰撞检测
+        Building.checkCrossCollisions(allBuildings, explosions);
         // 子弹
         for (const b of bullets) {
           if (!b.alive) continue;

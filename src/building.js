@@ -624,4 +624,120 @@ export class Building {
 
   get alivePointCount() { return this.points.filter(p => p.alive).length; }
   get aliveSpringCount() { return this.springs.filter(s => s.alive).length; }
+
+  /** 获取所有存活质点的 AABB 包围盒 */
+  getAABB() {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of this.points) {
+      if (!p.alive) continue;
+      if (p.x < minX) minX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y > maxY) maxY = p.y;
+    }
+    return { minX, minY, maxX, maxY };
+  }
+
+  /**
+   * 跨建筑碰撞检测（AABB 粗筛 + 精细检测）
+   * @param {Building[]} buildings
+   * @param {Array} explosions
+   */
+  static checkCrossCollisions(buildings, explosions) {
+    for (let i = 0; i < buildings.length; i++) {
+      for (let j = i + 1; j < buildings.length; j++) {
+        const a = buildings[i], b = buildings[j];
+        const bbA = a.getAABB(), bbB = b.getAABB();
+        // AABB 粗筛
+        if (bbA.maxX < bbB.minX || bbA.minX > bbB.maxX ||
+            bbA.maxY < bbB.minY || bbA.minY > bbB.maxY) continue;
+        // 精细：质点-质点
+        for (const pa of a.points) {
+          if (!pa.alive) continue;
+          for (const pb of b.points) {
+            if (!pb.alive) continue;
+            const dx = pb.x - pa.x, dy = pb.y - pa.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const minDist = pa.radius + pb.radius;
+            if (dist >= minDist || dist < 0.001) continue;
+            const relSpeed = Math.sqrt((pb.vx - pa.vx) ** 2 + (pb.vy - pa.vy) ** 2);
+            const thresh = (pa.isEnemy || pb.isEnemy) ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
+            if (relSpeed > thresh) {
+              const combinedImpulse = pa.explosionImpulse + pb.explosionImpulse;
+              const maxRadius = Math.max(pa.explosionRadius, pb.explosionRadius);
+              explosions.push({ x: (pa.x + pb.x) / 2, y: (pa.y + pb.y) / 2, radius: maxRadius, impulse: combinedImpulse });
+              if (pa.isEnemy) { a._damageEnemy(pa, relSpeed * 0.5); }
+              else { a._triggerPointExplosion(pa, combinedImpulse, maxRadius); a._killPoint(pa); a.score += pa.score; }
+              if (pb.isEnemy) { b._damageEnemy(pb, relSpeed * 0.5); }
+              else { b._triggerPointExplosion(pb, combinedImpulse, maxRadius); b._killPoint(pb); b.score += pb.score; }
+            } else {
+              const totalMass = pa.mass + pb.mass;
+              const cmVx = (pa.vx * pa.mass + pb.vx * pb.mass) / totalMass;
+              const cmVy = (pa.vy * pa.mass + pb.vy * pb.mass) / totalMass;
+              const nx = dx / dist, ny = dy / dist;
+              const overlap = minDist - dist;
+              pa.x -= nx * overlap * (pb.mass / totalMass);
+              pa.y -= ny * overlap * (pb.mass / totalMass);
+              pb.x += nx * overlap * (pa.mass / totalMass);
+              pb.y += ny * overlap * (pa.mass / totalMass);
+              if (!pa.isCore) { pa.vx = cmVx; pa.vy = cmVy; }
+              if (!pb.isCore) { pb.vx = cmVx; pb.vy = cmVy; }
+            }
+          }
+        }
+        // 精细：质点-弹簧（a的质点 vs b的弹簧）
+        for (const pa of a.points) {
+          if (!pa.alive || pa.isCore) continue;
+          for (const sp of b.springs) {
+            if (!sp.alive || !sp.a.alive || !sp.b.alive) continue;
+            if (sp.a === pa || sp.b === pa) continue;
+            const { dist, x: cx, y: cy } = pointToSegmentDist(pa.x, pa.y, sp.a.x, sp.a.y, sp.b.x, sp.b.y);
+            const minDist = pa.radius + 2;
+            if (dist >= minDist) continue;
+            const midVx = (sp.a.vx + sp.b.vx) / 2, midVy = (sp.a.vy + sp.b.vy) / 2;
+            const relSpeed = Math.sqrt((pa.vx - midVx) ** 2 + (pa.vy - midVy) ** 2);
+            const thresh = pa.isEnemy ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
+            if (relSpeed > thresh) {
+              if (pa.isEnemy) { a._damageEnemy(pa, relSpeed * 0.5); }
+              else { a._triggerPointExplosion(pa, pa.explosionImpulse, pa.explosionRadius); a._killPoint(pa); a.score += pa.score; b.cutSpringAndTransferImpulse(sp, pa.explosionImpulse || 200); }
+            } else if (pa.isEnemy) {
+              const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist;
+              pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist);
+              pa.vx = midVx; pa.vy = midVy;
+            } else {
+              b.cutSpringAndTransferImpulse(sp, pa.explosionImpulse || 200);
+              const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist;
+              pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist);
+            }
+          }
+        }
+        // 对称：b的质点 vs a的弹簧
+        for (const pb of b.points) {
+          if (!pb.alive || pb.isCore) continue;
+          for (const sp of a.springs) {
+            if (!sp.alive || !sp.a.alive || !sp.b.alive) continue;
+            if (sp.a === pb || sp.b === pb) continue;
+            const { dist, x: cx, y: cy } = pointToSegmentDist(pb.x, pb.y, sp.a.x, sp.a.y, sp.b.x, sp.b.y);
+            const minDist = pb.radius + 2;
+            if (dist >= minDist) continue;
+            const midVx = (sp.a.vx + sp.b.vx) / 2, midVy = (sp.a.vy + sp.b.vy) / 2;
+            const relSpeed = Math.sqrt((pb.vx - midVx) ** 2 + (pb.vy - midVy) ** 2);
+            const thresh = pb.isEnemy ? ENEMY_PP_THRESHOLD : PP_COLLISION_THRESHOLD;
+            if (relSpeed > thresh) {
+              if (pb.isEnemy) { b._damageEnemy(pb, relSpeed * 0.5); }
+              else { b._triggerPointExplosion(pb, pb.explosionImpulse, pb.explosionRadius); b._killPoint(pb); b.score += pb.score; a.cutSpringAndTransferImpulse(sp, pb.explosionImpulse || 200); }
+            } else if (pb.isEnemy) {
+              const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist;
+              pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist);
+              pb.vx = midVx; pb.vy = midVy;
+            } else {
+              a.cutSpringAndTransferImpulse(sp, pb.explosionImpulse || 200);
+              const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist;
+              pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist);
+            }
+          }
+        }
+      }
+    }
+  }
 }
