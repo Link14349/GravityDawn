@@ -149,6 +149,7 @@ export class GameController {
     this.dragging = false;
     this.dragBullet = null;
     this.predictedPath = [];
+    this.predictedCollision = null;
     this.paused = false;
     // 回到 PLAYING 状态，允许再次悬停进行二次点火
     this.state = GameState.PLAYING;
@@ -160,6 +161,7 @@ export class GameController {
       this.paused = false;
       this.state = GameState.PLAYING;
       this.predictedPath = [];
+      this.predictedCollision = null;
     }
   }
 
