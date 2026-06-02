@@ -197,15 +197,15 @@ export class GameController {
       for (let i = 0; i < path.length; i++) {
         const pt = path[i];
         for (const bld of this._buildings) {
-          const hit = bld.checkCollisionAt(pt.x, pt.y, 2);
+          const hit = bld.checkCollisionAt(pt.x, pt.y, 6);
           if (hit) {
             // 建筑碰撞：截断路径，设置碰撞信息
             path = path.slice(0, i + 1);
             collision = {
               x: hit.x,
               y: hit.y,
-              sourceIndex: -1, // -1 表示建筑碰撞（非星体）
-              time: result.path[i] ? result.path[Math.min(i, result.path.length - 1)] : null,
+              sourceIndex: -1,
+              time: this._getTime() + i * this.physics.dt,
               buildingCollision: hit,
             };
             break;

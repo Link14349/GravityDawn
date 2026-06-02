@@ -177,12 +177,13 @@
               b.alive = false;
             }
             // 碰撞检测：建筑质点 + 弹簧
-            let buildingHit = building.checkBulletCollision(b.x, b.y, BULLET_R);
-            if (!buildingHit) {
-              const springHit = building.checkSpringCollision(b.x, b.y, BULLET_R);
-              if (springHit) buildingHit = springHit; // 弹簧也算命中
-            }
-            if (buildingHit) {
+            const hitPoint = building.checkBulletCollision(b.x, b.y, BULLET_R);
+            const hitSpring = hitPoint ? null : building.checkSpringCollision(b.x, b.y, BULLET_R);
+            if (hitPoint || hitSpring) {
+              if (hitSpring) {
+                // 弹簧命中：切断弹簧 + 冲量传递给两端质点
+                building.cutSpringAndTransferImpulse(hitSpring, b.getEffectiveExplosionImpulse());
+              }
               const effR = b.getEffectiveExplosionRadius();
               const effP = b.getEffectiveExplosionImpulse();
               building.applyExplosion(b.x, b.y, effR, effP);

@@ -283,6 +283,33 @@ export class Building {
   }
 
   /**
+   * 切断弹簧并将冲量沿弹簧传递给两端质点
+   * @param {Spring} spring - 被击中的弹簧
+   * @param {number} impulse - 冲击量
+   */
+  cutSpringAndTransferImpulse(spring, impulse) {
+    if (!spring.alive) return;
+    spring.alive = false;
+
+    const dx = spring.b.x - spring.a.x;
+    const dy = spring.b.y - spring.a.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    if (len < 0.001) return;
+    const nx = dx / len;
+    const ny = dy / len;
+
+    // 冲量沿弹簧方向施加给两端质点
+    if (!spring.a.fixed && spring.a.alive) {
+      spring.a.vx += (impulse * nx) / spring.a.mass;
+      spring.a.vy += (impulse * ny) / spring.a.mass;
+    }
+    if (!spring.b.fixed && spring.b.alive) {
+      spring.b.vx -= (impulse * nx) / spring.b.mass;
+      spring.b.vy -= (impulse * ny) / spring.b.mass;
+    }
+  }
+
+  /**
    * 应用爆炸效果
    * @param {number} ex - 爆心 x
    * @param {number} ey - 爆心 y
