@@ -411,13 +411,14 @@ export class Building {
     const len = Math.sqrt(dx * dx + dy * dy);
     if (len < 0.001) return;
     const nx = dx / len, ny = dy / len;
+    // 爆炸冲量沿弹簧向外推开两端质点
     if (!spring.a.isCore && spring.a.alive) {
-      spring.a.vx += (impulse * nx) / spring.a.mass;
-      spring.a.vy += (impulse * ny) / spring.a.mass;
+      spring.a.vx -= (impulse * nx) / spring.a.mass;
+      spring.a.vy -= (impulse * ny) / spring.a.mass;
     }
     if (!spring.b.isCore && spring.b.alive) {
-      spring.b.vx -= (impulse * nx) / spring.b.mass;
-      spring.b.vy -= (impulse * ny) / spring.b.mass;
+      spring.b.vx += (impulse * nx) / spring.b.mass;
+      spring.b.vy += (impulse * ny) / spring.b.mass;
     }
   }
 
