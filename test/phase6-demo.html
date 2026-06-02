@@ -220,7 +220,7 @@
               if (impact.hit) {
                 const speed = Math.sqrt(b.vx ** 2 + b.vy ** 2);
                 if (b.maxHp > 0) {
-                  b.takeDamage(speed * 0.4);
+                  b.takeDamage(speed * 0.7);
                 } else {
                   // 爆炸弹：立即销毁
                   b.alive = false;
