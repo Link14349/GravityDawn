@@ -69,18 +69,22 @@
     }
 
     // =====================
-    // 子弹 — 绕行星 A 轨道（发射前用参数方程，发射后物理模拟）
+    // 子弹 — 绕行星 A 轨道，3 发不同相位（同轨道分散分布）
     // =====================
-    const bullet = new Bullet({
-      payloadMass: 5, fuelMass: 30, ve: 300, ignitionCount: 2,
-      explosionRadius: 70, explosionImpulse: 4000,
-    });
-    bullet.bindOrbit(planetA, 50, planetA.radius, 0, G_PHYS);
+    const bullets = [
+      new Bullet({ payloadMass: 5, fuelMass: 30, ve: 300, ignitionCount: 2, explosionRadius: 70, explosionImpulse: 4000 }),
+      new Bullet({ payloadMass: 8, fuelMass: 20, ve: 250, ignitionCount: 3, explosionRadius: 50, explosionImpulse: 3000 }),
+      new Bullet({ payloadMass: 3, fuelMass: 40, ve: 350, ignitionCount: 1, explosionRadius: 90, explosionImpulse: 6000 }),
+    ];
+    // 同轨道、不同相位（120° 间隔）
+    for (let i = 0; i < bullets.length; i++) {
+      bullets[i].bindOrbit(planetA, 50, planetA.radius, (i * 2 * Math.PI) / 3, G_PHYS);
+    }
 
     // =====================
     // 控制器 + 镜头
     // =====================
-    const ctrl = new GameController(canvas, { physics: phys, bullets: [bullet], camera: null, getTime: () => physicsTime });
+    const ctrl = new GameController(canvas, { physics: phys, bullets, camera: null, getTime: () => physicsTime });
     const camera = new Camera(canvas, {
       shouldBlockPan: () => ctrl.getHoveredBullet() !== null,
     });
@@ -106,7 +110,11 @@
       let s = '';
       if (st === GameState.PLAYING) s = '▶ 运行中';
       else if (st === GameState.AIMING) s = '⏸ 瞄准中 — 拖拽发射';
-      h.innerHTML = `${s} | ΔV:${bullet.remainingDeltaV.toFixed(0)} | 点火:${bullet.remainingIgnitions}/${bullet.ignitionCount} | 质量:${bullet.totalMass.toFixed(1)}`;
+      // 显示悬停子弹信息
+      const hb = ctrl.getHoveredBullet();
+      const info = hb ? ` | 悬停: 点火${hb.remainingIgnitions}/${hb.ignitionCount} ΔV${hb.remainingDeltaV.toFixed(0)} 质量${hb.totalMass.toFixed(1)}` : '';
+      const alive = bullets.filter(b => b.alive).length;
+      h.innerHTML = `${s} | 存活:${alive}/${bullets.length}${info}`;
     }
 
     // =====================
@@ -124,26 +132,25 @@
       }
 
       // --- 物理步进 ---
-      if (!ctrl.shouldPause() && bullet.alive) {
+      if (!ctrl.shouldPause()) {
         physicsTime += 1 / 60;
-
-        if (!bullet.launched) {
-          // 发射前：参数方程轨道，绑定在母星体上
-          bullet.updateOrbitPosition(1 / 60);
-        } else {
-          // 发射后：物理模拟
-          phys.stepParticle(bullet);
-          trail.push({ x: bullet.x, y: bullet.y });
-        }
-
-        // 碰撞检测
-        const col = phys.checkSourceCollision(bullet.x, bullet.y, BULLET_R);
-        if (col) {
-          explosions.push({
-            x: bullet.x, y: bullet.y, r: 0,
-            maxR: bullet.getEffectiveExplosionRadius() || 50,
-          });
-          bullet.alive = false;
+        for (const b of bullets) {
+          if (!b.alive) continue;
+          if (!b.launched) {
+            b.updateOrbitPosition(1 / 60);
+          } else {
+            phys.stepParticle(b);
+            trail.push({ x: b.x, y: b.y });
+          }
+          // 碰撞检测
+          const col = phys.checkSourceCollision(b.x, b.y, BULLET_R);
+          if (col) {
+            explosions.push({
+              x: b.x, y: b.y, r: 0,
+              maxR: b.getEffectiveExplosionRadius() || 50,
+            });
+            b.alive = false;
+          }
         }
       }
 
@@ -215,26 +222,28 @@
       }
 
       // 子弹
-      if (bullet.alive && isFinite(bullet.x) && isFinite(bullet.y)) {
-        const hov = ctrl.getHoveredBullet() === bullet;
+      const hoveredBullet = ctrl.getHoveredBullet();
+      for (const b of bullets) {
+        if (!b.alive || !isFinite(b.x) || !isFinite(b.y)) continue;
+        const hov = b === hoveredBullet;
         if (hov) {
           ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(bullet.x, bullet.y, BULLET_R + 7, 0, Math.PI * 2); ctx.stroke();
+          ctx.beginPath(); ctx.arc(b.x, b.y, BULLET_R + 7, 0, Math.PI * 2); ctx.stroke();
         }
-        const col = bullet.launched ? '#ff7744' : '#44ccff';
-        const g = ctx.createRadialGradient(bullet.x, bullet.y, 0, bullet.x, bullet.y, BULLET_R);
+        const col = b.launched ? '#ff7744' : '#44ccff';
+        const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, BULLET_R);
         g.addColorStop(0, '#fff');
         g.addColorStop(0.4, col);
         g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(bullet.x, bullet.y, BULLET_R, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(b.x, b.y, BULLET_R, 0, Math.PI * 2); ctx.fill();
         // 方向线
-        const sp = Math.sqrt(bullet.vx ** 2 + bullet.vy ** 2);
+        const sp = Math.sqrt(b.vx ** 2 + b.vy ** 2);
         if (sp > 1) {
           ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.moveTo(bullet.x, bullet.y);
-          ctx.lineTo(bullet.x + bullet.vx / sp * 12, bullet.y + bullet.vy / sp * 12);
+          ctx.moveTo(b.x, b.y);
+          ctx.lineTo(b.x + b.vx / sp * 12, b.y + b.vy / sp * 12);
           ctx.stroke();
         }
       }
