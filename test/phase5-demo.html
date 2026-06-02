@@ -81,22 +81,24 @@
       color: '#88aacc', explosionRadius: 20, explosionImpulse: 1000,
     });
 
-    // 弹簧：核心悬挂 → 第二层（row 1, indices 3,4,5）
+    // 弹簧：核心悬挂 → 第二层（刚度大幅提升，防止掉落）
     for (let i = 0; i < 3; i++) {
-      building.addSpring({ a: core, b: towerPoints[i + 3], stiffness: 350, breakTension: 500 });
+      building.addSpring({ a: core, b: towerPoints[i + 3], stiffness: 800, damping: 20, breakTension: 1500 });
     }
-    // 弹簧：第二层 → 第一层（row 0, indices 0,1,2）
+    // 弹簧：第二层 → 第一层
     for (let i = 0; i < 3; i++) {
-      building.addSpring({ a: towerPoints[i + 3], b: towerPoints[i], stiffness: 300, breakTension: 400 });
+      building.addSpring({ a: towerPoints[i + 3], b: towerPoints[i], stiffness: 600, damping: 15, breakTension: 1000 });
     }
     // 弹簧：第一层 → 底部
-    building.addSpring({ a: towerPoints[0], b: base, stiffness: 250, breakTension: 350 });
-    building.addSpring({ a: towerPoints[1], b: base, stiffness: 300, breakTension: 400 });
-    building.addSpring({ a: towerPoints[2], b: base, stiffness: 250, breakTension: 350 });
-    // ---- 无核心建筑（自由漂浮三角结构，在恒星左上方）----
-    const fA = freeBuilding.addPoint({ x: 480, y: 280, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
-    const fB = freeBuilding.addPoint({ x: 520, y: 270, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
-    const fC = freeBuilding.addPoint({ x: 500, y: 310, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    building.addSpring({ a: towerPoints[0], b: base, stiffness: 500, damping: 15, breakTension: 800 });
+    building.addSpring({ a: towerPoints[1], b: base, stiffness: 600, damping: 15, breakTension: 1000 });
+    building.addSpring({ a: towerPoints[2], b: base, stiffness: 500, damping: 15, breakTension: 800 });
+    // ---- 无核心建筑（紧贴恒星表面，低高度避免摔坏）----
+    const surfX = star.getPosition().x;
+    const surfY = star.getPosition().y + star.radius + 5;
+    const fA = freeBuilding.addPoint({ x: surfX - 15, y: surfY, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fB = freeBuilding.addPoint({ x: surfX + 15, y: surfY, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fC = freeBuilding.addPoint({ x: surfX, y: surfY - 25, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     freeBuilding.addSpring({ a: fA, b: fB, stiffness: 250, damping: 10, breakTension: 600 });
     freeBuilding.addSpring({ a: fB, b: fC, stiffness: 250, damping: 10, breakTension: 600 });
     freeBuilding.addSpring({ a: fC, b: fA, stiffness: 250, damping: 10, breakTension: 600 });
@@ -105,15 +107,7 @@
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < 2; col++) {
         const idx = row * 3 + col;
-        building.addSpring({ a: towerPoints[idx], b: towerPoints[idx + 1], stiffness: 150, breakTension: 250 });
-      }
-    }
-
-    // 水平弹簧
-    for (let row = 0; row < 2; row++) {
-      for (let col = 0; col < 2; col++) {
-        const idx = row * 3 + col;
-        building.addSpring({ a: towerPoints[idx], b: towerPoints[idx + 1], stiffness: 150, breakTension: 250 });
+        building.addSpring({ a: towerPoints[idx], b: towerPoints[idx + 1], stiffness: 300, damping: 10, breakTension: 500 });
       }
     }
 
