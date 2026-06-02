@@ -59,12 +59,13 @@
     const allBodies = [star, planetA, planetB];
 
     // =====================
-    // 物理引擎
+    // 物理引擎（带轨道函数，用于轨迹预测）
     // =====================
     const phys = new PhysicsEngine({ G: G_PHYS });
+    let physicsTime = 0;
     for (const b of allBodies) {
       const p = b.getPosition();
-      phys.addGravitySource(p.x, p.y, b.mass, b.collisionRadius);
+      phys.addGravitySource(p.x, p.y, b.mass, b.collisionRadius, b.orbitFn);
     }
 
     // =====================
@@ -82,7 +83,7 @@
     // =====================
     // 控制器 + 镜头
     // =====================
-    const ctrl = new GameController(canvas, { physics: phys, bullets: [bullet], camera: null });
+    const ctrl = new GameController(canvas, { physics: phys, bullets: [bullet], camera: null, getTime: () => physicsTime });
     const camera = new Camera(canvas, {
       shouldBlockPan: () => ctrl.getHoveredBullet() !== null,
     });
@@ -127,6 +128,7 @@
 
       // --- 物理步进 ---
       if (!ctrl.shouldPause() && bullet.alive) {
+        physicsTime += 1 / 60;
         phys.stepParticle(bullet);
         if (bullet.launched) trail.push({ x: bullet.x, y: bullet.y });
 
@@ -171,6 +173,26 @@
       // 预测轨迹
       const pred = ctrl.getPredictedPath();
       if (pred.length > 0) r.drawPredictionPath(pred, 'rgba(255, 230, 60, 0.7)');
+
+      // 预测碰撞点 + 虚线行星框
+      const predCol = ctrl.getPredictedCollision();
+      if (predCol && predCol.sourceIndex < allBodies.length) {
+        const colBody = allBodies[predCol.sourceIndex];
+        const cp = colBody.orbitFn(physicsTime); // 碰撞时行星位置
+        // 橙色碰撞点
+        ctx.fillStyle = '#ff6633';
+        ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ff6633'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 10, 0, Math.PI * 2); ctx.stroke();
+        // 虚线标出行星
+        ctx.strokeStyle = '#ff6633'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.arc(cp.x, cp.y, colBody.collisionRadius, 0, Math.PI * 2);
+        ctx.stroke(); ctx.setLineDash([]);
+        // 标签
+        ctx.fillStyle = '#ff6633'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('COLLISION', predCol.x, predCol.y - 18);
+      }
 
       // 拖拽箭头
       const dv = ctrl.getDragVector();

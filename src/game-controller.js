@@ -28,12 +28,14 @@ export class GameController {
    * @param {import('./physics.js').PhysicsEngine} options.physics
    * @param {import('./bullet.js').Bullet[]} options.bullets
    * @param {import('./camera.js').Camera} options.camera
+   * @param {() => number} [options.getTime] - 获取当前物理时间
    */
-  constructor(canvas, { physics, bullets, camera }) {
+  constructor(canvas, { physics, bullets, camera, getTime }) {
     this.canvas = canvas;
     this.physics = physics;
     this.bullets = bullets;
     this.camera = camera;
+    this._getTime = getTime || (() => 0);
 
     this.state = GameState.PLAYING;
     this.paused = false;
@@ -53,6 +55,7 @@ export class GameController {
 
     // 预测轨迹缓存
     this.predictedPath = [];
+    this.predictedCollision = null; // { x, y, sourceIndex } | null
 
     this._bindEvents();
   }
@@ -113,6 +116,7 @@ export class GameController {
         this.state = GameState.PLAYING;
         this.paused = false;
         this.predictedPath = [];
+        this.predictedCollision = null;
       }
     }
   }
@@ -179,7 +183,9 @@ export class GameController {
       mass: this.dragBullet.totalMass,
     };
 
-    this.predictedPath = this.physics.predictTrajectory(simState, 300, 1 / 30);
+    const result = this.physics.predictTrajectory(simState, 400, 1 / 30, this._getTime());
+    this.predictedPath = result.path;
+    this.predictedCollision = result.collision;
   }
 
   /**
@@ -204,6 +210,11 @@ export class GameController {
   /** 获取预测轨迹 */
   getPredictedPath() {
     return this.predictedPath;
+  }
+
+  /** 获取预测碰撞点 */
+  getPredictedCollision() {
+    return this.predictedCollision;
   }
 
   /** 获取当前悬停的子弹 */

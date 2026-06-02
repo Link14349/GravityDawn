@@ -20,9 +20,9 @@ export class PhysicsEngine {
     this.particles = [];
   }
 
-  /** 添加引力源（星体），可选碰撞半径 */
-  addGravitySource(x, y, mass, collisionRadius = 0) {
-    this.gravitySources.push({ x, y, mass, collisionRadius });
+  /** 添加引力源（星体），可选碰撞半径和轨道函数 */
+  addGravitySource(x, y, mass, collisionRadius = 0, orbitFn = null) {
+    this.gravitySources.push({ x, y, mass, collisionRadius, orbitFn });
   }
 
   /**
@@ -158,20 +158,52 @@ export class PhysicsEngine {
 
   /**
    * 预测粒子未来轨迹（不改变实际状态）
+   * 会模拟引力源随时间的轨道运动，并检测碰撞
    * @param {{ x, y, vx, vy, mass }} initialState
    * @param {number} steps - 预测步数
    * @param {number} predDt - 预测步长
-   * @returns {{ x: number, y: number }[]}
+   * @param {number} [startTime=0] - 当前物理时间（用于轨道函数求值）
+   * @returns {{ path: {x:number,y:number}[], collision: {x:number,y:number,sourceIndex:number}|null }}
    */
-  predictTrajectory(initialState, steps = PREDICTION_STEPS, predDt = PREDICTION_DT) {
+  predictTrajectory(initialState, steps = PREDICTION_STEPS, predDt = PREDICTION_DT, startTime = 0) {
     const path = [];
     let x = initialState.x;
     let y = initialState.y;
     let vx = initialState.vx;
     let vy = initialState.vy;
 
+    // 复制引力源状态（避免改变实际状态）
+    const simSources = this.gravitySources.map(s => ({
+      x: s.x, y: s.y, mass: s.mass,
+      collisionRadius: s.collisionRadius || 0,
+      orbitFn: s.orbitFn || null,
+    }));
+    let t = startTime;
+
     for (let i = 0; i < steps; i++) {
-      const { ax, ay } = this.calcGravityAccel(x, y);
+      t += predDt;
+
+      // 推进引力源轨道位置
+      for (const s of simSources) {
+        if (s.orbitFn) {
+          const pos = s.orbitFn(t);
+          s.x = pos.x;
+          s.y = pos.y;
+        }
+      }
+
+      // 计算引力加速度（基于推进后的源位置）
+      let ax = 0, ay = 0;
+      for (const s of simSources) {
+        const dx = s.x - x;
+        const dy = s.y - y;
+        const distSq = dx * dx + dy * dy;
+        const dist = Math.sqrt(distSq);
+        const r = Math.max(dist, MIN_DISTANCE);
+        const aMag = this.G * s.mass / (r * r);
+        ax += aMag * dx / dist;
+        ay += aMag * dy / dist;
+      }
 
       // 半隐式欧拉
       vx += ax * predDt;
@@ -180,9 +212,20 @@ export class PhysicsEngine {
       y += vy * predDt;
 
       path.push({ x, y });
+
+      // 碰撞检测
+      for (let j = 0; j < simSources.length; j++) {
+        const s = simSources[j];
+        if (s.collisionRadius <= 0) continue;
+        const dx = s.x - x;
+        const dy = s.y - y;
+        if (Math.sqrt(dx * dx + dy * dy) < s.collisionRadius) {
+          return { path, collision: { x, y, sourceIndex: j } };
+        }
+      }
     }
 
-    return path;
+    return { path, collision: null };
   }
 
   /** 获取当前所有引力源 */
