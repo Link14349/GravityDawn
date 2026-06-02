@@ -25,13 +25,13 @@ index.html            — 主页面
 
 ---
 
-## Phase 1：工程搭建 [ ]
-- [ ] npm 初始化，安装 webpack / babel / css-loader / html-webpack-plugin 等依赖
-- [ ] 建立目录结构 (src/, src/css/, img/, test/)
-- [ ] 配置 webpack.config.js
-- [ ] 创建 index.html 主页面
-- [ ] 最小化 canvas 渲染 Demo，验证构建链跑通
-- [ ] 产物：test/phase1-demo.html — 黑底 canvas + "Hello Gravity Shooter"
+## Phase 1：工程搭建 [x]
+- [x] npm 初始化，安装 webpack / babel / css-loader / html-webpack-plugin 等依赖
+- [x] 建立目录结构 (src/, src/css/, img/, test/)
+- [x] 配置 webpack.config.js
+- [x] 创建 index.html 主页面
+- [x] 最小化 canvas 渲染 Demo，验证构建链跑通
+- [x] 产物：test/phase1-demo.html — 黑底 canvas + "Hello Gravity Shooter"
 
 ## Phase 2：物理引擎 [ ]
 - [ ] 实现 src/constants.js：引力常量 G、时间步长等
