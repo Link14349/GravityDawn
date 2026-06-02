@@ -223,6 +223,7 @@ export class Building {
 
     // 7. 质点间碰撞检测
     this._checkPointCollisions(explosions);
+    this._checkPointSpringCollisions(explosions);
 
     return { explosions };
   }
@@ -304,6 +305,48 @@ export class Building {
           b.y += ny * overlap * (a.mass / totalMass);
           if (!a.isCore) { a.vx = cmVx; a.vy = cmVy; }
           if (!b.isCore) { b.vx = cmVx; b.vy = cmVy; }
+        }
+      }
+    }
+  }
+
+  /** 质点-弹簧碰撞检测 */
+  _checkPointSpringCollisions(explosions) {
+    const springThickness = 2;
+    for (const p of this.points) {
+      if (!p.alive || p.isCore) continue;
+      for (const sp of this.springs) {
+        if (!sp.alive) continue;
+        // 跳过与自身相连的弹簧（已由弹簧力处理）
+        if (sp.a === p || sp.b === p) continue;
+        const { dist, x: cx, y: cy } = pointToSegmentDist(p.x, p.y, sp.a.x, sp.a.y, sp.b.x, sp.b.y);
+        const minDist = p.radius + springThickness;
+        if (dist >= minDist) continue;
+
+        // 相对速度（质点在弹簧最近点处的速度 vs 弹簧中点速度）
+        const midVx = (sp.a.vx + sp.b.vx) / 2;
+        const midVy = (sp.a.vy + sp.b.vy) / 2;
+        const relSpeed = Math.sqrt((p.vx - midVx) ** 2 + (p.vy - midVy) ** 2);
+
+        if (relSpeed > PP_COLLISION_THRESHOLD) {
+          // 高速→爆炸
+          const combinedImpulse = p.explosionImpulse;
+          const maxRadius = p.explosionRadius;
+          explosions.push({ x: cx, y: cy, radius: maxRadius, impulse: combinedImpulse });
+          this._triggerPointExplosion(p, combinedImpulse, maxRadius);
+          p.alive = false;
+          this.score += p.score;
+          // 弹簧也断裂
+          sp.alive = false;
+        } else {
+          // 低速→切断弹簧+传递冲量
+          this.cutSpringAndTransferImpulse(sp, p.explosionImpulse || 200);
+          // 分离重叠
+          const nx = (cx - p.x) / dist;
+          const ny = (cy - p.y) / dist;
+          const overlap = minDist - dist;
+          p.x -= nx * overlap;
+          p.y -= ny * overlap;
         }
       }
     }
