@@ -102,8 +102,8 @@
     const fC = freeBuilding.addPoint({ x: sqX - sqSize, y: sqBaseY + sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     const fD = freeBuilding.addPoint({ x: sqX + sqSize, y: sqBaseY + sqSize * 2, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
     // 敌人（孤立质点，不连弹簧，放在结构内部）
-    building.addPoint({ x: tp.x, y: surfaceY - 50, mass: 12, radius: 7, score: 150, important: true, isEnemy: true, color: '#44dd44', explosionRadius: 30, explosionImpulse: 2000 });
-    building.addPoint({ x: tp.x + 20, y: surfaceY - 80, mass: 12, radius: 7, score: 150, important: true, isEnemy: true, color: '#44dd44', explosionRadius: 30, explosionImpulse: 2000 });
+    building.addPoint({ x: tp.x, y: surfaceY - 45, mass: 12, radius: 9, score: 200, important: true, isEnemy: true, hp: 300, color: '#44ff44', renderRadius: 12, explosionRadius: 30, explosionImpulse: 2000 });
+    building.addPoint({ x: tp.x + 25, y: surfaceY - 75, mass: 12, radius: 9, score: 200, important: true, isEnemy: true, hp: 300, color: '#44ff44', renderRadius: 12, explosionRadius: 30, explosionImpulse: 2000 });
 
     // 4 边 + 2 对角线
     const K = 500, BT = 50000;
@@ -114,7 +114,7 @@
     freeBuilding.addSpring({ a: fA, b: fD, stiffness: K, damping: 20, breakTension: BT });
     freeBuilding.addSpring({ a: fB, b: fC, stiffness: K, damping: 20, breakTension: BT });
     // 敌人在方块中心
-    freeBuilding.addPoint({ x: sqX, y: sqBaseY + sqSize, mass: 12, radius: 7, score: 200, important: true, isEnemy: true, color: '#44dd44', explosionRadius: 30, explosionImpulse: 2000 });
+    freeBuilding.addPoint({ x: sqX, y: sqBaseY + sqSize, mass: 15, radius: 9, score: 300, important: true, isEnemy: true, hp: 300, color: '#44ff44', renderRadius: 12, explosionRadius: 30, explosionImpulse: 2000 });
 
     // 水平稳定弹簧
     for (let row = 0; row < 2; row++) {
