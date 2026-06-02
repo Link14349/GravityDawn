@@ -297,6 +297,11 @@ export class Renderer {
       ctx.lineTo(tipX - 7 * Math.cos(dvAng - 0.6), tipY - 7 * Math.sin(dvAng - 0.6));
       ctx.lineTo(tipX - 7 * Math.cos(dvAng + 0.6), tipY - 7 * Math.sin(dvAng + 0.6));
       ctx.closePath(); ctx.fill();
+      // Delta-V 数值标注
+      const labelX = tipX + 14 * Math.cos(dvAng);
+      const labelY = tipY + 14 * Math.sin(dvAng);
+      ctx.fillStyle = '#44ff88'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(`ΔV ${dv.magnitude.toFixed(0)}`, labelX, labelY);
     }
   }
 
