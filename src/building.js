@@ -13,8 +13,10 @@
  *   - 核心点：参数方程轨道（或静止），脱离后全体结构崩溃
  */
 
-/** 碰撞爆炸速度阈值 */
-export const COLLISION_VELOCITY_THRESHOLD = 80;
+/** 质点-质点碰撞爆炸速度阈值 */
+export const PP_COLLISION_THRESHOLD = 80;
+/** 质点-星体碰撞爆炸速度阈值（更高，防止轻微触碰就爆炸） */
+export const PS_COLLISION_THRESHOLD = 300;
 
 // ========================
 // 工具函数
@@ -225,7 +227,7 @@ export class Building {
   /** 星体碰撞 */
   _checkStarCollisions(physics, bodies, explosions) {
     for (const p of this.points) {
-      if (!p.alive) continue;
+      if (!p.alive || p.isCore) continue;
       for (let i = 0; i < bodies.length; i++) {
         const body = bodies[i];
         const bp = body.getPosition();
@@ -237,8 +239,8 @@ export class Building {
           const relVx = p.vx - bv.vx;
           const relVy = p.vy - bv.vy;
           const relSpeed = Math.sqrt(relVx * relVx + relVy * relVy);
-          if (relSpeed > COLLISION_VELOCITY_THRESHOLD) {
-            // 爆炸
+          if (relSpeed > PS_COLLISION_THRESHOLD) {
+            // 高速→爆炸消失记分
             const totalImpulse = p.explosionImpulse;
             const maxRadius = p.explosionRadius;
             explosions.push({ x: p.x, y: p.y, radius: maxRadius, impulse: totalImpulse });
@@ -246,6 +248,13 @@ export class Building {
             p.alive = false;
             if (p.important) this.score += p.score;
             else this.score += p.score * 0.7;
+          } else {
+            // 低速→完全非弹性碰撞（附着在星体表面）
+            const nx = dx / dist, ny = dy / dist;
+            p.x = bp.x + (colR + p.radius) * nx;
+            p.y = bp.y + (colR + p.radius) * ny;
+            p.vx = bv.vx;
+            p.vy = bv.vy;
           }
         }
       }
@@ -268,7 +277,7 @@ export class Building {
         const relVx = b.vx - a.vx, relVy = b.vy - a.vy;
         const relSpeed = Math.sqrt(relVx * relVx + relVy * relVy);
 
-        if (relSpeed > COLLISION_VELOCITY_THRESHOLD) {
+        if (relSpeed > PP_COLLISION_THRESHOLD) {
           // 高速碰撞→爆炸
           const combinedImpulse = a.explosionImpulse + b.explosionImpulse;
           const maxRadius = Math.max(a.explosionRadius, b.explosionRadius);
