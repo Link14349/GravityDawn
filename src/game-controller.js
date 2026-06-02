@@ -27,11 +27,13 @@ export class GameController {
    * @param {Object} options
    * @param {import('./physics.js').PhysicsEngine} options.physics
    * @param {import('./bullet.js').Bullet[]} options.bullets
+   * @param {import('./camera.js').Camera} options.camera
    */
-  constructor(canvas, { physics, bullets }) {
+  constructor(canvas, { physics, bullets, camera }) {
     this.canvas = canvas;
     this.physics = physics;
     this.bullets = bullets;
+    this.camera = camera;
 
     this.state = GameState.PLAYING;
     this.paused = false;
@@ -64,13 +66,15 @@ export class GameController {
     this.canvas.addEventListener('mouseenter', (e) => this._onMouseEnter(e));
   }
 
-  /** 获取鼠标在 canvas 中的坐标 */
+  /** 获取鼠标在 canvas 中的世界坐标 */
   _getCanvasPos(e) {
     const rect = this.canvas.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+    if (this.camera) {
+      return this.camera.screenToWorld(sx, sy);
+    }
+    return { x: sx, y: sy };
   }
 
   /** 检测鼠标是否悬停在可机动的子弹上 */

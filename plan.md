@@ -48,17 +48,19 @@ index.html            — 主页面
 - [x] 实现 src/renderer.js 基础：星空背景 + 星体渲染
 - [x] 产物：test/phase3-demo.html — 多个星体按各自参数方程轨道运行
 
-## Phase 4：子弹系统 [ ]
-- [ ] 实现 src/bullet.js：Bullet 类
+## Phase 4：子弹系统 [x]
+- [x] 实现 src/bullet.js：Bullet 类
   - 近地轨道初始状态计算
   - 齐奥尔科夫斯基火箭公式（燃料质量与 Delta-V 关系）
   - 轨迹预测（虚线绘制）
   - 属性：点火次数、总 ΔV、载荷质量、燃料质量、爆炸半径、爆炸冲击量
-- [ ] 实现 src/game-controller.js 基础输入处理：
+- [x] 实现 src/game-controller.js 基础输入处理：
   - 鼠标悬停子弹 → 时间暂停
   - 点击拖拽 → ΔV 矢量输入（方向=拖动方向，大小=拖动长度）
   - 松开鼠标 → 发射
-- [ ] 产物：test/phase4-demo.html — 一颗星体 + 可交互发射的子弹 + 虚线轨迹预测
+- [x] 产物：test/phase4-demo.html — 一颗星体 + 可交互发射的子弹 + 虚线轨迹预测
+- [x] 额外：实现 src/camera.js — Camera 类（世界↔屏幕坐标转换、滚轮缩放、Alt+拖拽平移）
+- [x] 集成 Camera 到 game-controller（坐标转换）和渲染管线（applyTransform/restoreTransform）
 
 ## Phase 5：建筑与目标系统 [ ]
 - [ ] 实现 src/building.js：Building、MassPoint、Spring、Ship 类
