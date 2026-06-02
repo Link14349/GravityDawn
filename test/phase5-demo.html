@@ -93,16 +93,15 @@
     building.addSpring({ a: towerPoints[0], b: base, stiffness: 2500, damping: 15, breakTension: 4000 });
     building.addSpring({ a: towerPoints[1], b: base, stiffness: 3000, damping: 15, breakTension: 5000 });
     building.addSpring({ a: towerPoints[2], b: base, stiffness: 2500, damping: 15, breakTension: 4000 });
-    // ---- 无核心建筑（三角形，底部贴星体表面）----
-    const triX = star.getPosition().x;
-    const triBaseY = star.getPosition().y + star.collisionRadius + 2;
-    const fA = freeBuilding.addPoint({ x: triX - 15, y: triBaseY, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
-    const fB = freeBuilding.addPoint({ x: triX + 15, y: triBaseY, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
-    const fC = freeBuilding.addPoint({ x: triX, y: triBaseY - 25, mass: 10, radius: 6, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
-    // 刚度需抵消重力: F_gravity ≈ 10×450 = 4500, 压缩 1.5px 需 k=3000
-    freeBuilding.addSpring({ a: fA, b: fB, stiffness: 3000, damping: 15, breakTension: 15000 });
-    freeBuilding.addSpring({ a: fB, b: fC, stiffness: 3000, damping: 15, breakTension: 15000 });
-    freeBuilding.addSpring({ a: fC, b: fA, stiffness: 3000, damping: 15, breakTension: 15000 });
+    // ---- 无核心建筑（三角形，放在目标行星上，引力更小）----
+    const triX = tp.x;
+    const triBaseY = tp.y - targetPlanet.collisionRadius + 8;
+    const fA = freeBuilding.addPoint({ x: triX - 12, y: triBaseY, mass: 10, radius: 4, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fB = freeBuilding.addPoint({ x: triX + 12, y: triBaseY, mass: 10, radius: 4, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    const fC = freeBuilding.addPoint({ x: triX, y: triBaseY - 35, mass: 10, radius: 4, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 });
+    freeBuilding.addSpring({ a: fA, b: fB, stiffness: 2000, damping: 15, breakTension: 10000 });
+    freeBuilding.addSpring({ a: fB, b: fC, stiffness: 2000, damping: 15, breakTension: 10000 });
+    freeBuilding.addSpring({ a: fC, b: fA, stiffness: 2000, damping: 15, breakTension: 10000 });
 
     // 水平稳定弹簧
     for (let row = 0; row < 2; row++) {
