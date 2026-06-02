@@ -90,7 +90,7 @@ export class Spring {
    * @param {number} [options.damping=5]
    * @param {number} [options.breakTension=500]
    */
-  constructor({ a, b, stiffness = 200, damping = 5, breakTension = 500 }) {
+  constructor({ a, b, stiffness = 200, damping = 15, breakTension = 800 }) {
     this.a = a; this.b = b;
     const dx = b.x - a.x, dy = b.y - a.y;
     this.restLength = Math.sqrt(dx * dx + dy * dy);
@@ -198,12 +198,15 @@ export class Building {
         forces[ib].fy -= totalForce * ny;
       }
 
-      // 4. 半隐式欧拉
+      // 4. 半隐式欧拉 + 速度阻尼
       for (let i = 0; i < this.points.length; i++) {
         const p = this.points[i];
         if (!p.alive || p.isCore) continue;
         p.vx += (forces[i].fx / p.mass) * subDt;
         p.vy += (forces[i].fy / p.mass) * subDt;
+        // 全局速度阻尼（防止弹簧系统振荡发散）
+        p.vx *= 0.998;
+        p.vy *= 0.998;
         p.x += p.vx * subDt;
         p.y += p.vy * subDt;
       }
