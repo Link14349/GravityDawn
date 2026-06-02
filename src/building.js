@@ -312,6 +312,27 @@ export class Building {
   /** 触发单点爆炸，影响周围质点和弹簧 */
   _triggerPointExplosion(point, impulse, radius) {
     if (radius <= 0) return;
+
+    // 与该点相连的所有弹簧断裂，并传递爆炸冲量给连接点
+    for (const sp of this.springs) {
+      if (!sp.alive) continue;
+      if (sp.a === point || sp.b === point) {
+        sp.alive = false;
+        const other = sp.a === point ? sp.b : sp.a;
+        if (other.alive && !other.isCore) {
+          const dx = other.x - point.x;
+          const dy = other.y - point.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > 0.001) {
+            const nx = dx / dist;
+            const ny = dy / dist;
+            other.vx += (impulse * nx) / other.mass;
+            other.vy += (impulse * ny) / other.mass;
+          }
+        }
+      }
+    }
+
     const vapR = radius / 3;
     for (const p of this.points) {
       if (p === point || !p.alive) continue;
