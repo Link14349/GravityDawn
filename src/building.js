@@ -161,7 +161,7 @@ export class Building {
     const explosions = [];
 
     for (let s = 0; s < subSteps; s++) {
-      // 1. 核心点更新（参数方程轨道）
+      // 1. 核心点更新
       for (const p of this.points) {
         if (!p.alive || !p.isCore) continue;
         p._orbitTime += subDt;
@@ -170,7 +170,7 @@ export class Building {
         p.y = pos.y;
       }
 
-      // 2. 重力（非核心点感受万有引力）
+      // 2. 重力
       for (const p of this.points) {
         if (!p.alive || p.isCore) continue;
         const { ax, ay } = physics.calcGravityAccel(p.x, p.y);
@@ -204,32 +204,33 @@ export class Building {
         if (!p.alive || p.isCore) continue;
         p.vx += (forces[i].fx / p.mass) * subDt;
         p.vy += (forces[i].fy / p.mass) * subDt;
-        // 全局速度阻尼（防止弹簧系统振荡发散）
         p.vx *= 0.998;
         p.vy *= 0.998;
         p.x += p.vx * subDt;
         p.y += p.vy * subDt;
       }
 
-      // 5. 弹簧断裂
+      // 5. 子步内星体碰撞检测（增量修正，防止速度累积）
+      this._resolveStarCollisions(bodies, explosions, subDt);
+
+      // 6. 弹簧断裂
       for (const sp of this.springs) {
         if (!sp.alive) continue;
-        if (sp.tension > sp.breakTension) sp.alive = false;
+        if (sp.tension > sp.breakTension) {
+          console.log('[spring break] tension:', sp.tension.toFixed(1), 'breakTension:', sp.breakTension, 'len:', sp.length.toFixed(1), 'rest:', sp.restLength.toFixed(1));
+          sp.alive = false;
+        }
       }
     }
 
-    // 6. 星体碰撞检测（每帧一次，与子步无关）
-    this._checkStarCollisions(physics, bodies, explosions);
-
-    // 7. 质点间碰撞检测
+    // 质点间碰撞检测（每帧一次）
     this._checkPointCollisions(explosions);
-    this._checkPointSpringCollisions(explosions);
 
     return { explosions };
   }
 
-  /** 星体碰撞 */
-  _checkStarCollisions(physics, bodies, explosions) {
+  /** 子步内星体碰撞修正（增量处理，防止速度累积到爆炸阈值） */
+  _resolveStarCollisions(bodies, explosions, subDt) {
     for (const p of this.points) {
       if (!p.alive || p.isCore) continue;
       for (let i = 0; i < bodies.length; i++) {
@@ -244,24 +245,22 @@ export class Building {
           const relVy = p.vy - bv.vy;
           const relSpeed = Math.sqrt(relVx * relVx + relVy * relVy);
           if (relSpeed > PS_COLLISION_THRESHOLD) {
-            // 高速→爆炸消失记分
-            const totalImpulse = p.explosionImpulse;
-            const maxRadius = p.explosionRadius;
-            explosions.push({ x: p.x, y: p.y, radius: maxRadius, impulse: totalImpulse });
-            this._triggerPointExplosion(p, totalImpulse, maxRadius);
+            console.log('[star boom] point on', body.label || 'star', 'speed:', relSpeed.toFixed(1), 'threshold:', PS_COLLISION_THRESHOLD);
+            explosions.push({ x: p.x, y: p.y, radius: p.explosionRadius, impulse: p.explosionImpulse });
+            this._triggerPointExplosion(p, p.explosionImpulse, p.explosionRadius);
             p.alive = false;
             if (p.important) this.score += p.score;
             else this.score += p.score * 0.7;
           } else {
-            // 完全非弹性碰撞：法向速度归零（附着表面），切向速度不变
+            // 完全非弹性碰撞：法向归零，推到表面
             const nx = dx / dist, ny = dy / dist;
             p.x = bp.x + (colR + p.radius) * nx;
             p.y = bp.y + (colR + p.radius) * ny;
-            const relVx = p.vx - bv.vx;
-            const relVy = p.vy - bv.vy;
-            const relVn = relVx * nx + relVy * ny; // 法向分量
-            p.vx -= relVn * nx; // 只清零法向
-            p.vy -= relVn * ny; // 切向保留
+            const rvx = p.vx - bv.vx;
+            const rvy = p.vy - bv.vy;
+            const relVn = rvx * nx + rvy * ny;
+            p.vx -= relVn * nx;
+            p.vy -= relVn * ny;
           }
         }
       }
@@ -285,6 +284,7 @@ export class Building {
         const relSpeed = Math.sqrt(relVx * relVx + relVy * relVy);
 
         if (relSpeed > PP_COLLISION_THRESHOLD) {
+          console.log('[pt-pt boom] speed:', relSpeed.toFixed(1), 'threshold:', PP_COLLISION_THRESHOLD);
           // 高速碰撞→爆炸
           const combinedImpulse = a.explosionImpulse + b.explosionImpulse;
           const maxRadius = Math.max(a.explosionRadius, b.explosionRadius);
@@ -332,6 +332,7 @@ export class Building {
         const relSpeed = Math.sqrt((p.vx - midVx) ** 2 + (p.vy - midVy) ** 2);
 
         if (relSpeed > PP_COLLISION_THRESHOLD) {
+          console.log('[pt-spring boom] speed:', relSpeed.toFixed(1), 'threshold:', PP_COLLISION_THRESHOLD);
           // 高速→爆炸
           const combinedImpulse = p.explosionImpulse;
           const maxRadius = p.explosionRadius;
@@ -342,6 +343,7 @@ export class Building {
           // 弹簧也断裂
           sp.alive = false;
         } else {
+          console.log('[pt-spring cut]', 'dist:', dist.toFixed(1), 'speed:', relSpeed.toFixed(1));
           // 低速→切断弹簧+传递冲量
           this.cutSpringAndTransferImpulse(sp, p.explosionImpulse || 200);
           // 分离重叠
@@ -358,6 +360,7 @@ export class Building {
   /** 触发单点爆炸，影响周围质点和弹簧 */
   _triggerPointExplosion(point, impulse, radius) {
     if (radius <= 0) return;
+    console.log('[point explode] radius:', radius.toFixed(1), 'impluse:', impulse.toFixed(1));
 
     // 与该点相连的所有弹簧断裂，并传递爆炸冲量给连接点
     for (const sp of this.springs) {
