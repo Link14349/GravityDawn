@@ -220,7 +220,7 @@ export class PhysicsEngine {
         const dx = s.x - x;
         const dy = s.y - y;
         if (Math.sqrt(dx * dx + dy * dy) < s.collisionRadius) {
-          return { path, collision: { x, y, sourceIndex: j } };
+          return { path, collision: { x, y, sourceIndex: j, time: t } };
         }
       }
     }

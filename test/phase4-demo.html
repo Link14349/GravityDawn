@@ -174,24 +174,22 @@
       const pred = ctrl.getPredictedPath();
       if (pred.length > 0) r.drawPredictionPath(pred, 'rgba(255, 230, 60, 0.7)');
 
-      // 预测碰撞点 + 虚线行星框
+      // 预测碰撞点 + 虚线行星轮廓（只在拖拽瞄准时显示）
       const predCol = ctrl.getPredictedCollision();
       if (predCol && predCol.sourceIndex < allBodies.length) {
         const colBody = allBodies[predCol.sourceIndex];
-        const cp = colBody.orbitFn(physicsTime); // 碰撞时行星位置
+        // 用碰撞时刻的行星轨道位置
+        const cp = colBody.orbitFn(predCol.time);
         // 橙色碰撞点
         ctx.fillStyle = '#ff6633';
         ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 6, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#ff6633'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 10, 0, Math.PI * 2); ctx.stroke();
-        // 虚线标出行星
-        ctx.strokeStyle = '#ff6633'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+        // 碰撞时刻行星虚线轮廓（用行星自身颜色）
+        ctx.strokeStyle = colBody.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
         ctx.beginPath();
         ctx.arc(cp.x, cp.y, colBody.collisionRadius, 0, Math.PI * 2);
         ctx.stroke(); ctx.setLineDash([]);
-        // 标签
-        ctx.fillStyle = '#ff6633'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('COLLISION', predCol.x, predCol.y - 18);
       }
 
       // 拖拽箭头
