@@ -121,7 +121,7 @@
     // =====================
     // 控制器 + 镜头
     // =====================
-    const ctrl = new GameController(canvas, { physics: phys, bullets, camera: null, getTime: () => physicsTime });
+    const ctrl = new GameController(canvas, { physics: phys, bullets, camera: null, getTime: () => physicsTime, buildings: [building] });
     const camera = new Camera(canvas, { shouldBlockPan: () => ctrl.getHoveredBullet() !== null });
     ctrl.camera = camera;
     camera.x = 700; camera.y = 400; camera.zoom = 0.9;
@@ -176,13 +176,17 @@
               explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || 50 });
               b.alive = false;
             }
-            // 碰撞检测：建筑质点
-            const hitPoint = building.checkBulletCollision(b.x, b.y, BULLET_R);
-            if (hitPoint) {
+            // 碰撞检测：建筑质点 + 弹簧
+            let buildingHit = building.checkBulletCollision(b.x, b.y, BULLET_R);
+            if (!buildingHit) {
+              const springHit = building.checkSpringCollision(b.x, b.y, BULLET_R);
+              if (springHit) buildingHit = springHit; // 弹簧也算命中
+            }
+            if (buildingHit) {
               const effR = b.getEffectiveExplosionRadius();
               const effP = b.getEffectiveExplosionImpulse();
-              const result = building.applyExplosion(b.x, b.y, effR, effP);
-              explosions.push({ x: b.x, y: b.y, r: 0, maxR: effR || 50, buildingResult: result });
+              building.applyExplosion(b.x, b.y, effR, effP);
+              explosions.push({ x: b.x, y: b.y, r: 0, maxR: effR || 50 });
               b.alive = false;
             }
           }

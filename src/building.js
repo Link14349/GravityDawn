@@ -7,6 +7,27 @@
  * - Building: 弹簧质点物理模拟 + 爆炸毁伤
  */
 
+/**
+ * 点到线段的最短距离
+ * @returns {{ dist: number, x: number, y: number }}
+ */
+export function pointToSegmentDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq < 0.0001) {
+    // 退化为点
+    const d = Math.sqrt((px - ax) ** 2 + (py - ay) ** 2);
+    return { dist: d, x: ax, y: ay };
+  }
+  let t = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+  t = Math.max(0, Math.min(1, t));
+  const cx = ax + t * dx;
+  const cy = ay + t * dy;
+  const dist = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
+  return { dist, x: cx, y: cy };
+}
+
 // ========================
 // MassPoint
 // ========================
@@ -208,6 +229,54 @@ export class Building {
       const dy = p.y - by;
       if (Math.sqrt(dx * dx + dy * dy) < p.radius + br) {
         return p;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * 检测子弹是否碰到弹簧线（弹簧碰撞体积）
+   * @param {number} bx - 子弹 x
+   * @param {number} by - 子弹 y
+   * @param {number} br - 子弹半径
+   * @returns {Spring|null}
+   */
+  checkSpringCollision(bx, by, br) {
+    const springThickness = 2;
+    for (const sp of this.springs) {
+      if (!sp.alive) continue;
+      const { dist } = pointToSegmentDist(bx, by, sp.a.x, sp.a.y, sp.b.x, sp.b.y);
+      if (dist < springThickness + br) {
+        return sp;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * 检测点是否与建筑任意元素碰撞（质点和弹簧）
+   * @param {number} x
+   * @param {number} y
+   * @param {number} r - 检测半径
+   * @returns {{ type: 'point', point: MassPoint, x: number, y: number } | { type: 'spring', spring: Spring, x: number, y: number } | null}
+   */
+  checkCollisionAt(x, y, r) {
+    // 质点碰撞
+    for (const p of this.points) {
+      if (!p.alive) continue;
+      const dx = p.x - x;
+      const dy = p.y - y;
+      if (Math.sqrt(dx * dx + dy * dy) < p.radius + r) {
+        return { type: 'point', point: p, x, y };
+      }
+    }
+    // 弹簧碰撞
+    const springThickness = 2;
+    for (const sp of this.springs) {
+      if (!sp.alive) continue;
+      const { dist, x: cx, y: cy } = pointToSegmentDist(x, y, sp.a.x, sp.a.y, sp.b.x, sp.b.y);
+      if (dist < springThickness + r) {
+        return { type: 'spring', spring: sp, x: cx, y: cy };
       }
     }
     return null;

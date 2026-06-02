@@ -254,21 +254,39 @@ export class Renderer {
       this.drawPredictionPath(pred, 'rgba(255, 230, 60, 0.7)');
     }
 
-    // 预测碰撞点 + 虚线行星轮廓
+    // 预测碰撞点 + 轮廓
     const predCol = ctrl.getPredictedCollision();
-    if (predCol && predCol.sourceIndex < bodies.length) {
-      const colBody = bodies[predCol.sourceIndex];
-      const cp = colBody.orbitFn(predCol.time);
+    if (predCol) {
       // 橙色碰撞点
       ctx.fillStyle = '#ff6633';
       ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 6, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#ff6633'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 10, 0, Math.PI * 2); ctx.stroke();
-      // 碰撞时刻行星虚线轮廓
-      ctx.strokeStyle = colBody.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
-      ctx.beginPath();
-      ctx.arc(cp.x, cp.y, colBody.collisionRadius, 0, Math.PI * 2);
-      ctx.stroke(); ctx.setLineDash([]);
+
+      if (predCol.buildingCollision) {
+        // 建筑碰撞：标记碰撞元素
+        const bc = predCol.buildingCollision;
+        if (bc.type === 'point') {
+          ctx.strokeStyle = bc.point.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+          ctx.beginPath();
+          ctx.arc(bc.point.x, bc.point.y, bc.point.radius, 0, Math.PI * 2);
+          ctx.stroke(); ctx.setLineDash([]);
+        } else if (bc.type === 'spring') {
+          ctx.strokeStyle = 'rgba(180,200,220,0.8)'; ctx.lineWidth = 3; ctx.setLineDash([5, 4]);
+          ctx.beginPath();
+          ctx.moveTo(bc.spring.a.x, bc.spring.a.y);
+          ctx.lineTo(bc.spring.b.x, bc.spring.b.y);
+          ctx.stroke(); ctx.setLineDash([]);
+        }
+      } else if (predCol.sourceIndex >= 0 && predCol.sourceIndex < bodies.length) {
+        // 星体碰撞
+        const colBody = bodies[predCol.sourceIndex];
+        const cp = colBody.orbitFn(predCol.time);
+        ctx.strokeStyle = colBody.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.arc(cp.x, cp.y, colBody.collisionRadius, 0, Math.PI * 2);
+        ctx.stroke(); ctx.setLineDash([]);
+      }
     }
 
     // 拖拽线 + Delta-V 方向小箭头

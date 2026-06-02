@@ -29,13 +29,15 @@ export class GameController {
    * @param {import('./bullet.js').Bullet[]} options.bullets
    * @param {import('./camera.js').Camera} options.camera
    * @param {() => number} [options.getTime] - 获取当前物理时间
+   * @param {import('./building.js').Building[]} [options.buildings] - 建筑列表（用于碰撞预测）
    */
-  constructor(canvas, { physics, bullets, camera, getTime }) {
+  constructor(canvas, { physics, bullets, camera, getTime, buildings }) {
     this.canvas = canvas;
     this.physics = physics;
     this.bullets = bullets;
     this.camera = camera;
     this._getTime = getTime || (() => 0);
+    this._buildings = buildings || [];
 
     this.state = GameState.PLAYING;
     this.paused = false;
@@ -187,8 +189,34 @@ export class GameController {
 
     // 使用和实际物理相同的 dt + subSteps，保证预测精度完全一致
     const result = this.physics.predictTrajectory(simState, 800, this.physics.dt, this._getTime());
-    this.predictedPath = result.path;
-    this.predictedCollision = result.collision;
+    let path = result.path;
+    let collision = result.collision;
+
+    // 检查建筑碰撞（质点和弹簧），可能比星体碰撞更早发生
+    if (this._buildings.length > 0) {
+      for (let i = 0; i < path.length; i++) {
+        const pt = path[i];
+        for (const bld of this._buildings) {
+          const hit = bld.checkCollisionAt(pt.x, pt.y, 2);
+          if (hit) {
+            // 建筑碰撞：截断路径，设置碰撞信息
+            path = path.slice(0, i + 1);
+            collision = {
+              x: hit.x,
+              y: hit.y,
+              sourceIndex: -1, // -1 表示建筑碰撞（非星体）
+              time: result.path[i] ? result.path[Math.min(i, result.path.length - 1)] : null,
+              buildingCollision: hit,
+            };
+            break;
+          }
+        }
+        if (collision && collision.buildingCollision) break;
+      }
+    }
+
+    this.predictedPath = path;
+    this.predictedCollision = collision;
   }
 
   /**
