@@ -253,12 +253,15 @@ export class Building {
             if (p.important) this.score += p.score;
             else this.score += p.score * 0.7;
           } else {
-            // 低速→完全非弹性碰撞（附着在星体表面）
+            // 完全非弹性碰撞：法向速度归零（附着表面），切向速度不变
             const nx = dx / dist, ny = dy / dist;
             p.x = bp.x + (colR + p.radius) * nx;
             p.y = bp.y + (colR + p.radius) * ny;
-            p.vx = bv.vx;
-            p.vy = bv.vy;
+            const relVx = p.vx - bv.vx;
+            const relVy = p.vy - bv.vy;
+            const relVn = relVx * nx + relVy * ny; // 法向分量
+            p.vx -= relVn * nx; // 只清零法向
+            p.vy -= relVn * ny; // 切向保留
           }
         }
       }
