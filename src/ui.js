@@ -61,7 +61,8 @@ export class UIManager {
       stars: 0,
       passed: false,
       currentLevel: 1,
-      totalLevels: 4,
+      totalLevels: 0,
+      levelNames: [],
     };
 
     // 回调
@@ -163,7 +164,7 @@ export class UIManager {
     const startX = (this.w - (cardsPerRow * cardW + (cardsPerRow - 1) * gapX)) / 2;
     const startY = 120;
 
-    const levelNames = ['前哨站', '陨石带', '雷蒙堡垒', '行星追逐'];
+    const levelNames = this.gameData.levelNames;
 
     for (let i = 0; i < this.gameData.totalLevels; i++) {
       const col = i % cardsPerRow;
@@ -221,7 +222,7 @@ export class UIManager {
     ctx.fillRect(0, 0, this.w, 44);
 
     // 关卡名（居中）
-    const levelNames = ['前哨站', '陨石带', '雷蒙堡垒', '行星追逐'];
+    const levelNames = this.gameData.levelNames;
     ctx.fillStyle = C.accent;
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';

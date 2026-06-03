@@ -28,6 +28,7 @@ export function initGame() {
   const ctx = r.ctx;
 
   ui.gameData.totalLevels = LEVELS.length;
+  ui.gameData.levelNames = LEVELS.map(l => l.name);
 
   // 预加载开始界面图片
   ['img/startup-bg.png', 'img/logo.png'].forEach((src, idx) => {
@@ -61,6 +62,7 @@ export function initGame() {
     for (const b of bullets) b._trail = [];
     ui.gameData.currentLevel = levelIndex + 1;
     ui.gameData.totalLevels = LEVELS.length;
+  ui.gameData.levelNames = LEVELS.map(l => l.name);
     ui.goTo(Screen.GAME_HUD);
   }
 
