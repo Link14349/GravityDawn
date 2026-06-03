@@ -167,13 +167,19 @@ export class Building {
     const explosions = [];
 
     for (let s = 0; s < subSteps; s++) {
-      // 1. 核心点更新
+      // 1. 核心点更新 + 非核心点跟随位移
       for (const p of this.points) {
         if (!p.alive || !p.isCore || !p._orbit) continue;
+        const oldX = p.x, oldY = p.y;
         p._orbitTime = (p._orbitTime || 0) + subDt;
         const pos = p._orbit.getWorldPosition(p._orbitTime, p._orbits);
-        p.x = pos.x;
-        p.y = pos.y;
+        const dx = pos.x - oldX, dy = pos.y - oldY;
+        p.x = pos.x; p.y = pos.y;
+        // 非核心点跟随核心位移
+        for (const q of this.points) {
+          if (q === p || !q.alive || q.isCore) continue;
+          q.x += dx; q.y += dy;
+        }
       }
 
       // 2. 重力
