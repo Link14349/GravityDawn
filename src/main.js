@@ -132,7 +132,6 @@ export function initGame() {
           }
         }
       }
-      if (explosions.length > 0) frameHadEvent = true;
       for (const ex of explosions) ex.r += 4;
     }
 
