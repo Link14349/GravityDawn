@@ -46,45 +46,46 @@
       ],
 
       buildings: [
-        // 塔楼（与 phase6 结构一致：核心悬挂+2层塔身+底部+敌人）
+        // 塔楼（phase6 结构：core→row1→row0→base + 水平稳定 + 2敌人）
         {
           points: [
+            // 0: core (y=230)
             { x: 850, y: 230, mass: 200, radius: 8, score: 300, important: true, isCore: true, color: '#ffdd44', explosionRadius: 60, explosionImpulse: 3000 },
-            // row 0 (y=310): important
+            // 1-3: row 0 (y=310) important
             { x: 820, y: 310, mass: 8, radius: 5, score: 20, important: true, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
             { x: 850, y: 310, mass: 8, radius: 5, score: 20, important: true, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
             { x: 880, y: 310, mass: 8, radius: 5, score: 20, important: true, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
-            // row 1 (y=275)
+            // 4-6: row 1 (y=275)
             { x: 820, y: 275, mass: 8, radius: 5, score: 20, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
             { x: 850, y: 275, mass: 8, radius: 5, score: 20, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
             { x: 880, y: 275, mass: 8, radius: 5, score: 20, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
-            // base (y=340)
+            // 7: base (y=340)
             { x: 850, y: 340, mass: 10, radius: 6, score: 50, important: true, color: '#88aacc', explosionRadius: 20, explosionImpulse: 1000 },
-            // enemies
+            // 8-9: enemies (y=290)
             { x: 840, y: 290, mass: 12, radius: 7, score: 200, important: true, isEnemy: true, hp: 150, color: '#44ff44', renderRadius: 8, explosionRadius: 30, explosionImpulse: 2000 },
             { x: 865, y: 290, mass: 12, radius: 7, score: 200, important: true, isEnemy: true, hp: 150, color: '#44ff44', renderRadius: 8, explosionRadius: 30, explosionImpulse: 2000 },
           ],
           springs: [
-            // 核心→row0
-            { a: 0, b: 1, stiffness: 4000, damping: 20, breakTension: 7500 },
-            { a: 0, b: 2, stiffness: 4000, damping: 20, breakTension: 7500 },
-            { a: 0, b: 3, stiffness: 4000, damping: 20, breakTension: 7500 },
-            // row0→row1
-            { a: 1, b: 4, stiffness: 3000, damping: 15, breakTension: 5000 },
-            { a: 2, b: 5, stiffness: 3000, damping: 15, breakTension: 5000 },
-            { a: 3, b: 6, stiffness: 3000, damping: 15, breakTension: 5000 },
-            // row1→base
-            { a: 4, b: 7, stiffness: 2500, damping: 15, breakTension: 4000 },
-            { a: 5, b: 7, stiffness: 3000, damping: 15, breakTension: 5000 },
-            { a: 6, b: 7, stiffness: 2500, damping: 15, breakTension: 4000 },
-            // 水平稳定
+            // core→row1 (0→4,5,6)
+            { a: 0, b: 4, stiffness: 4000, damping: 20, breakTension: 7500 },
+            { a: 0, b: 5, stiffness: 4000, damping: 20, breakTension: 7500 },
+            { a: 0, b: 6, stiffness: 4000, damping: 20, breakTension: 7500 },
+            // row1→row0 (4→1, 5→2, 6→3)
+            { a: 4, b: 1, stiffness: 3000, damping: 15, breakTension: 5000 },
+            { a: 5, b: 2, stiffness: 3000, damping: 15, breakTension: 5000 },
+            { a: 6, b: 3, stiffness: 3000, damping: 15, breakTension: 5000 },
+            // row0→base (1→7, 2→7, 3→7)
+            { a: 1, b: 7, stiffness: 2500, damping: 15, breakTension: 4000 },
+            { a: 2, b: 7, stiffness: 3000, damping: 15, breakTension: 5000 },
+            { a: 3, b: 7, stiffness: 2500, damping: 15, breakTension: 4000 },
+            // 水平 (row0: 1-2,2-3; row1: 4-5,5-6)
             { a: 1, b: 2, stiffness: 1500, damping: 10, breakTension: 2500 },
             { a: 2, b: 3, stiffness: 1500, damping: 10, breakTension: 2500 },
             { a: 4, b: 5, stiffness: 1500, damping: 10, breakTension: 2500 },
             { a: 5, b: 6, stiffness: 1500, damping: 10, breakTension: 2500 },
           ],
         },
-        // 方块（目标行星南极）
+        // 方块（目标行星南极，phase6 结构）
         {
           points: [
             { x: 832, y: 470, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 },
