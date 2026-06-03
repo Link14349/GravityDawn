@@ -262,6 +262,17 @@ export class UIManager {
     ctx.textAlign = 'right';
     ctx.fillText(`分数: ${this.gameData.score}`, this.w - 20, 20);
     ctx.fillText(`剩余子弹: ${this.gameData.bulletsRemaining}`, this.w - 20, 38);
+
+    // 退出按钮（左上）
+    const bw = 80, bh = 32, bx = this.w - 110, by = 50;
+    const hovered = this._isOver(bx, by, bw, bh);
+    ctx.fillStyle = hovered ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)';
+    this._roundRect(ctx, bx, by, bw, bh, 6, true);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '13px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('退出 ▸', bx + bw / 2, by + bh / 2 + 5);
+    this.buttons.push({ x: bx, y: by, w: bw, h: bh, action: () => this.goTo(Screen.LEVEL_SELECT) });
   }
 
   // ========================
