@@ -2,7 +2,7 @@
   {
     "name": "前哨站", "gravity": 300, "camera": { "x": 725, "y": 400, "zoom": 0.75 },
     "stars": [{ "mass": 8000, "radius": 50, "collisionRadius": 45, "color": "#ffbb33", "label": "恒星", "orbit": { "type": "fixed", "x": 600, "y": 400 } }],
-    "planets": [{ "mass": 1500, "radius": 55, "collisionRadius": 50, "color": "#66aaff", "label": "目标行星", "orbit": { "type": "fixed", "x": 850, "y": 400 } }],
+    "planets": [{ "mass": 1500, "radius": 55, "collisionRadius": 50, "color": "#66aaff", "label": "目标行星", "orbit": { "type": "circular", "cx": 600, "cy": 400, "radius": 250, "period": 12, "phase": 0 } }],
     "bullets": [
       { "payloadMass": 5, "fuelMass": 30, "ve": 300, "ignitionCount": 2, "explosionRadius": 60, "explosionImpulse": 3000, "color": "#ffdd44", "renderRadius": 8, "orbitAround": { "bodyIndex": 0, "altitude": 80, "phase": 0 } },
       { "payloadMass": 8, "fuelMass": 20, "ve": 250, "ignitionCount": 3, "explosionRadius": 40, "explosionImpulse": 2000, "color": "#ffdd44", "renderRadius": 8, "orbitAround": { "bodyIndex": 0, "altitude": 110, "phase": 3.1416 } },
@@ -11,7 +11,7 @@
     "buildings": [
       {
         "points": [
-          { "x": 850, "y": 230, "mass": 200, "radius": 8, "score": 300, "important": true, "isCore": true, "color": "#ffdd44", "explosionRadius": 60, "explosionImpulse": 3000 },
+          { "x": 850, "y": 230, "mass": 200, "radius": 8, "score": 300, "important": true, "isCore": true, "coreOrbit": { "bodyIndex": 1, "altitude": 170, "phase": 0 }, "color": "#ffdd44", "explosionRadius": 60, "explosionImpulse": 3000 },
           { "x": 820, "y": 310, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
           { "x": 850, "y": 310, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
           { "x": 880, "y": 310, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
