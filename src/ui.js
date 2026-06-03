@@ -199,7 +199,7 @@ export class UIManager {
 
     // 返回按钮
     const bw = 120, bh = 40;
-    this._btn(ctx, '← 返回', 30, this.h - 60, bw, bh, () => this.goTo(Screen.START), false);
+    this._btn(ctx, '← 返回', 20, 20, bw, bh, () => this.goTo(Screen.START), false);
   }
 
   // ========================
@@ -237,7 +237,7 @@ export class UIManager {
     ctx.fillText(`剩余子弹: ${this.gameData.bulletsRemaining}`, this.w - 20, 38);
 
     // 退出按钮
-    this._btn(ctx, '退出 ▸', this.w - 110, 50, 80, 32, () => this.goTo(Screen.LEVEL_SELECT), false);
+    this._btn(ctx, '退出 ▸', 20, 56, 80, 32, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
   // ========================
@@ -318,8 +318,7 @@ export class UIManager {
     }
 
     // 返回选关
-    const by2 = btnY + btnH + 15;
-    this._btn(ctx, '选关列表', this.w / 2 - btnW / 2, by2, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT));
+    this._btn(ctx, '← 选关', 20, 20, 100, 36, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
   // ========================
