@@ -349,3 +349,39 @@ Canvas 绘制的界面系统，四个屏幕状态：`START → LEVEL_SELECT → 
 | RESULT | 星级 + 任务完成/失败 + 分数面板 + 操作按钮 |
 
 按钮通过鼠标坐标碰撞检测实现点击交互。
+
+---
+
+## 轨道系统 (binding.js)
+
+### Orbit 类
+
+统一所有轨道（星体/行星/建筑核心），支持递归 parent 链。
+
+| 属性 | 说明 |
+|------|------|
+| `id` | 在 level.orbits[] 中的索引 |
+| `type` | `'fixed'` / `'circular'` / `'elliptical'` |
+| `parent` | 父 Orbit id，null=无父级 |
+| `params` | type 相关的局部参数 |
+
+**关键方法：**
+- `getLocalPosition(t)` — 自身局部坐标
+- `getWorldPosition(t, orbits)` — 递归叠加 parent 链的世界坐标
+- `getWorldVelocity(t, orbits)` — 递归叠加 parent 链的世界速度
+
+**levels.json 格式：**
+```json
+{
+  "orbits": [
+    { "type": "fixed", "x": 600, "y": 400 },
+    { "type": "circular", "radius": 250, "period": 12, "parent": 0 },
+    { "type": "fixed", "x": 0, "y": -170, "parent": 1 }
+  ],
+  "stars": [{ "orbit": 0, ... }],
+  "planets": [{ "orbit": 1, ... }],
+  "buildings": [{ "points": [{ "orbit": 2, "isCore": true, ... }] }]
+}
+```
+
+所有实体通过数字索引引用 orbits 数组中的轨道。parent 链递归叠加位置和速度，支持行星绕恒星+建筑核心绕行星的嵌套。

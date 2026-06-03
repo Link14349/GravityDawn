@@ -12,11 +12,9 @@
 {
   name: '前哨站',           // string — 关卡名称
   gravity: 300,             // number — 引力常量 G
-  camera: {                 // 初始镜头位置
-    x: 700, y: 400,         // 镜头中心世界坐标
-    zoom: 0.85              // 缩放级别
-  },
+  camera: { x: 725, y: 400, zoom: 0.75 },
 
+  orbits: [OrbitDef],       // 轨道定义数组，id=索引
   stars: [StarDef],         // 恒星列表
   planets: [PlanetDef],     // 行星列表
   bullets: [BulletDef],     // 子弹配置
@@ -25,7 +23,31 @@
 }
 ```
 
+### OrbitDef
+
+所有轨道统一定义在 `orbits` 数组中，`id = 数组索引`。支持 `parent` 递归叠加。
+
+```js
+// 固定位置
+{ "type": "fixed", "x": 600, "y": 400 }
+
+// 圆形轨道（绕父级）
+{ "type": "circular", "radius": 250, "period": 12, "parent": 0 }
+
+// 椭圆轨道
+{ "type": "elliptical", "rx": 300, "ry": 200, "period": 15, "parent": 0 }
+```
+
+参数：
+- `parent` — 父 Orbit 的 id（null=无父级，即世界坐标原点）
+- `radius` — 圆形轨道半径
+- `rx/ry` — 椭圆轨道半径
+- `period` — 周期（秒）
+- `phase` — 初始相位（弧度，默认 0）
+
 ### StarDef / PlanetDef
+
+星体和行星通过数字索引引用 `orbits` 数组：
 
 ```js
 {
@@ -34,32 +56,50 @@
   collisionRadius: 45,            // 碰撞半径（px），默认 = radius
   color: '#ffbb33',               // 颜色
   label: '恒星',                  // 标签
-  orbit: OrbitDef,                // 轨道定义
+  orbit: 0,                       // 轨道索引（orbits 数组中的序号）
 }
 ```
 
-### OrbitDef
+### BuildingDef
 
-**固定位置：**
+建筑核心点通过数字索引引用 `orbits`：
+
 ```js
-{ type: 'fixed', x: 600, y: 400 }
+{
+  points: [PointDef],        // 质点列表
+  springs: [SpringDef],      // 弹簧列表
+}
 ```
 
-**圆形轨道：**
+#### PointDef
+
 ```js
-{ type: 'circular', cx: 600, cy: 400, radius: 200, period: 10, phase: 0 }
+// 核心点（绑定轨道）：
+{ "mass": 200, "score": 300, "isCore": true, "orbit": 2, "color": "#ffdd44", ... }
+
+// 普通质点（相对核心的偏移）：
+{ "x": -30, "y": 80, "mass": 8, "score": 20, "color": "#cccccc", ... }
+
+// 敌人：
+{ "x": -10, "y": 60, "mass": 12, "score": 200, "isEnemy": true, "hp": 150, ... }
 ```
 
-**椭圆轨道：**
-```js
-{ type: 'elliptical', cx: 600, cy: 400, rx: 300, ry: 200, period: 15, phase: 0 }
-```
+- 核心点：`orbit` 引用全局 orbits 数组，位置自动跟随轨道。无需设置 x/y。
+- 非核心点：`x, y` 为相对核心的世界坐标偏移，加载时自动叠加核心世界位置。
+- 所有非核心点自动继承核心轨道的世界速度。
 
-参数说明：
-- `cx, cy` — 轨道中心
-- `radius / rx, ry` — 轨道半径（px）
-- `period` — 轨道周期（秒）
-- `phase` — 初始相位（弧度）
+#### SpringDef
+
+```js
+{
+  a: 0,                      // 端点 A 的质点索引（在 points 数组中的序号）
+  b: 1,                      // 端点 B 的质点索引
+  stiffness: 4000,           // 劲度系数 k
+  damping: 20,               // 阻尼系数
+  breakTension: 7500,        // 断裂张力阈值
+  restLength: 50             // 原长（默认取初始距离）
+}
+```
 
 ### BulletDef
 
@@ -74,52 +114,11 @@
   color: '#ffdd44',          // 渲染颜色
   renderRadius: 8,           // 渲染半径（px）
   hp: 0,                     // 血量（>0=动能弹）
-  orbitAround: {             // 初始轨道绑定
-    bodyIndex: 0,            // 绕行的星体索引（stars+planets 中的序号）
-    altitude: 80,            // 轨道高度（距星体表面）
-    phase: 0                 // 初始相位（弧度）
+  orbitAround: {             // 初始轨道绑定（子弹保留旧接口）
+    bodyIndex: 0,            // 绕行的星体索引
+    altitude: 80,            // 轨道高度
+    phase: 0                 // 初始相位
   }
-}
-```
-
-### BuildingDef
-
-```js
-{
-  points: [PointDef],        // 质点列表
-  springs: [SpringDef],      // 弹簧列表
-}
-```
-
-#### PointDef
-
-```js
-{
-  x: 850, y: 230,            // 初始坐标
-  mass: 200,                 // 质量
-  radius: 8,                 // 碰撞半径
-  renderRadius: 10,          // 渲染半径（默认 = radius）
-  score: 300,                // 分值
-  important: true,           // 重要目标标记
-  isCore: true,              // 核心点（参数轨道/静止）
-  isEnemy: false,            // 敌人标记
-  hp: 200,                   // 敌人血量
-  color: '#ffdd44',          // 渲染颜色
-  explosionRadius: 60,       // 自身爆炸半径
-  explosionImpulse: 3000,    // 自身爆炸冲量
-}
-```
-
-#### SpringDef
-
-```js
-{
-  a: 0,                      // 端点 A 的质点索引（在 points 数组中的序号）
-  b: 1,                      // 端点 B 的质点索引
-  stiffness: 4000,           // 劲度系数 k
-  damping: 20,               // 阻尼系数
-  breakTension: 7500,        // 断裂张力阈值
-  restLength: 50             // 原长（默认取初始距离）
 }
 ```
 
@@ -143,12 +142,13 @@
 
 | 返回值 | 类型 | 说明 |
 |--------|------|------|
+| `orbits` | `Orbit[]` | 全局轨道数组 |
 | `stars` | `CelestialBody[]` | 恒星列表 |
 | `planets` | `CelestialBody[]` | 行星列表 |
-| `allBodies` | `CelestialBody[]` | 全部星体（=stars+planets） |
-| `bullets` | `Bullet[]` | 子弹列表（含初始轨道绑定） |
+| `allBodies` | `CelestialBody[]` | 全部星体 |
+| `bullets` | `Bullet[]` | 子弹列表 |
 | `buildings` | `Building[]` | 建筑列表 |
-| `physics` | `PhysicsEngine` | 已配置好重力源的物理引擎 |
+| `physics` | `PhysicsEngine` | 已配置的物理引擎 |
 | `camera` | `{x, y, zoom}` | 初始镜头位置 |
 
 ### `LevelManager.checkResult(buildings, winCondition) → Result`
@@ -163,45 +163,42 @@
 }
 ```
 
-星级判定：
-- 1 星：通关条件全部满足
-- 2 星：重要目标全部摧毁
-- 3 星：总分 ≥ minScore × 1.5
+星级：1星=通关, 2星=总分≥minScore×1.5, 3星=总分≥maxScore×0.8
 
 ---
 
-## 完整关卡定义示例
+## 完整关卡示例（移动行星+建筑）
 
-```js
+```json
 {
-  name: '前哨站',
-  gravity: 300,
-  camera: { x: 700, y: 400, zoom: 0.85 },
-  stars: [
-    { mass: 8000, radius: 50, color: '#ffbb33', label: '恒星',
-      orbit: { type: 'fixed', x: 600, y: 400 } }
+  "name": "行星追逐", "gravity": 250,
+  "camera": { "x": 600, "y": 400, "zoom": 0.55 },
+  "orbits": [
+    { "type": "fixed", "x": 600, "y": 400 },
+    { "type": "circular", "radius": 400, "period": 20, "parent": 0 },
+    { "type": "fixed", "x": 0, "y": -170, "parent": 1 }
   ],
-  planets: [
-    { mass: 1500, radius: 55, color: '#66aaff', label: '目标行星',
-      orbit: { type: 'fixed', x: 850, y: 400 } }
+  "stars": [
+    { "mass": 8000, "radius": 50, "color": "#ffbb33", "label": "恒星", "orbit": 0 }
   ],
-  bullets: [
-    { payloadMass: 5, fuelMass: 30, ve: 300, ignitionCount: 2,
-      explosionRadius: 60, explosionImpulse: 3000,
-      color: '#ffdd44', renderRadius: 8,
-      orbitAround: { bodyIndex: 0, altitude: 80, phase: 0 } }
+  "planets": [
+    { "mass": 1500, "radius": 55, "color": "#66aaff", "label": "目标行星", "orbit": 1 }
   ],
-  buildings: [
-    {
-      points: [
-        { x: 850, y: 230, mass: 200, score: 300, important: true, isCore: true, color: '#ffdd44' },
-        { x: 820, y: 310, mass: 8, score: 20, color: '#cccccc' },
-      ],
-      springs: [
-        { a: 0, b: 1, stiffness: 4000, breakTension: 7500 },
-      ]
-    }
-  ],
-  winCondition: { destructionThreshold: 0.3, importantTargetsAll: true, minScore: 100 },
+  "buildings": [{
+    "points": [
+      { "mass": 200, "score": 300, "isCore": true, "orbit": 2, "color": "#ffdd44" },
+      { "x": -30, "y": 80, "mass": 8, "score": 20, "color": "#cccccc" },
+      { "x": 0, "y": 80, "mass": 8, "score": 20, "color": "#cccccc" }
+    ],
+    "springs": [
+      { "a": 0, "b": 1, "stiffness": 4000, "breakTension": 7500 }
+    ]
+  }],
+  "winCondition": { "destructionThreshold": 0.2, "importantTargetsAll": true, "minScore": 100 }
 }
 ```
+
+- `orbits[0]`: 恒星，fixed (600,400)
+- `orbits[1]`: 行星，circular radius=400 period=20，parent=0（绕恒星）
+- `orbits[2]`: 核心，fixed (0,-170)，parent=1（绑定行星）
+- 核心世界坐标 = 行星世界位置 + (0,-170)
