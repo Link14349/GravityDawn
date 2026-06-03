@@ -153,6 +153,14 @@ export class GameController {
 
   _onMouseUp(e) {
     if (!this.dragging) return;
+    if (this._spacePaused) {
+      this.dragging = false;
+      this.dragBullet = null;
+      this.predictedPath = [];
+      this.predictedCollision = null;
+      this.state = GameState.AIMING;
+      return;
+    }
     // 弹弓式：拖动方向与 Delta-V 方向相反
     const dvx = -(this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
     const dvy = -(this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
