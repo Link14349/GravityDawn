@@ -149,8 +149,12 @@ export class UIManager {
     const bw = 220, bh = 56;
     this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h * 0.62 + 60, bw, bh, () => this.goTo(Screen.LEVEL_SELECT), true);
 
+    // Credits
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.font = '12px Arial';
+    ctx.fillText('制作人: Link14349 | 程序: Claude Code | 音乐美术: 待定', this.w / 2, this.h - 38);
     // 版本
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
     ctx.font = '11px monospace';
     ctx.fillText('v0.7 — Phase 7 Demo', this.w / 2, this.h - 20);
   }
