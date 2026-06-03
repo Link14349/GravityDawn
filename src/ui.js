@@ -48,9 +48,7 @@ export class UIManager {
 
     // 图片由外部预加载后注入
     this._bgImage = null;
-    this._logoCanvas = null;
-    this._logoW = 0;
-    this._logoH = 0;
+    this._logoImage = null;
 
     // 游戏状态数据（供 HUD 和结算使用）
     this.gameData = {
@@ -405,8 +403,9 @@ export class UIManager {
   }
 
   _drawLogo(ctx) {
-    if (!this._logoCanvas) return;
-    const lx = this.w / 2 - this._logoW / 2, ly = this.h * 0.05;
-    ctx.drawImage(this._logoCanvas, lx, ly);
+    if (!this._logoImage) return;
+    const lw = 480, lh = this._logoImage.height * (480 / this._logoImage.width);
+    const lx = this.w / 2 - lw / 2, ly = this.h * 0.05;
+    ctx.drawImage(this._logoImage, lx, ly, lw, lh);
   }
 }
