@@ -125,11 +125,20 @@ export class UIManager {
 
     // Logo 用 HTML overlay (img/logo.png) 显示，canvas 只画下方内容
 
-    // 英文副标题
-    ctx.fillStyle = C.accent2;
-    ctx.font = 'italic 18px Arial';
+    // 英文副标题（发光效果）
+    const subY = this.h * 0.55;
+    const subText = 'G R A V I T Y   D A W N';
+    ctx.font = 'italic 24px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('GRAVITY DAWN', this.w / 2, this.h * 0.55);
+    // 外发光
+    ctx.shadowColor = C.accent2;
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = C.accent2;
+    ctx.fillText(subText, this.w / 2, subY);
+    ctx.shadowBlur = 0;
+    // 主体
+    ctx.fillStyle = '#a0b4ff';
+    ctx.fillText(subText, this.w / 2, subY);
 
     // 分隔线
     ctx.strokeStyle = C.accent;
