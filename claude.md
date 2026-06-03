@@ -26,3 +26,6 @@
 - 禁止在 demo HTML 中用 JS 重新实现游戏逻辑（物理、实体、渲染器等）
 - demo 的 JS 必须内联在 HTML 的 `<script>` 标签中，且尽可能短，只做场景搭建和调用 ./src 里的模块
 - demo 通过 webpack-dev-server 运行，利用 webpack 将内联 script 中 import 的 src 模块打包
+
+# UI 设计规则 (重要)
+- 禁止擅自执行用户没让你执行的 UI 改动，严格只做用户明确要求的内容
