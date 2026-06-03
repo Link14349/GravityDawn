@@ -189,10 +189,17 @@ export function initGame() {
   // ============================================================
   // 主循环
   // ============================================================
+  // 退出关卡时销毁，重新进入时重建
+  const _origGoTo = ui.goTo.bind(ui);
+  ui.goTo = (screen) => {
+    if (ui.screen === Screen.GAME_HUD && screen !== Screen.GAME_HUD) {
+      ctrl = null; buildings = null; gameActive = false;
+    }
+    _origGoTo(screen);
+  };
+
   function loop() {
     if (ui.screen !== Screen.GAME_HUD) {
-      // 退出时标记需要重新加载
-      gameActive = false;
       ui.render();
       requestAnimationFrame(loop);
       return;
