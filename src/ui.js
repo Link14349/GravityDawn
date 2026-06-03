@@ -302,8 +302,8 @@ export class UIManager {
       this._btn(ctx, '↻ 重试', cx - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, true);
     }
 
-    // 返回
-    this._btn(ctx, '← 退出', 8, 7, 78, 28, () => this.goTo(Screen.LEVEL_SELECT), false);
+    // 返回关卡列表
+    this._btn(ctx, '返回关卡列表', cx - 80, btnY + btnH + 15, 160, 36, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
   // ========================
