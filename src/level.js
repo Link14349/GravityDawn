@@ -45,37 +45,40 @@ function createBody(def) {
 /** 从关卡数据构建建筑 */
 function createBuilding(def, allBodies) {
   const b = new Building();
-  // 计算核心偏移量（用于把相对坐标转世界坐标）
-  let coreOffsetX = 0, coreOffsetY = 0, _coreInitVx, _coreInitVy;
+  let coreOffsetX = 0, coreOffsetY = 0, initVx, initVy;
+  // coreOrbit 优先，其次 planetBind
   for (const pd of def.points) {
     if (pd.isCore && pd.coreOrbit) {
       const host = allBodies[pd.coreOrbit.bodyIndex];
-      const altitude = pd.coreOrbit.altitude || 0;
-      const phase = pd.coreOrbit.phase || 0;
+      const alt = pd.coreOrbit.altitude || 0;
+      const ph = pd.coreOrbit.phase || 0;
       const hp = host.getPosition();
-      coreOffsetX = hp.x + altitude * Math.cos(phase);
-      coreOffsetY = hp.y + altitude * Math.sin(phase);
-      // 计算行星初速度（供建筑质点继承）
+      coreOffsetX = hp.x + alt * Math.cos(ph);
+      coreOffsetY = hp.y + alt * Math.sin(ph);
       const hv = host.getVelocity();
-      _coreInitVx = hv.vx;
-      _coreInitVy = hv.vy;
+      initVx = hv.vx; initVy = hv.vy;
       pd.orbitFn = (t) => {
         const hp2 = host.getPosition();
-        return { x: hp2.x + altitude * Math.cos(phase), y: hp2.y + altitude * Math.sin(phase) };
+        return { x: hp2.x + alt * Math.cos(ph), y: hp2.y + alt * Math.sin(ph) };
       };
     }
   }
+  if (initVx === undefined && def.planetBind != null) {
+    const host = allBodies[def.planetBind];
+    const hv = host.getVelocity();
+    initVx = hv.vx; initVy = hv.vy;
+    const hp = host.getPosition();
+    coreOffsetX = hp.x; coreOffsetY = hp.y;
+  }
   const pts = [];
   for (const pd of def.points) {
-    const pt = { ...pd }; // 复制，避免修改 JSON 原数据
+    const pt = { ...pd };
     if (!pd.isCore) {
       pt.x = (pd.x || 0) + coreOffsetX;
       pt.y = (pd.y || 0) + coreOffsetY;
-      if (_coreInitVx !== undefined) {
-        pt.vx = _coreInitVx;
-        pt.vy = _coreInitVy;
-      }
     }
+    // 所有质点继承行星初速度
+    if (initVx !== undefined) { pt.vx = initVx; pt.vy = initVy; }
     pts.push(b.addPoint(pt));
   }
   for (const sd of (def.springs || [])) {

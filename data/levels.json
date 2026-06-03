@@ -157,6 +157,21 @@
           { "a": 1, "b": 2, "stiffness": 1500, "damping": 10, "breakTension": 2500 }, { "a": 2, "b": 3, "stiffness": 1500, "damping": 10, "breakTension": 2500 },
           { "a": 4, "b": 5, "stiffness": 1500, "damping": 10, "breakTension": 2500 }, { "a": 5, "b": 6, "stiffness": 1500, "damping": 10, "breakTension": 2500 }
         ]
+      },
+      {
+        "planetBind": 1,
+        "points": [
+          { "x": 0, "y": 150, "mass": 10, "radius": 5, "score": 30, "color": "#ff9966", "explosionRadius": 20, "explosionImpulse": 600 },
+          { "x": 30, "y": 150, "mass": 10, "radius": 5, "score": 30, "color": "#ff9966", "explosionRadius": 20, "explosionImpulse": 600 },
+          { "x": 0, "y": 180, "mass": 10, "radius": 5, "score": 30, "color": "#ff9966", "explosionRadius": 20, "explosionImpulse": 600 },
+          { "x": 30, "y": 180, "mass": 10, "radius": 5, "score": 30, "color": "#ff9966", "explosionRadius": 20, "explosionImpulse": 600 },
+          { "x": 15, "y": 165, "mass": 12, "radius": 7, "score": 300, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 }
+        ],
+        "springs": [
+          { "a": 0, "b": 1, "stiffness": 500, "damping": 20, "breakTension": 50000 }, { "a": 1, "b": 3, "stiffness": 500, "damping": 20, "breakTension": 50000 },
+          { "a": 3, "b": 2, "stiffness": 500, "damping": 20, "breakTension": 50000 }, { "a": 2, "b": 0, "stiffness": 500, "damping": 20, "breakTension": 50000 },
+          { "a": 0, "b": 3, "stiffness": 500, "damping": 20, "breakTension": 50000 }, { "a": 1, "b": 2, "stiffness": 500, "damping": 20, "breakTension": 50000 }
+        ]
       }
     ],
     "winCondition": { "destructionThreshold": 0.2, "importantTargetsAll": true, "minScore": 100 }
