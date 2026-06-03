@@ -226,6 +226,12 @@ export class UIManager {
     ctx.fillText(`分数: ${this.gameData.score}`, this.w - 20, 20);
     ctx.fillText(`剩余子弹: ${this.gameData.bulletsRemaining}`, this.w - 20, 38);
 
+    // 操作提示
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.font = '11px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('鼠标悬停子弹 → 时间暂停 | 拖拽子弹（向后拉=向前射）→ 松开发射 | 滚轮缩放 | 空白处拖拽平移镜头', this.w / 2, this.h - 10);
+
     // 退出按钮（黑条内）
     this._btn(ctx, '← 退出', 8, 7, 78, 28, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
