@@ -46,7 +46,7 @@ function createBody(def) {
 function createBuilding(def, allBodies) {
   const b = new Building();
   // 计算核心偏移量（用于把相对坐标转世界坐标）
-  let coreOffsetX = 0, coreOffsetY = 0;
+  let coreOffsetX = 0, coreOffsetY = 0, _coreInitVx, _coreInitVy;
   for (const pd of def.points) {
     if (pd.isCore && pd.coreOrbit) {
       const host = allBodies[pd.coreOrbit.bodyIndex];
@@ -55,6 +55,10 @@ function createBuilding(def, allBodies) {
       const hp = host.getPosition();
       coreOffsetX = hp.x + altitude * Math.cos(phase);
       coreOffsetY = hp.y + altitude * Math.sin(phase);
+      // 计算行星初速度（供建筑质点继承）
+      const hv = host.getVelocity();
+      _coreInitVx = hv.vx;
+      _coreInitVy = hv.vy;
       pd.orbitFn = (t) => {
         const hp2 = host.getPosition();
         return { x: hp2.x + altitude * Math.cos(phase), y: hp2.y + altitude * Math.sin(phase) };
@@ -66,6 +70,11 @@ function createBuilding(def, allBodies) {
     if (!pd.isCore) {
       pd.x = (pd.x || 0) + coreOffsetX;
       pd.y = (pd.y || 0) + coreOffsetY;
+      // 非核心点继承行星速度
+      if (_coreInitVx !== undefined) {
+        pd.vx = _coreInitVx;
+        pd.vy = _coreInitVy;
+      }
     }
     pts.push(b.addPoint(pd));
   }
