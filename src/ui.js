@@ -197,7 +197,7 @@ export class UIManager {
       }
     }
 
-    // 返回按钮
+    // 返回
     this._btn(ctx, '← 退出', 8, 7, 78, 28, () => this.goTo(Screen.START), false);
   }
 
