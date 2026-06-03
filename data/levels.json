@@ -21,15 +21,15 @@
       {
         "points": [
           { "mass": 200, "radius": 8, "score": 300, "important": true, "isCore": true, "orbit": 2, "color": "#ffdd44", "explosionRadius": 60, "explosionImpulse": 3000 },
-          { "x": 820, "y": 310, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 850, "y": 310, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 880, "y": 310, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 820, "y": 275, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 850, "y": 275, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 880, "y": 275, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 850, "y": 340, "mass": 10, "radius": 6, "score": 50, "color": "#88aacc", "explosionRadius": 20, "explosionImpulse": 1000 },
-          { "x": 840, "y": 290, "mass": 12, "radius": 7, "score": 200, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 },
-          { "x": 865, "y": 290, "mass": 12, "radius": 7, "score": 200, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 }
+          { "x": -30, "y": 80, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 0, "y": 80, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 30, "y": 80, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": -30, "y": 45, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 0, "y": 45, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 30, "y": 45, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 0, "y": 110, "mass": 10, "radius": 6, "score": 50, "color": "#88aacc", "explosionRadius": 20, "explosionImpulse": 1000 },
+          { "x": -10, "y": 60, "mass": 12, "radius": 7, "score": 200, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 },
+          { "x": 15, "y": 60, "mass": 12, "radius": 7, "score": 200, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 }
         ],
         "springs": [
           { "a": 0, "b": 4, "stiffness": 4000, "damping": 20, "breakTension": 7500 }, { "a": 0, "b": 5, "stiffness": 4000, "damping": 20, "breakTension": 7500 }, { "a": 0, "b": 6, "stiffness": 4000, "damping": 20, "breakTension": 7500 },
@@ -80,12 +80,12 @@
       {
         "points": [
           { "mass": 180, "radius": 8, "score": 300, "important": true, "isCore": true, "orbit": 3, "color": "#ffdd44", "explosionRadius": 60, "explosionImpulse": 3000 },
-          { "x": 750, "y": 260, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 780, "y": 260, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 810, "y": 260, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 780, "y": 270, "mass": 10, "radius": 6, "score": 50, "color": "#88aacc", "explosionRadius": 20, "explosionImpulse": 1000 },
-          { "x": 760, "y": 255, "mass": 12, "radius": 7, "score": 200, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 },
-          { "x": 800, "y": 255, "mass": 12, "radius": 7, "score": 200, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 }
+          { "x": -30, "y": 50, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 0, "y": 50, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 30, "y": 50, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 0, "y": 60, "mass": 10, "radius": 6, "score": 50, "color": "#88aacc", "explosionRadius": 20, "explosionImpulse": 1000 },
+          { "x": -20, "y": 45, "mass": 12, "radius": 7, "score": 200, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 },
+          { "x": 20, "y": 45, "mass": 12, "radius": 7, "score": 200, "important": true, "isEnemy": true, "hp": 150, "color": "#44ff44", "renderRadius": 8, "explosionRadius": 30, "explosionImpulse": 2000 }
         ],
         "springs": [
           { "a": 0, "b": 1, "stiffness": 3500, "damping": 20, "breakTension": 7000 }, { "a": 0, "b": 2, "stiffness": 3500, "damping": 20, "breakTension": 7000 }, { "a": 0, "b": 3, "stiffness": 3500, "damping": 20, "breakTension": 7000 },
@@ -129,16 +129,16 @@
       {
         "points": [
           { "mass": 250, "radius": 9, "score": 500, "important": true, "isCore": true, "orbit": 2, "color": "#ffdd44", "explosionRadius": 80, "explosionImpulse": 4000 },
-          { "x": 810, "y": 330, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 850, "y": 330, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 890, "y": 330, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 810, "y": 295, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 850, "y": 295, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 890, "y": 295, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
-          { "x": 850, "y": 355, "mass": 12, "radius": 6, "score": 60, "color": "#88aacc", "explosionRadius": 20, "explosionImpulse": 1000 },
-          { "x": 835, "y": 310, "mass": 15, "radius": 8, "score": 250, "important": true, "isEnemy": true, "hp": 200, "color": "#44ff44", "renderRadius": 9, "explosionRadius": 30, "explosionImpulse": 2500 },
-          { "x": 865, "y": 310, "mass": 15, "radius": 8, "score": 250, "important": true, "isEnemy": true, "hp": 200, "color": "#44ff44", "renderRadius": 9, "explosionRadius": 30, "explosionImpulse": 2500 },
-          { "x": 850, "y": 280, "mass": 15, "radius": 8, "score": 300, "important": true, "isEnemy": true, "hp": 250, "color": "#44ff44", "renderRadius": 9, "explosionRadius": 30, "explosionImpulse": 3000 }
+          { "x": -40, "y": 70, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 0, "y": 70, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 40, "y": 70, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": -40, "y": 35, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 0, "y": 35, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 40, "y": 35, "mass": 10, "radius": 5, "score": 30, "color": "#cccccc", "explosionRadius": 15, "explosionImpulse": 800 },
+          { "x": 0, "y": 95, "mass": 12, "radius": 6, "score": 60, "color": "#88aacc", "explosionRadius": 20, "explosionImpulse": 1000 },
+          { "x": -15, "y": 50, "mass": 15, "radius": 8, "score": 250, "important": true, "isEnemy": true, "hp": 200, "color": "#44ff44", "renderRadius": 9, "explosionRadius": 30, "explosionImpulse": 2500 },
+          { "x": 15, "y": 50, "mass": 15, "radius": 8, "score": 250, "important": true, "isEnemy": true, "hp": 200, "color": "#44ff44", "renderRadius": 9, "explosionRadius": 30, "explosionImpulse": 2500 },
+          { "x": 0, "y": 20, "mass": 15, "radius": 8, "score": 300, "important": true, "isEnemy": true, "hp": 250, "color": "#44ff44", "renderRadius": 9, "explosionRadius": 30, "explosionImpulse": 3000 }
         ],
         "springs": [
           { "a": 0, "b": 4, "stiffness": 4500, "damping": 20, "breakTension": 8000 }, { "a": 0, "b": 5, "stiffness": 4500, "damping": 20, "breakTension": 8000 }, { "a": 0, "b": 6, "stiffness": 4500, "damping": 20, "breakTension": 8000 },
