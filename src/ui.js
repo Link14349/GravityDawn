@@ -222,12 +222,12 @@ export class UIManager {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
     ctx.fillRect(0, 0, this.w, 44);
 
-    // 关卡名
+    // 关卡名（居中）
     const levelNames = ['前哨站', '陨石带', '矿场废墟', '暗域哨塔', '能量枢纽', '雷蒙堡垒', '赤暗号'];
     ctx.fillStyle = C.accent;
     ctx.font = 'bold 16px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(`第${this.gameData.currentLevel}关 · ${levelNames[this.gameData.currentLevel - 1]}`, 20, 30);
+    ctx.textAlign = 'center';
+    ctx.fillText(`第${this.gameData.currentLevel}关 · ${levelNames[this.gameData.currentLevel - 1]}`, this.w / 2, 30);
 
     // 分数 + 子弹
     ctx.fillStyle = C.text;
@@ -236,8 +236,8 @@ export class UIManager {
     ctx.fillText(`分数: ${this.gameData.score}`, this.w - 20, 20);
     ctx.fillText(`剩余子弹: ${this.gameData.bulletsRemaining}`, this.w - 20, 38);
 
-    // 退出按钮
-    this._btn(ctx, '退出 ▸', 20, 56, 80, 32, () => this.goTo(Screen.LEVEL_SELECT), false);
+    // 退出按钮（黑条内左上角）
+    this._btn(ctx, '← 退出', 8, 6, 80, 30, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
   // ========================
