@@ -185,6 +185,8 @@ export function initGame() {
   // ============================================================
   function loop() {
     if (ui.screen !== Screen.GAME_HUD) {
+      // 退出游戏画面时清空状态，下次进入重新加载
+      if (ctrl) { ctrl = null; buildings = null; }
       ui.render();
       requestAnimationFrame(loop);
       return;
