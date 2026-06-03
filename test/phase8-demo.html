@@ -143,7 +143,13 @@
     for (const b of bullets) b._trail = [];
 
     // 回调
-    ui._onReplay = () => { location.reload(); };
+    ui._onReplay = () => { sessionStorage.setItem('replay', '1'); location.reload(); };
+
+    // 重试时直接进游戏
+    if (sessionStorage.getItem('replay') === '1') {
+      sessionStorage.removeItem('replay');
+      ui.goTo(Screen.GAME_HUD);
+    }
 
     let gameActive = false;
     let settling = false;
