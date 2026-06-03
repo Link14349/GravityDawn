@@ -198,7 +198,7 @@ export class UIManager {
     }
 
     // 返回按钮
-    this._btn(ctx, '← 返回', 20, 20, 100, 36, () => this.goTo(Screen.START), false);
+    this._btn(ctx, '← 退出', 8, 7, 78, 28, () => this.goTo(Screen.START), false);
   }
 
   // ========================
@@ -303,7 +303,7 @@ export class UIManager {
     }
 
     // 返回
-    this._btn(ctx, '← 返回', 20, 20, 100, 36, () => this.goTo(Screen.LEVEL_SELECT), false);
+    this._btn(ctx, '← 退出', 8, 7, 78, 28, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
   // ========================
