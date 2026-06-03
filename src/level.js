@@ -1,114 +1,38 @@
 /**
  * 关卡系统 — 数据格式定义 + 加载器 + 结算判定
- *
- * ## 关卡数据格式 (LevelData)
- * {
- *   name: string,              // 关卡名称
- *   gravity: number,           // 引力常量 G
- *   camera: { x, y, zoom },    // 初始镜头位置
- *   stars: [StarDef],          // 恒星（固定位置）
- *   planets: [PlanetDef],      // 行星（参数轨道）
- *   bullets: [BulletDef],      // 子弹配置
- *   buildings: [BuildingDef],  // 建筑配置
- *   winCondition: {            // 通关条件
- *     destructionThreshold: number,  // 质点毁伤比例 (0-1)
- *     importantTargetsAll: boolean,  // 所有重要目标必须摧毁
- *     minScore: number               // 最低分数
- *   }
- * }
- *
- * ## 轨道格式 (OrbitDef)
- *   固定:   { type: 'fixed', x, y }
- *   圆形:   { type: 'circular', cx, cy, radius, period, phase }
- *   椭圆:   { type: 'elliptical', cx, cy, rx, ry, period, phase }
  */
 
 import { CelestialBody } from './celestial.js';
 import { Bullet } from './bullet.js';
-import { Building, Spring } from './building.js';
+import { Building } from './building.js';
 import { PhysicsEngine } from './physics.js';
+import { Orbit, createOrbits } from './binding.js';
 
-/** 从轨道定义创建 CelestialBody */
-function createBody(def) {
-  const { mass, radius, color, label, collisionRadius, orbit } = def;
-  let orbitFn;
-  if (orbit.type === 'circular') {
-    orbitFn = CelestialBody.circularOrbit(orbit.cx, orbit.cy, orbit.radius, orbit.period, orbit.phase);
-  } else if (orbit.type === 'elliptical') {
-    orbitFn = CelestialBody.ellipticalOrbit(orbit.cx, orbit.cy, orbit.rx, orbit.ry, orbit.period, orbit.phase);
-  } else {
-    orbitFn = CelestialBody.fixedPosition(orbit.x, orbit.y);
-  }
-  return new CelestialBody({ mass, radius, color, label, collisionRadius, orbit: orbitFn });
-}
-
-/** 从关卡数据构建建筑 */
-function createBuilding(def, allBodies) {
-  const b = new Building();
-  let coreOffsetX = 0, coreOffsetY = 0, initVx, initVy;
-  // coreOrbit 优先，其次 planetBind
-  for (const pd of def.points) {
-    if (pd.isCore && pd.coreOrbit) {
-      const host = allBodies[pd.coreOrbit.bodyIndex];
-      const alt = pd.coreOrbit.altitude || 0;
-      const ph = pd.coreOrbit.phase || 0;
-      const hp = host.getPosition();
-      coreOffsetX = hp.x + alt * Math.cos(ph);
-      coreOffsetY = hp.y + alt * Math.sin(ph);
-      const hv = host.getVelocity();
-      initVx = hv.vx; initVy = hv.vy;
-      pd.orbitFn = (t) => {
-        const hp2 = host.getPosition();
-        return { x: hp2.x + alt * Math.cos(ph), y: hp2.y + alt * Math.sin(ph) };
-      };
-    }
-  }
-  if (initVx === undefined && def.planetBind != null) {
-    const host = allBodies[def.planetBind];
-    const hv = host.getVelocity();
-    initVx = hv.vx; initVy = hv.vy;
-    const hp = host.getPosition();
-    coreOffsetX = hp.x; coreOffsetY = hp.y;
-  }
-  const pts = [];
-  for (const pd of def.points) {
-    const pt = { ...pd };
-    if (!pd.isCore) {
-      pt.x = (pd.x || 0) + coreOffsetX;
-      pt.y = (pd.y || 0) + coreOffsetY;
-    }
-    // 所有质点继承行星初速度
-    if (initVx !== undefined) { pt.vx = initVx; pt.vy = initVy; }
-    pts.push(b.addPoint(pt));
-  }
-  for (const sd of (def.springs || [])) {
-    b.addSpring({ ...sd, a: pts[sd.a], b: pts[sd.b] });
-  }
-  return b;
-}
-
+/**
+ * 加载关卡数据，返回游戏对象
+ * @param {Object} levelData
+ * @returns {{ orbits: Orbit[], stars: CelestialBody[], planets: CelestialBody[], allBodies: CelestialBody[], bullets: Bullet[], buildings: Building[], physics: PhysicsEngine, camera: {x,y,zoom} }}
+ */
 export class LevelManager {
-  /**
-   * 加载关卡数据，返回游戏对象
-   * @param {Object} levelData
-   * @returns {{ stars: CelestialBody[], planets: CelestialBody[], allBodies: CelestialBody[], bullets: Bullet[], buildings: Building[], physics: PhysicsEngine, camera: {x,y,zoom} }}
-   */
   static load(levelData) {
     const G = levelData.gravity || 300;
 
-    // 星体
-    const stars = (levelData.stars || []).map(createBody);
-    const planets = (levelData.planets || []).map(createBody);
+    // 1. 构建全局 orbits 数组
+    const orbits = createOrbits(levelData.orbits || []);
+
+    // 2. 星体
+    const stars = (levelData.stars || []).map(d => new CelestialBody({ ...d, orbit: orbits[d.orbit], orbits }));
+    const planets = (levelData.planets || []).map(d => new CelestialBody({ ...d, orbit: orbits[d.orbit], orbits }));
     const allBodies = [...stars, ...planets];
 
-    // 物理引擎
+    // 3. 物理引擎
     const physics = new PhysicsEngine({ G });
     for (const b of allBodies) {
       const p = b.getPosition();
-      physics.addGravitySource(p.x, p.y, b.mass, b.collisionRadius, b.orbitFn);
+      physics.addGravitySource(p.x, p.y, b.mass, b.collisionRadius, (t) => b.orbit.getWorldPosition(t, orbits));
     }
 
-    // 子弹
+    // 4. 子弹
     const bullets = (levelData.bullets || []).map(d => new Bullet(d));
     for (let i = 0; i < bullets.length; i++) {
       const bd = levelData.bullets[i];
@@ -118,20 +42,53 @@ export class LevelManager {
       }
     }
 
-    // 建筑
-    const buildings = (levelData.buildings || []).map(d => createBuilding(d, allBodies));
+    // 5. 建筑
+    const buildings = (levelData.buildings || []).map(def => {
+      const b = new Building();
+      let coreWorldX = 0, coreWorldY = 0, initVx, initVy;
+
+      // 第一遍：找出核心点的世界位置和速度
+      for (const pd of def.points) {
+        if (pd.isCore && pd.orbit != null) {
+          const orb = orbits[pd.orbit];
+          const wp = orb.getWorldPosition(0, orbits);
+          const wv = orb.getWorldVelocity(0, orbits);
+          coreWorldX = wp.x; coreWorldY = wp.y;
+          initVx = wv.vx; initVy = wv.vy;
+        }
+      }
+
+      // 第二遍：创建质点
+      const pts = [];
+      for (const pd of def.points) {
+        const pt = { ...pd };
+        if (pd.isCore) {
+          if (pd.orbit != null) {
+            pt.orbit = orbits[pd.orbit];
+            pt.orbits = orbits;
+          }
+        } else {
+          pt.x = (pd.x || 0) + coreWorldX;
+          pt.y = (pd.y || 0) + coreWorldY;
+          if (initVx !== undefined) { pt.vx = initVx; pt.vy = initVy; }
+        }
+        pts.push(b.addPoint(pt));
+      }
+
+      for (const sd of (def.springs || [])) {
+        b.addSpring({ ...sd, a: pts[sd.a], b: pts[sd.b] });
+      }
+      return b;
+    });
 
     return {
-      stars, planets, allBodies, bullets, buildings, physics,
+      orbits, stars, planets, allBodies, bullets, buildings, physics,
       camera: levelData.camera || { x: 600, y: 400, zoom: 0.85 },
     };
   }
 
   /**
    * 判定通关结果
-   * @param {Building[]} buildings
-   * @param {Object} winCondition
-   * @returns {{ passed: boolean, stars: number, totalScore: number, destructionRate: number, importantRemaining: number }}
    */
   static checkResult(buildings, winCondition) {
     let totalPoints = 0, alivePoints = 0;
@@ -156,13 +113,9 @@ export class LevelManager {
     const scoreOk = totalScore >= (winCondition.minScore || 0);
     const passed = destructionOk && importantOk && scoreOk;
 
-    // 计算满分（所有质点分值之和）
     let maxScore = 0;
-    for (const b of buildings) {
-      for (const p of b.points) maxScore += p.score;
-    }
+    for (const b of buildings) for (const p of b.points) maxScore += p.score;
 
-    // 星级：1星→通过, 2星→score≥minScore×1.5, 3星→score≥maxScore×0.8
     let stars = 0;
     if (passed) {
       stars = 1;
@@ -171,10 +124,7 @@ export class LevelManager {
     }
 
     return {
-      passed,
-      stars,
-      totalScore,
-      destructionRate,
+      passed, stars, totalScore, destructionRate,
       importantRemaining: importantAlive,
     };
   }

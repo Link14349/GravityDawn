@@ -115,4 +115,8 @@ index.html            — 主页面
 - [ ] 实现 src/main.js：完整游戏循环
 - [ ] 多个关卡串联
 - [ ] 性能优化、视觉润色
+- [ ] 重构：位置绑定与速度继承模块 (src/binding.js)
+  - resolveOrbitBind(def, allBodies) 统一接口
+  - 支持递归嵌套 parentOrbit
+  - 取代 level.js 中 coreOrbit/planetBind
 - [ ] 最终产物：index.html — 完整可玩游戏

@@ -56,7 +56,7 @@ export class MassPoint {
    * @param {string} [options.color='#888']
    * @param {number} [options.renderRadius]
    */
-  constructor({ x, y, mass = 10, radius = 8, score = 10, important = false, fixed = false, isCore = false, isEnemy = false, hp = 100, orbitFn = null, explosionRadius = 0, explosionImpulse = 0, color = '#888', renderRadius, vx = 0, vy = 0 }) {
+  constructor({ x, y, mass = 10, radius = 8, score = 10, important = false, fixed = false, isCore = false, isEnemy = false, hp = 100, orbit, orbits, explosionRadius = 0, explosionImpulse = 0, color = '#888', renderRadius, vx = 0, vy = 0 }) {
     this.x = x; this.y = y;
     this.vx = vx; this.vy = vy;
     this.mass = mass;
@@ -69,9 +69,8 @@ export class MassPoint {
     this.isEnemy = isEnemy || false;
     this.hp = hp;
     this.maxHp = hp;
-    this.orbitFn = orbitFn || (() => ({ x: this._initX ?? x, y: this._initY ?? y }));
-    this._initX = x;
-    this._initY = y;
+    this._orbit = orbit || null;
+    this._orbits = orbits || null;
     this.explosionRadius = explosionRadius;
     this.explosionImpulse = explosionImpulse;
     this.color = color;
@@ -170,9 +169,9 @@ export class Building {
     for (let s = 0; s < subSteps; s++) {
       // 1. 核心点更新
       for (const p of this.points) {
-        if (!p.alive || !p.isCore) continue;
-        p._orbitTime += subDt;
-        const pos = p.orbitFn(p._orbitTime);
+        if (!p.alive || !p.isCore || !p._orbit) continue;
+        p._orbitTime = (p._orbitTime || 0) + subDt;
+        const pos = p._orbit.getWorldPosition(p._orbitTime, p._orbits);
         p.x = pos.x;
         p.y = pos.y;
       }
