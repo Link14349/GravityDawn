@@ -404,8 +404,8 @@ export class UIManager {
 
   _drawLogo(ctx) {
     if (!this._logoImage) return;
-    const lw = 480, lh = this._logoImage.height * (480 / this._logoImage.width);
-    const lx = this.w / 2 - lw / 2, ly = this.h * 0.05;
+    const lw = 768, lh = this._logoImage.height * (768 / this._logoImage.width);
+    const lx = this.w / 2 - lw / 2, ly = this.h * 0.12;
     ctx.drawImage(this._logoImage, lx, ly, lw, lh);
   }
 }
