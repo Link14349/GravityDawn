@@ -69,6 +69,7 @@ export class GameController {
     this.canvas.addEventListener('mouseup', (e) => this._onMouseUp(e));
     this.canvas.addEventListener('mouseleave', (e) => this._onMouseLeave(e));
     this.canvas.addEventListener('mouseenter', (e) => this._onMouseEnter(e));
+    this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
   /** 获取鼠标在 canvas 中的世界坐标 */
@@ -163,12 +164,15 @@ export class GameController {
 
   _onMouseLeave() {
     this.mouseInCanvas = false;
-    if (!this.dragging) {
-      this.paused = false;
-      this.state = GameState.PLAYING;
-      this.predictedPath = [];
-      this.predictedCollision = null;
+    if (this.dragging) {
+      // 拖拽中鼠标离开→取消拖拽
+      this.dragging = false;
+      this.dragBullet = null;
     }
+    this.paused = false;
+    this.state = GameState.PLAYING;
+    this.predictedPath = [];
+    this.predictedCollision = null;
   }
 
   _onMouseEnter() {
