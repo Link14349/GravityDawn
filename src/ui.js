@@ -248,76 +248,62 @@ export class UIManager {
     ctx.fillRect(0, 0, this.w, this.h);
     this._drawStars(ctx);
 
-    // 面板
-    const pw = 500, ph = 420;
-    const px = this.w / 2 - pw / 2, py = this.h / 2 - ph / 2;
-    ctx.fillStyle = C.panel;
-    this._roundRect(ctx, px, py, pw, ph, 16, true);
-    ctx.strokeStyle = C.accent;
-    ctx.lineWidth = 2;
-    this._roundRect(ctx, px, py, pw, ph, 16, false);
+    const passed = this.gameData.passed;
+    const stars = this.gameData.stars || (passed ? 3 : 1);
+    const cx = this.w / 2;
+
+    // 星级评价
+    const starY = this.h * 0.22;
+    ctx.font = '56px Arial';
+    ctx.textAlign = 'center';
+    const starStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+    ctx.fillStyle = C.gold;
+    ctx.fillText(starStr, cx, starY);
 
     // 标题
-    const passed = this.gameData.passed;
-    ctx.fillStyle = passed ? C.gold : C.accent;
-    ctx.font = 'bold 32px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(passed ? '★ 通 关 ★' : '关 卡 结 束', this.w / 2, py + 60);
+    ctx.fillStyle = passed ? C.gold : C.text;
+    ctx.font = 'bold 28px Arial';
+    ctx.fillText(passed ? '通 关' : '未 通 关', cx, starY + 50);
 
-    // 分数明细
+    // 分数面板
+    const pw = 400, ph = 180;
+    const px = cx - pw / 2, py = starY + 80;
+    ctx.fillStyle = C.panel;
+    this._roundRect(ctx, px, py, pw, ph, 12, true);
+
     const items = [
       ['建筑毁伤', `${this.gameData.score - this.gameData.bulletsRemaining * 100}`],
-      ['剩余子弹 (+100/发)', `${this.gameData.bulletsRemaining * 100}`],
-      ['摧毁敌人数', `${this.gameData.enemiesKilled}`],
+      ['剩余子弹', `+${this.gameData.bulletsRemaining * 100}`],
+      ['摧毁敌人', `${this.gameData.enemiesKilled}`],
     ];
-    let iy = py + 120;
+    let iy = py + 30;
     for (const [label, val] of items) {
-      ctx.fillStyle = C.sub;
-      ctx.font = '16px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText(label, px + 60, iy);
-      ctx.fillStyle = C.text;
-      ctx.font = 'bold 16px monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText(val, px + pw - 60, iy);
-      iy += 35;
+      ctx.fillStyle = C.sub; ctx.font = '18px Arial'; ctx.textAlign = 'left';
+      ctx.fillText(label, px + 40, iy);
+      ctx.fillStyle = C.text; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'right';
+      ctx.fillText(val, px + pw - 40, iy);
+      iy += 36;
     }
-
     // 分割线
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(px + 50, iy); ctx.lineTo(px + pw - 50, iy);
-    ctx.stroke();
-    iy += 20;
-
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px + 30, iy); ctx.lineTo(px + pw - 30, iy); ctx.stroke();
+    iy += 15;
     // 总分
-    ctx.fillStyle = C.gold;
-    ctx.font = 'bold 24px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(`总分: ${this.gameData.totalScore}`, this.w / 2, iy);
-    iy += 50;
+    ctx.fillStyle = C.gold; ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(`总分  ${this.gameData.totalScore}`, cx, iy + 24);
 
     // 按钮
-    const btnW = 180, btnH = 44, gap = 20;
-    const btnY = iy;
-
-    // 下一关 / 重试
+    const btnW = 160, btnH = 42, btnY = py + ph + 30;
     if (passed) {
-      const nx = this.w / 2 - btnW - gap / 2;
-      this._btn(ctx, '↻ 重试', nx, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); });
-      const nx2 = this.w / 2 + gap / 2;
-      this._btn(ctx, '下一关 →', nx2, btnY, btnW, btnH, () => {
-        if (this.gameData.currentLevel < this.gameData.totalLevels) {
-          this.gameData.currentLevel++;
-          this.goTo(Screen.GAME_HUD);
-        }
-      });
+      this._btn(ctx, '↻ 重试', cx - btnW - 10, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, false);
+      this._btn(ctx, '下一关 →', cx + 10, btnY, btnW, btnH, () => {
+        if (this.gameData.currentLevel < this.gameData.totalLevels) { this.gameData.currentLevel++; this.goTo(Screen.GAME_HUD); }
+      }, true);
     } else {
-      this._btn(ctx, '↻ 重试', this.w / 2 - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); });
+      this._btn(ctx, '↻ 重试', cx - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, true);
     }
 
-    // 返回选关
+    // 返回
     this._btn(ctx, '← 选关', 20, 20, 100, 36, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
