@@ -100,7 +100,10 @@ export class UIManager {
     this.buttons = [];
     const ctx = this.ctx;
     ctx.save();
-    ctx.clearRect(0, 0, this.w, this.h);
+    // GAME_HUD 在游戏画面上叠加，不清屏
+    if (this.screen !== Screen.GAME_HUD) {
+      ctx.clearRect(0, 0, this.w, this.h);
+    }
 
     switch (this.screen) {
       case Screen.START: this._drawStart(ctx); break;
@@ -205,19 +208,7 @@ export class UIManager {
   // 游戏 HUD
   // ========================
   _drawHUD(ctx) {
-    // 背景（模拟游戏中画面）
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, this.w, this.h);
-    this._drawStars(ctx);
-    ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    ctx.font = 'bold 48px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('游戏画面', this.w / 2, this.h / 2 - 20);
-    ctx.fillStyle = 'rgba(255,255,255,0.04)';
-    ctx.font = '16px Arial';
-    ctx.fillText('（关卡内容将在 Phase 8 中接入）', this.w / 2, this.h / 2 + 20);
-
-    // 半透明顶栏
+    // 半透明顶栏（透明底，游戏画面在下层）
     ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
     ctx.fillRect(0, 0, this.w, 44);
 
