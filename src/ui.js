@@ -17,19 +17,20 @@ export const Screen = Object.freeze({
 
 // 扁平鲜艳调色板
 const C = {
-  bg: '#0d1140',
-  panel: 'rgba(10, 16, 60, 0.92)',
-  accent: '#ffbb33',
-  accent2: '#44ccbb',
-  text: '#ffffff',
-  sub: '#8899bb',
-  btn: '#ff6633',
-  btnHover: '#ff8855',
-  gold: '#ffdd44',
+  bg: '#0a0e27',
+  panel: 'rgba(14, 20, 50, 0.92)',
+  accent: '#3dd6c8',
+  accent2: '#6b7dff',
+  text: '#d0d6e8',
+  sub: '#6b7a9d',
+  btn: '#3dd6c8',
+  btnHover: '#5eeadb',
+  btnText: '#0a1220',
+  gold: '#ffd93d',
   green: '#44ff88',
-  red: '#ff5555',
-  card: 'rgba(20, 30, 80, 0.85)',
-  cardBorder: 'rgba(255, 187, 51, 0.3)',
+  red: '#ff6b6b',
+  card: 'rgba(20, 28, 65, 0.8)',
+  cardBorder: 'rgba(61, 214, 200, 0.2)',
 };
 
 export class UIManager {
@@ -143,14 +144,7 @@ export class UIManager {
 
     // 开始按钮
     const bw = 220, bh = 56;
-    const bx = this.w / 2 - bw / 2, by = this.h / 2 + 90;
-    const hovered = this._isOver(bx, by, bw, bh);
-    ctx.fillStyle = hovered ? C.btnHover : C.btn;
-    this._roundRect(ctx, bx, by, bw, bh, 12, true);
-    ctx.fillStyle = C.text;
-    ctx.font = 'bold 22px Arial';
-    ctx.fillText('开 始 游 戏', this.w / 2, by + bh / 2 + 8);
-    this.buttons.push({ x: bx, y: by, w: bw, h: bh, action: () => this.goTo(Screen.LEVEL_SELECT) });
+    this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h / 2 + 90, bw, bh, () => this.goTo(Screen.LEVEL_SELECT), true);
 
     // 版本
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
@@ -218,15 +212,7 @@ export class UIManager {
 
     // 返回按钮
     const bw = 120, bh = 40;
-    const bx = 30, by = this.h - 60;
-    const hovered2 = this._isOver(bx, by, bw, bh);
-    ctx.fillStyle = hovered2 ? C.btnHover : 'rgba(255,255,255,0.15)';
-    this._roundRect(ctx, bx, by, bw, bh, 8, true);
-    ctx.fillStyle = C.text;
-    ctx.font = '16px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('← 返回', bx + bw / 2, by + bh / 2 + 6);
-    this.buttons.push({ x: bx, y: by, w: bw, h: bh, action: () => this.goTo(Screen.START) });
+    this._btn(ctx, '← 返回', 30, this.h - 60, bw, bh, () => this.goTo(Screen.START), false);
   }
 
   // ========================
@@ -263,16 +249,8 @@ export class UIManager {
     ctx.fillText(`分数: ${this.gameData.score}`, this.w - 20, 20);
     ctx.fillText(`剩余子弹: ${this.gameData.bulletsRemaining}`, this.w - 20, 38);
 
-    // 退出按钮（左上）
-    const bw = 80, bh = 32, bx = this.w - 110, by = 50;
-    const hovered = this._isOver(bx, by, bw, bh);
-    ctx.fillStyle = hovered ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)';
-    this._roundRect(ctx, bx, by, bw, bh, 6, true);
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.font = '13px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('退出 ▸', bx + bw / 2, by + bh / 2 + 5);
-    this.buttons.push({ x: bx, y: by, w: bw, h: bh, action: () => this.goTo(Screen.LEVEL_SELECT) });
+    // 退出按钮
+    this._btn(ctx, '退出 ▸', this.w - 110, 50, 80, 32, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
   // ========================
@@ -360,11 +338,20 @@ export class UIManager {
   // ========================
   // 工具
   // ========================
-  _btn(ctx, text, x, y, w, h, action) {
+  _btn(ctx, text, x, y, w, h, action, primary = true) {
     const hovered = this._isOver(x, y, w, h);
-    ctx.fillStyle = hovered ? C.btnHover : C.btn;
-    this._roundRect(ctx, x, y, w, h, 8, true);
-    ctx.fillStyle = C.text;
+    if (primary) {
+      ctx.fillStyle = hovered ? C.btnHover : C.btn;
+      this._roundRect(ctx, x, y, w, h, 8, true);
+      ctx.fillStyle = C.btnText;
+    } else {
+      ctx.fillStyle = 'transparent';
+      ctx.strokeStyle = hovered ? C.btnHover : C.accent;
+      ctx.lineWidth = 1.5;
+      this._roundRect(ctx, x, y, w, h, 8, false);
+      this._roundRect(ctx, x, y, w, h, 8, false);
+      ctx.fillStyle = hovered ? C.btnHover : C.accent;
+    }
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
     ctx.fillText(text, x + w / 2, y + h / 2 + 6);

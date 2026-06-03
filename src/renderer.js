@@ -6,10 +6,10 @@
 
 // 扁平鲜艳的调色板
 const PALETTE = {
-  space: '#0d1140',
+  space: '#0a0e27',
   star: '#ffffff',
-  orbitLine: 'rgba(255, 255, 255, 0.12)',
-  predictionDash: 'rgba(255, 220, 100, 0.5)',
+  orbitLine: 'rgba(94, 234, 219, 0.1)',
+  predictionDash: 'rgba(94, 234, 219, 0.5)',
 };
 
 export class Renderer {
