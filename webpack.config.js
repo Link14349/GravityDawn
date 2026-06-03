@@ -56,6 +56,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './index.html',
       filename: 'index.html',
+      inject: false, // 不注入 script，保留原始 inline module
     }),
   ],
   devtool: 'source-map',
