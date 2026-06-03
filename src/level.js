@@ -124,12 +124,18 @@ export class LevelManager {
     const scoreOk = totalScore >= (winCondition.minScore || 0);
     const passed = destructionOk && importantOk && scoreOk;
 
-    // 星级：1星→通过, 2星→重要目标全灭, 3星→高分(>minScore*1.5)
+    // 计算满分（所有质点分值之和）
+    let maxScore = 0;
+    for (const b of buildings) {
+      for (const p of b.points) maxScore += p.score;
+    }
+
+    // 星级：1星→通过, 2星→score≥minScore×1.5, 3星→score≥maxScore×0.8
     let stars = 0;
     if (passed) {
       stars = 1;
-      if (importantOk) stars = 2;
-      if (scoreOk && totalScore >= (winCondition.minScore || 0) * 1.5) stars = 3;
+      if (totalScore >= (winCondition.minScore || 0) * 1.5) stars = 2;
+      if (maxScore > 0 && totalScore >= maxScore * 0.8) stars = 3;
     }
 
     return {
