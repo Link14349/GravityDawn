@@ -28,6 +28,8 @@ gravity-shooter/
     camera.js          — 镜头 (世界↔屏幕, 平移, 缩放)
     renderer.js        — 渲染器 (星体, 子弹, 建筑, 爆炸, 瞄准)
     game-controller.js — 输入控制 (悬停暂停, 拖拽瞄准, 状态机)
+    ui.js               — UI管理器 (开始/选关/HUD/结算)
+    level.js            — 关卡系统 (数据格式 + 加载器 + 通关判定)
     main.js            — 入口
   test/
     phaseN-demo.html   — 各阶段演示页面
@@ -302,3 +304,48 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 4 | 子弹发射+轨迹预测+Camera |
 | 5 | 弹簧质点建筑+碰撞 |
 | 6 | 爆炸毁伤+记分+敌人+跨建筑碰撞 |
+| 7 | UI系统（开始/选关/HUD/结算） |
+| 8 | 关卡系统+通关判定 |
+
+---
+
+## 关卡系统 (level.js)
+
+### LevelManager 类
+
+关卡系统的核心，负责加载关卡数据和通关判定。
+
+**`LevelManager.load(levelData)`** — 解析关卡数据，返回所有游戏对象：
+- `stars`, `planets`, `allBodies` — 星体列表
+- `bullets` — 子弹（含初始轨道绑定）
+- `buildings` — 建筑列表
+- `physics` — 已配置好的物理引擎
+- `camera` — 初始镜头位置
+
+**`LevelManager.checkResult(buildings, winCondition)`** — 通关判定：
+- `passed` — 是否通关
+- `stars` — 星级 (0-3)
+- `totalScore` — 总分
+- `destructionRate` — 毁伤比例
+- `importantRemaining` — 剩余重要目标数
+
+星级：1星=通关, 2星=重要目标全灭, 3星=总分≥minScore×1.5
+
+详细数据格式见 `doc/level.md`。
+
+---
+
+## UI 系统 (ui.js)
+
+### UIManager 类
+
+Canvas 绘制的界面系统，四个屏幕状态：`START → LEVEL_SELECT → GAME_HUD → RESULT`。
+
+| 屏幕 | 说明 |
+|------|------|
+| START | Logo + 开始按钮 + Credits |
+| LEVEL_SELECT | 关卡卡片网格 + 锁定/星级 |
+| GAME_HUD | 半透明顶栏（关卡名/分数/子弹） |
+| RESULT | 星级 + 任务完成/失败 + 分数面板 + 操作按钮 |
+
+按钮通过鼠标坐标碰撞检测实现点击交互。

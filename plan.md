@@ -98,12 +98,15 @@ index.html            — 主页面
 - [x] doc/style.md 美术风格设计文档
 - [x] 产物：test/phase7-demo.html — 四界面切换 + 键盘 1-4 快捷键
 
-## Phase 8：关卡系统 & 分数结算 [ ]
-- [ ] 实现 src/level.js：
-  - 关卡数据格式定义（星体配置、建筑布局、重要质点标记及分值、子弹配置）
-  - 分数结算逻辑（建筑毁伤分 + 剩余子弹分）
-  - 通关条件判定（重要目标全毁 + 毁伤程度达标）
-- [ ] 产物：test/phase8-demo.html — 加载一个完整关卡，可玩到结算界面
+## Phase 8：关卡系统 & 分数结算 [x]
+- [x] 实现 src/level.js：LevelManager 类
+  - 关卡数据格式（StarDef/PlanetDef/BulletDef/BuildingDef/WinCond）
+  - load(levelData): 解析数据→游戏对象（星体/子弹/建筑/物理引擎）
+  - checkResult(buildings, winCondition): 通关判定 + 1-3 星级评价
+  - 轨道格式：fixed/circular/elliptical
+- [x] doc/level.md 关卡系统技术接口文档
+- [x] doc/framework.md 更新关卡和 UI 章节
+- [x] 产物：test/phase8-demo.html — 完整关卡流程（开始→选关→游戏→结算）
 
 ## Phase 9：整合与打磨 [ ]
 - [ ] 实现 src/main.js：完整游戏循环
