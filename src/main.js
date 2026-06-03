@@ -38,14 +38,14 @@ export function initGame() {
   });
 
   // 游戏状态
-  let stars, planets, allBodies, bullets, buildings, physics, camera;
+  let stars, planets, allBodies, bullets, buildings, physics, camera, orbits;
   let cam, ctrl, physicsTime, explosions, settling, settleTimer, gameActive, currentLevel;
 
   function startLevel(levelIndex) {
     currentLevel = levelIndex;
     const levelData = LEVELS[levelIndex];
     const loaded = LevelManager.load(levelData);
-    ({ stars, planets, allBodies, bullets, buildings, physics, camera } = loaded);
+    ({ stars, planets, allBodies, bullets, buildings, physics, camera, orbits } = loaded);
     if (!cam) {
       cam = new Camera(canvas, { shouldBlockPan: () => false });
     }
