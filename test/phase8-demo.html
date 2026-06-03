@@ -143,11 +143,21 @@
     for (const b of bullets) b._trail = [];
 
     // 回调
-    ui._onReplay = () => {
-      location.reload();
-    };
+    ui._onReplay = () => { location.reload(); };
 
     let gameActive = false;
+    let settling = false;
+    let settleTimer = 0;
+    const SETTLE_DURATION = 10; // 秒
+
+    function importantAllDead() {
+      for (const bld of buildings) {
+        for (const p of bld.points) {
+          if (p.important && p.alive) return false;
+        }
+      }
+      return true;
+    }
 
     // =====================
     // 主循环
@@ -159,8 +169,9 @@
         return;
       }
 
-      // GAME_HUD 模式：运行游戏
       if (!gameActive) { gameActive = true; }
+
+      let frameHadEvent = false; // 本帧是否发生碰撞/爆炸
 
       // 物理
       if (!ctrl.shouldPause()) {
@@ -172,6 +183,7 @@
         }
         for (const bld of buildings) {
           const bResult = bld.step(1 / 60, physics, allBodies);
+          if (bResult.explosions.length > 0) frameHadEvent = true;
           for (const ex of bResult.explosions) explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
         }
         Building.checkCrossCollisions(buildings, explosions);
@@ -191,38 +203,59 @@
                 if (b.maxHp > 0) { b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7); }
                 else { b.alive = false; }
                 explosions.push({ x: impact.explosion.x, y: impact.explosion.y, r: 0, maxR: impact.explosion.radius || 50 });
-                hitBuilding = true; break;
+                frameHadEvent = true; hitBuilding = true; break;
               }
             }
             if (!hitBuilding && col) {
               explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || (b.maxHp > 0 ? 15 : 50) });
               if (b.maxHp > 0) b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7);
               else b.alive = false;
+              frameHadEvent = true;
             }
           }
         }
+        // 检查是否有新爆炸正在播放
+        if (explosions.length > 0) frameHadEvent = true;
         for (const ex of explosions) ex.r += 4;
       }
 
-      // 检查通关
+      // 用户交互检测（发射或机动）
+      const userInteracting = ctrl.state === 'aiming' || ctrl.dragging;
+
+      // 沉淀状态判定
       const allLaunched = bullets.every(b => b.launched || !b.alive);
       const allSettled = bullets.every(b => !b.alive || (b.launched && Math.sqrt(b.vx**2 + b.vy**2) < 5));
-      if (gameActive && allLaunched && allSettled && explosions.length === 0) {
-        const result = LevelManager.checkResult(buildings, levelData.winCondition);
-        ui.gameData.passed = result.passed;
-        ui.gameData.stars = result.stars;
-        ui.gameData.totalScore = result.totalScore;
-        ui.gameData.score = result.totalScore - bullets.filter(b => b.alive && b.launched).length * 100;
-        ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && b.launched).length;
-        ui.gameData.enemiesKilled = buildings.reduce((s, bld) => s + bld.points.filter(p => p.isEnemy && !p.alive).length, 0);
-        ui.goTo(Screen.RESULT);
-        gameActive = false;
+      const condA = allLaunched && allSettled && explosions.length === 0;
+      const condB = importantAllDead();
+
+      if (!settling) {
+        if (condA || condB) {
+          settling = true;
+          settleTimer = 0;
+        }
+      } else {
+        settleTimer += 1 / 60;
+        // A类沉淀：碰撞/爆炸重置
+        if (frameHadEvent) { settling = false; settleTimer = 0; }
+        // B类沉淀：用户交互或碰撞/爆炸重置
+        if (condB && (userInteracting || frameHadEvent)) { settling = false; settleTimer = 0; }
+        // 沉淀完成
+        if (settleTimer >= SETTLE_DURATION) {
+          const result = LevelManager.checkResult(buildings, levelData.winCondition);
+          ui.gameData.passed = result.passed;
+          ui.gameData.stars = result.stars;
+          ui.gameData.totalScore = result.totalScore;
+          ui.gameData.score = result.totalScore - bullets.filter(b => b.alive && b.launched).length * 100;
+          ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && b.launched).length;
+          ui.gameData.enemiesKilled = buildings.reduce((s, bld) => s + bld.points.filter(p => p.isEnemy && !p.alive).length, 0);
+          ui.goTo(Screen.RESULT);
+          settling = false; gameActive = false;
+        }
       }
 
       // 更新 HUD
       ui.gameData.score = buildings.reduce((s, bld) => s + bld.score, 0);
       ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && !b.launched).length;
-
       // 渲染
       r.clear();
       cam.applyTransform(ctx);
@@ -239,6 +272,16 @@
         if (r.drawExplosion(explosions[i].x, explosions[i].y, explosions[i].r, explosions[i].maxR)) explosions.splice(i, 1);
       }
       cam.restoreTransform(ctx);
+
+      // 沉淀倒计时提示
+      if (settling) {
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillRect(canvas.width / 2 - 140, canvas.height - 56, 280, 28);
+        ctx.fillStyle = '#ffd93d';
+        ctx.font = 'bold 13px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`结算中... ${(SETTLE_DURATION - settleTimer).toFixed(1)}s`, canvas.width / 2, canvas.height - 36);
+      }
 
       // HUD 顶栏
       ui.render();
