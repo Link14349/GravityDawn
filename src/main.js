@@ -164,9 +164,15 @@ export function initGame() {
     const levelData = LEVELS[levelIndex];
     const loaded = LevelManager.load(levelData);
     ({ stars, planets, allBodies, bullets, buildings, physics, camera } = loaded);
-    cam = new Camera(canvas, { shouldBlockPan: () => false });
+    if (!cam) {
+      cam = new Camera(canvas, { shouldBlockPan: () => false });
+    }
     cam.x = camera.x; cam.y = camera.y; cam.zoom = camera.zoom;
-    ctrl = new GameController(canvas, { physics, bullets, camera: cam, getTime: () => physicsTime, buildings });
+    if (!ctrl) {
+      ctrl = new GameController(canvas, { physics, bullets, camera: cam, getTime: () => physicsTime, buildings });
+    } else {
+      ctrl.physics = physics; ctrl.bullets = bullets; ctrl._buildings = buildings; ctrl.camera = cam;
+    }
     cam._shouldBlockPan = () => ctrl.getHoveredBullet() !== null;
     physicsTime = 0;
     explosions = [];
@@ -185,8 +191,8 @@ export function initGame() {
   // ============================================================
   function loop() {
     if (ui.screen !== Screen.GAME_HUD) {
-      // 退出游戏画面时清空状态，下次进入重新加载
-      if (ctrl) { ctrl = null; buildings = null; }
+      // 退出时标记需要重新加载
+      gameActive = false;
       ui.render();
       requestAnimationFrame(loop);
       return;
