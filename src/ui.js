@@ -46,10 +46,11 @@ export class UIManager {
     this.buttons = [];
     this._bindMouse();
 
-    // 预加载图片
-    this._imgs = {};
-    this._loadImage('bg', '/img/startup-bg.png');
-    this._loadImage('logo', '/img/logo.png');
+    // 图片由外部预加载后注入
+    this._bgImage = null;
+    this._logoCanvas = null;
+    this._logoW = 0;
+    this._logoH = 0;
 
     // 游戏状态数据（供 HUD 和结算使用）
     this.gameData = {
@@ -118,8 +119,7 @@ export class UIManager {
   // ========================
   _drawStart(ctx) {
     // 背景图
-    const bg = this._imgs['bg'];
-    if (bg) { ctx.drawImage(bg, 0, 0, this.w, this.h); }
+    if (this._bgImage) { ctx.drawImage(this._bgImage, 0, 0, this.w, this.h); }
     else { ctx.fillStyle = C.bg; ctx.fillRect(0, 0, this.w, this.h); this._drawStars(ctx); }
 
     // Logo（白底去背）
@@ -404,21 +404,9 @@ export class UIManager {
     this._mx = -1; this._my = -1;
   }
 
-  _loadImage(key, src) {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => { this._imgs[key] = img; };
-  }
-
   _drawLogo(ctx) {
-    const img = this._imgs['logo'];
-    if (!img) return;
-    const lw = 480, lh = img.height * (480 / img.width);
-    const lx = this.w / 2 - lw / 2, ly = this.h * 0.05;
-    // multiply 合成自动去白底（白色×任意色=原色）
-    ctx.save();
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.drawImage(img, lx, ly, lw, lh);
-    ctx.restore();
+    if (!this._logoCanvas) return;
+    const lx = this.w / 2 - this._logoW / 2, ly = this.h * 0.05;
+    ctx.drawImage(this._logoCanvas, lx, ly);
   }
 }
