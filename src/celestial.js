@@ -31,6 +31,11 @@ export class CelestialBody {
     return this.orbit.getWorldPosition(this.t, this._orbits);
   }
 
+  /** 获取指定时间的世界坐标 */
+  getPositionAtTime(t) {
+    return this.orbit.getWorldPosition(t, this._orbits);
+  }
+
   /** 获取当前世界速度 */
   getVelocity(eps = 0.001) {
     return this.orbit.getWorldVelocity(this.t, this._orbits, eps);

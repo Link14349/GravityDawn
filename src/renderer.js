@@ -105,16 +105,13 @@ export class Renderer {
     ctx.setLineDash([4, 8]);
     ctx.beginPath();
 
-    const first = body.orbitFn(body.t);
+    const orbitPeriod = body.orbit._period || 10;
+    const first = body.getPositionAtTime(body.t);
     ctx.moveTo(first.x, first.y);
 
-    // 采样一圈轨道
-    const period = 2 * Math.PI; // 假设 orbitFn 以 2π 为参数周期，此处用时间采样
-    // 更通用的做法：在 t 上采样，步长用周期/pointCount
-    // 由于 orbitFn 用时间参数，这里在 body.t 周围采样一个完整周期
-    const dt = period / pointCount;
+    const dt = orbitPeriod / pointCount;
     for (let i = 1; i <= pointCount; i++) {
-      const pos = body.orbitFn(body.t + i * dt);
+      const pos = body.getPositionAtTime(body.t + i * dt);
       ctx.lineTo(pos.x, pos.y);
     }
 
@@ -285,7 +282,7 @@ export class Renderer {
       } else if (predCol.sourceIndex >= 0 && predCol.sourceIndex < bodies.length) {
         // 星体碰撞
         const colBody = bodies[predCol.sourceIndex];
-        const cp = colBody.orbitFn(predCol.time);
+        const cp = colBody.getPositionAtTime(predCol.time);
         ctx.strokeStyle = colBody.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
         ctx.beginPath();
         ctx.arc(cp.x, cp.y, colBody.collisionRadius, 0, Math.PI * 2);
