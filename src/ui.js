@@ -46,6 +46,12 @@ export class UIManager {
     this.screen = Screen.START;
     this.buttons = [];
     this._bindMouse();
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (this.screen === Screen.LEVEL_SELECT) this.goTo(Screen.START);
+        else if (this.screen === Screen.GAME_HUD) this.goTo(Screen.LEVEL_SELECT);
+      }
+    });
 
     // 图片由外部预加载后注入
     this._bgImage = null;

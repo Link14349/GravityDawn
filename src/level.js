@@ -67,16 +67,16 @@ function createBuilding(def, allBodies) {
   }
   const pts = [];
   for (const pd of def.points) {
+    const pt = { ...pd }; // 复制，避免修改 JSON 原数据
     if (!pd.isCore) {
-      pd.x = (pd.x || 0) + coreOffsetX;
-      pd.y = (pd.y || 0) + coreOffsetY;
-      // 非核心点继承行星速度
+      pt.x = (pd.x || 0) + coreOffsetX;
+      pt.y = (pd.y || 0) + coreOffsetY;
       if (_coreInitVx !== undefined) {
-        pd.vx = _coreInitVx;
-        pd.vy = _coreInitVy;
+        pt.vx = _coreInitVx;
+        pt.vy = _coreInitVy;
       }
     }
-    pts.push(b.addPoint(pd));
+    pts.push(b.addPoint(pt));
   }
   for (const sd of (def.springs || [])) {
     b.addSpring({ ...sd, a: pts[sd.a], b: pts[sd.b] });
