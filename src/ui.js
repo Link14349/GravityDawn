@@ -190,7 +190,7 @@ export class UIManager {
         ctx.fillText(`第 ${i + 1} 关`, cx + cardW / 2, cy + 40);
         ctx.fillStyle = C.sub;
         ctx.font = 'bold 16px Arial';
-        ctx.fillText(levelNames[i], cx + cardW / 2, cy + 68);
+        ctx.fillText(levelNames[i], cx + cardW / 2, cy + 63);
         let saved = null;
         try { saved = (getAllBest() || {})[i]; } catch(e) {}
         if (saved && saved.stars > 0) {
