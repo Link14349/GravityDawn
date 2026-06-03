@@ -7,6 +7,7 @@ import { GameController } from './game-controller.js';
 import { Building } from './building.js';
 import { Camera } from './camera.js';
 import { UIManager, Screen } from './ui.js';
+import { saveLevel, getAllBest } from './storage.js';
 
 // ============================================================
 // 关卡定义
@@ -159,6 +160,7 @@ export function initGame() {
         ui.gameData.score = result.totalScore;
         ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && b.launched).length;
         ui.gameData.enemiesKilled = buildings.reduce((s, bld) => s + bld.points.filter(p => p.isEnemy && !p.alive).length, 0);
+        saveLevel(currentLevel, result.stars, result.totalScore, result.passed);
         ui.goTo(Screen.RESULT);
         requestAnimationFrame(loop);
         return;

@@ -248,7 +248,7 @@ export class UIManager {
     const cx = this.w / 2;
 
     // 星级评价
-    const stars = this.gameData.stars || (passed ? 3 : 1);
+    const stars = this.gameData.stars ?? (passed ? 3 : 0);
     const starY = this.h * 0.16;
     ctx.font = '48px Arial';
     ctx.textAlign = 'center';
