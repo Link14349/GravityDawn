@@ -7,6 +7,7 @@
  *   GAME_HUD    — 游戏内 HUD（叠在游戏画面上方）
  *   RESULT      — 结算界面（分数明细 + 通关判定）
  */
+import { getAllBest } from './storage.js';
 
 export const Screen = Object.freeze({
   START: 'start',
@@ -188,11 +189,18 @@ export class UIManager {
         ctx.font = 'bold 20px Arial';
         ctx.fillText(`第 ${i + 1} 关`, cx + cardW / 2, cy + 40);
         ctx.fillStyle = C.sub;
-        ctx.font = '14px Arial';
-        ctx.fillText(levelNames[i], cx + cardW / 2, cy + 70);
-        ctx.fillStyle = C.accent;
-        ctx.font = '11px Arial';
-        ctx.fillText('★'.repeat(Math.max(0, 3 - i)), cx + cardW / 2, cy + 95);
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText(levelNames[i], cx + cardW / 2, cy + 72);
+        let saved = null;
+        try { saved = (getAllBest() || {})[i]; } catch(e) {}
+        if (saved && saved.stars > 0) {
+          ctx.fillStyle = C.gold;
+          ctx.font = '13px Arial';
+          ctx.fillText('★'.repeat(saved.stars) + '☆'.repeat(3 - saved.stars), cx + cardW / 2, cy + 85);
+          ctx.fillStyle = C.sub;
+          ctx.font = '10px monospace';
+          ctx.fillText(`${saved.score || 0}分`, cx + cardW / 2, cy + 105);
+        }
 
         if (hovered && !locked) {
           this.buttons.push({ x: cx, y: cy, w: cardW, h: cardH, action: () => { this.gameData.currentLevel = i + 1; this.goTo(Screen.GAME_HUD); } });
