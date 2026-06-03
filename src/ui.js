@@ -125,6 +125,14 @@ export class UIManager {
 
     // Logo 用 HTML overlay (img/logo.png) 显示，canvas 只画下方内容
 
+    // 英文副标题（Logo 正下方，小间距）
+    const subH = (this._logoImage ? this._logoImage.height * (768 / this._logoImage.width) : 200);
+    const subY = this.h * 0.18 + subH + 10;
+    ctx.fillStyle = C.accent2;
+    ctx.font = '20px "FZZhunYuan-M02", Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('GRAVITY DAWN', this.w / 2, subY);
+
     // 分隔线
     ctx.strokeStyle = C.accent;
     ctx.lineWidth = 1;
