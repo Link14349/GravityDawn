@@ -303,7 +303,7 @@ export class UIManager {
     }
 
     // 返回关卡列表
-    this._btn(ctx, '返回关卡列表', cx - 80, btnY + btnH + 15, 160, 36, () => this.goTo(Screen.LEVEL_SELECT), false);
+    this._btn(ctx, '返回关卡列表', cx - 90, btnY + btnH + 15, 180, 42, () => this.goTo(Screen.LEVEL_SELECT), true);
   }
 
   // ========================
