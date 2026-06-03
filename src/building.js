@@ -234,7 +234,7 @@ export class Building {
     for (const p of this.points) {
       if (!p.alive) continue;
       if (Math.abs(p.x) > DESPAWN_RADIUS || Math.abs(p.y) > DESPAWN_RADIUS) {
-        this._killPoint(p);
+        p.alive = false; // 直接消失不触发连锁反应
         this.score += p.score;
       }
     }
