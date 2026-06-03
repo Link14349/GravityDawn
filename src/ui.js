@@ -46,6 +46,11 @@ export class UIManager {
     this.buttons = [];
     this._bindMouse();
 
+    // 预加载图片
+    this._imgs = {};
+    this._loadImage('bg', '/img/startup-bg.png');
+    this._loadImage('logo', '/img/logo.png');
+
     // 游戏状态数据（供 HUD 和结算使用）
     this.gameData = {
       score: 0,
@@ -112,39 +117,39 @@ export class UIManager {
   // 开始界面
   // ========================
   _drawStart(ctx) {
-    // 星空背景
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, this.w, this.h);
-    this._drawStars(ctx);
+    // 背景图
+    const bg = this._imgs['bg'];
+    if (bg) { ctx.drawImage(bg, 0, 0, this.w, this.h); }
+    else { ctx.fillStyle = C.bg; ctx.fillRect(0, 0, this.w, this.h); this._drawStars(ctx); }
 
-    // 标题
-    ctx.fillStyle = C.accent;
-    ctx.font = 'bold 72px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('引力破晓', this.w / 2, this.h / 2 - 60);
+    // Logo（白底去背）
+    this._drawLogo(ctx);
+
+    // Logo 用 HTML overlay (img/logo.png) 显示，canvas 只画下方内容
 
     // 英文副标题
     ctx.fillStyle = C.accent2;
-    ctx.font = 'italic 20px Arial';
-    ctx.fillText('GRAVITY DAWN', this.w / 2, this.h / 2 - 20);
+    ctx.font = 'italic 18px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('GRAVITY DAWN', this.w / 2, this.h * 0.55);
 
     // 分隔线
     ctx.strokeStyle = C.accent;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(this.w / 2 - 120, this.h / 2);
-    ctx.lineTo(this.w / 2 + 120, this.h / 2);
+    ctx.moveTo(this.w / 2 - 120, this.h * 0.58);
+    ctx.lineTo(this.w / 2 + 120, this.h * 0.58);
     ctx.stroke();
 
     // 剧情简介
     ctx.fillStyle = C.sub;
     ctx.font = '14px Arial';
-    ctx.fillText('桃子星系遭暗域军阀雷蒙王突袭，桃晶核心被盗，科学家被掳。', this.w / 2, this.h / 2 + 30);
-    ctx.fillText('驾驶晨星战机，借恒星引力之弓，收复据点，夺回家园。', this.w / 2, this.h / 2 + 52);
+    ctx.fillText('桃子星系遭暗域军阀雷蒙王突袭，桃晶核心被盗，科学家被掳。', this.w / 2, this.h * 0.62);
+    ctx.fillText('驾驶晨星战机，借恒星引力之弓，收复据点，夺回家园。', this.w / 2, this.h * 0.62 + 22);
 
     // 开始按钮
     const bw = 220, bh = 56;
-    this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h / 2 + 90, bw, bh, () => this.goTo(Screen.LEVEL_SELECT), true);
+    this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h * 0.62 + 60, bw, bh, () => this.goTo(Screen.LEVEL_SELECT), true);
 
     // 版本
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
@@ -396,6 +401,30 @@ export class UIManager {
   // ========================
   goTo(screen) {
     this.screen = screen;
-    this._mx = -1; this._my = -1; // 防止残留 hover
+    this._mx = -1; this._my = -1;
+  }
+
+  _loadImage(key, src) {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => { this._imgs[key] = img; };
+  }
+
+  _drawLogo(ctx) {
+    const img = this._imgs['logo'];
+    if (!img) return;
+    const lw = 480, lh = img.height * (480 / img.width);
+    const lx = this.w / 2 - lw / 2, ly = this.h * 0.05;
+    const off = document.createElement('canvas');
+    off.width = lw; off.height = lh;
+    const oc = off.getContext('2d');
+    oc.drawImage(img, 0, 0, lw, lh);
+    const data = oc.getImageData(0, 0, lw, lh);
+    const px = data.data;
+    for (let i = 0; i < px.length; i += 4) {
+      if (px[i] > 240 && px[i+1] > 240 && px[i+2] > 240) px[i+3] = 0;
+    }
+    oc.putImageData(data, 0, 0);
+    ctx.drawImage(off, lx, ly);
   }
 }
