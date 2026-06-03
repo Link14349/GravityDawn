@@ -235,8 +235,8 @@ export class UIManager {
     ctx.fillText(`分数: ${this.gameData.score}`, this.w - 20, 20);
     ctx.fillText(`剩余子弹: ${this.gameData.bulletsRemaining}`, this.w - 20, 38);
 
-    // 退出按钮（黑条内左上角）
-    this._btn(ctx, '← 返回', 20, 20, 100, 36, () => this.goTo(Screen.LEVEL_SELECT), false);
+    // 退出按钮（黑条内）
+    this._btn(ctx, '← 退出', 8, 7, 78, 28, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
   // ========================
