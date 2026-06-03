@@ -45,17 +45,27 @@ function createBody(def) {
 /** 从关卡数据构建建筑 */
 function createBuilding(def, allBodies) {
   const b = new Building();
-  const pts = [];
+  // 计算核心偏移量（用于把相对坐标转世界坐标）
+  let coreOffsetX = 0, coreOffsetY = 0;
   for (const pd of def.points) {
-    // 核心点绑定到行星轨道
     if (pd.isCore && pd.coreOrbit) {
       const host = allBodies[pd.coreOrbit.bodyIndex];
       const altitude = pd.coreOrbit.altitude || 0;
       const phase = pd.coreOrbit.phase || 0;
+      const hp = host.getPosition();
+      coreOffsetX = hp.x + altitude * Math.cos(phase);
+      coreOffsetY = hp.y + altitude * Math.sin(phase);
       pd.orbitFn = (t) => {
-        const hp = host.getPosition();
-        return { x: hp.x + altitude * Math.cos(phase), y: hp.y + altitude * Math.sin(phase) };
+        const hp2 = host.getPosition();
+        return { x: hp2.x + altitude * Math.cos(phase), y: hp2.y + altitude * Math.sin(phase) };
       };
+    }
+  }
+  const pts = [];
+  for (const pd of def.points) {
+    if (!pd.isCore) {
+      pd.x = (pd.x || 0) + coreOffsetX;
+      pd.y = (pd.y || 0) + coreOffsetY;
     }
     pts.push(b.addPoint(pd));
   }
