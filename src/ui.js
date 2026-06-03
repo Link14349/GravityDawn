@@ -1,0 +1,391 @@
+/**
+ * UI 管理器 — 界面状态机 + Canvas 绘制 + 按钮交互
+ *
+ * 四个界面：
+ *   START       — 开始界面（标题 + 开始按钮）
+ *   LEVEL_SELECT— 选关界面（关卡列表）
+ *   GAME_HUD    — 游戏内 HUD（叠在游戏画面上方）
+ *   RESULT      — 结算界面（分数明细 + 通关判定）
+ */
+
+export const Screen = Object.freeze({
+  START: 'start',
+  LEVEL_SELECT: 'levelSelect',
+  GAME_HUD: 'gameHud',
+  RESULT: 'result',
+});
+
+// 扁平鲜艳调色板
+const C = {
+  bg: '#0d1140',
+  panel: 'rgba(10, 16, 60, 0.92)',
+  accent: '#ffbb33',
+  accent2: '#44ccbb',
+  text: '#ffffff',
+  sub: '#8899bb',
+  btn: '#ff6633',
+  btnHover: '#ff8855',
+  gold: '#ffdd44',
+  green: '#44ff88',
+  red: '#ff5555',
+  card: 'rgba(20, 30, 80, 0.85)',
+  cardBorder: 'rgba(255, 187, 51, 0.3)',
+};
+
+export class UIManager {
+  /**
+   * @param {HTMLCanvasElement} canvas
+   */
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.w = canvas.width;
+    this.h = canvas.height;
+    this.screen = Screen.START;
+    this.buttons = [];
+    this._bindMouse();
+
+    // 游戏状态数据（供 HUD 和结算使用）
+    this.gameData = {
+      score: 0,
+      totalScore: 0,
+      bulletsRemaining: 3,
+      buildingsDestroyed: 0,
+      enemiesKilled: 0,
+      stars: 0,
+      passed: false,
+      currentLevel: 1,
+      totalLevels: 7,
+    };
+
+    // 回调
+    this._onStart = null;
+    this._onSelectLevel = null;
+    this._onNextLevel = null;
+    this._onReplay = null;
+    this._onBackToMenu = null;
+  }
+
+  // ========================
+  // 鼠标事件
+  // ========================
+  _bindMouse() {
+    this.canvas.addEventListener('mousemove', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      this._mx = e.clientX - rect.left;
+      this._my = e.clientY - rect.top;
+    });
+    this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      for (const btn of this.buttons) {
+        if (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h) {
+          if (btn.action) btn.action();
+          return;
+        }
+      }
+    });
+  }
+
+  // ========================
+  // 绘制入口
+  // ========================
+  render() {
+    this.buttons = [];
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.clearRect(0, 0, this.w, this.h);
+
+    switch (this.screen) {
+      case Screen.START: this._drawStart(ctx); break;
+      case Screen.LEVEL_SELECT: this._drawLevelSelect(ctx); break;
+      case Screen.GAME_HUD: this._drawHUD(ctx); break;
+      case Screen.RESULT: this._drawResult(ctx); break;
+    }
+
+    ctx.restore();
+  }
+
+  // ========================
+  // 开始界面
+  // ========================
+  _drawStart(ctx) {
+    // 星空背景
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, this.w, this.h);
+    this._drawStars(ctx);
+
+    // 标题
+    ctx.fillStyle = C.accent;
+    ctx.font = 'bold 72px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('引力破晓', this.w / 2, this.h / 2 - 60);
+
+    // 英文副标题
+    ctx.fillStyle = C.accent2;
+    ctx.font = 'italic 20px Arial';
+    ctx.fillText('GRAVITY DAWN', this.w / 2, this.h / 2 - 20);
+
+    // 分隔线
+    ctx.strokeStyle = C.accent;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(this.w / 2 - 120, this.h / 2);
+    ctx.lineTo(this.w / 2 + 120, this.h / 2);
+    ctx.stroke();
+
+    // 剧情简介
+    ctx.fillStyle = C.sub;
+    ctx.font = '14px Arial';
+    ctx.fillText('桃子星系遭暗域军阀雷蒙王突袭，桃晶核心被盗，科学家被掳。', this.w / 2, this.h / 2 + 30);
+    ctx.fillText('驾驶晨星战机，借恒星引力之弓，收复据点，夺回家园。', this.w / 2, this.h / 2 + 52);
+
+    // 开始按钮
+    const bw = 220, bh = 56;
+    const bx = this.w / 2 - bw / 2, by = this.h / 2 + 90;
+    const hovered = this._isOver(bx, by, bw, bh);
+    ctx.fillStyle = hovered ? C.btnHover : C.btn;
+    this._roundRect(ctx, bx, by, bw, bh, 12, true);
+    ctx.fillStyle = C.text;
+    ctx.font = 'bold 22px Arial';
+    ctx.fillText('开 始 游 戏', this.w / 2, by + bh / 2 + 8);
+    this.buttons.push({ x: bx, y: by, w: bw, h: bh, action: () => this.goTo(Screen.LEVEL_SELECT) });
+
+    // 版本
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '11px monospace';
+    ctx.fillText('v0.7 — Phase 7 Demo', this.w / 2, this.h - 20);
+  }
+
+  // ========================
+  // 选关界面
+  // ========================
+  _drawLevelSelect(ctx) {
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, this.w, this.h);
+    this._drawStars(ctx);
+
+    // 标题
+    ctx.fillStyle = C.accent;
+    ctx.font = 'bold 36px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('选 择 关 卡', this.w / 2, 70);
+
+    // 关卡卡片
+    const cardsPerRow = 4;
+    const cardW = 200, cardH = 130, gapX = 40, gapY = 30;
+    const startX = (this.w - (cardsPerRow * cardW + (cardsPerRow - 1) * gapX)) / 2;
+    const startY = 120;
+
+    const levelNames = ['前哨站', '陨石带', '矿场废墟', '暗域哨塔', '能量枢纽', '雷蒙堡垒', '赤暗号'];
+
+    for (let i = 0; i < this.gameData.totalLevels; i++) {
+      const col = i % cardsPerRow;
+      const row = Math.floor(i / cardsPerRow);
+      const cx = startX + col * (cardW + gapX);
+      const cy = startY + row * (cardH + gapY);
+      const hovered = this._isOver(cx, cy, cardW, cardH);
+      const locked = i > 1; // 仅前两关解锁（demo）
+
+      // 卡片背景
+      ctx.fillStyle = locked ? 'rgba(15, 20, 40, 0.6)' : C.card;
+      ctx.strokeStyle = hovered && !locked ? C.accent : C.cardBorder;
+      ctx.lineWidth = hovered && !locked ? 2 : 1;
+      this._roundRect(ctx, cx, cy, cardW, cardH, 8, true);
+      this._roundRect(ctx, cx, cy, cardW, cardH, 8, false);
+
+      if (locked) {
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.font = '40px Arial';
+        ctx.fillText('🔒', cx + cardW / 2, cy + cardH / 2 + 5);
+      } else {
+        ctx.fillStyle = C.text;
+        ctx.font = 'bold 20px Arial';
+        ctx.fillText(`第 ${i + 1} 关`, cx + cardW / 2, cy + 40);
+        ctx.fillStyle = C.sub;
+        ctx.font = '14px Arial';
+        ctx.fillText(levelNames[i], cx + cardW / 2, cy + 70);
+        ctx.fillStyle = C.accent;
+        ctx.font = '11px Arial';
+        ctx.fillText('★'.repeat(Math.max(0, 3 - i)), cx + cardW / 2, cy + 95);
+
+        if (hovered && !locked) {
+          this.buttons.push({ x: cx, y: cy, w: cardW, h: cardH, action: () => { this.gameData.currentLevel = i + 1; this.goTo(Screen.GAME_HUD); } });
+        }
+      }
+    }
+
+    // 返回按钮
+    const bw = 120, bh = 40;
+    const bx = 30, by = this.h - 60;
+    const hovered2 = this._isOver(bx, by, bw, bh);
+    ctx.fillStyle = hovered2 ? C.btnHover : 'rgba(255,255,255,0.15)';
+    this._roundRect(ctx, bx, by, bw, bh, 8, true);
+    ctx.fillStyle = C.text;
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('← 返回', bx + bw / 2, by + bh / 2 + 6);
+    this.buttons.push({ x: bx, y: by, w: bw, h: bh, action: () => this.goTo(Screen.START) });
+  }
+
+  // ========================
+  // 游戏 HUD
+  // ========================
+  _drawHUD(ctx) {
+    // 半透明顶栏
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.fillRect(0, 0, this.w, 44);
+
+    // 关卡名
+    const levelNames = ['前哨站', '陨石带', '矿场废墟', '暗域哨塔', '能量枢纽', '雷蒙堡垒', '赤暗号'];
+    ctx.fillStyle = C.accent;
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(`第${this.gameData.currentLevel}关 · ${levelNames[this.gameData.currentLevel - 1]}`, 20, 30);
+
+    // 分数 + 子弹
+    ctx.fillStyle = C.text;
+    ctx.font = '14px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(`分数: ${this.gameData.score}`, this.w - 20, 20);
+    ctx.fillText(`剩余子弹: ${this.gameData.bulletsRemaining}`, this.w - 20, 38);
+  }
+
+  // ========================
+  // 结算界面
+  // ========================
+  _drawResult(ctx) {
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, this.w, this.h);
+    this._drawStars(ctx);
+
+    // 面板
+    const pw = 500, ph = 420;
+    const px = this.w / 2 - pw / 2, py = this.h / 2 - ph / 2;
+    ctx.fillStyle = C.panel;
+    this._roundRect(ctx, px, py, pw, ph, 16, true);
+    ctx.strokeStyle = C.accent;
+    ctx.lineWidth = 2;
+    this._roundRect(ctx, px, py, pw, ph, 16, false);
+
+    // 标题
+    const passed = this.gameData.passed;
+    ctx.fillStyle = passed ? C.gold : C.accent;
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(passed ? '★ 通 关 ★' : '关 卡 结 束', this.w / 2, py + 60);
+
+    // 分数明细
+    const items = [
+      ['建筑毁伤', `${this.gameData.score - this.gameData.bulletsRemaining * 100}`],
+      ['剩余子弹 (+100/发)', `${this.gameData.bulletsRemaining * 100}`],
+      ['摧毁敌人数', `${this.gameData.enemiesKilled}`],
+    ];
+    let iy = py + 120;
+    for (const [label, val] of items) {
+      ctx.fillStyle = C.sub;
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText(label, px + 60, iy);
+      ctx.fillStyle = C.text;
+      ctx.font = 'bold 16px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(val, px + pw - 60, iy);
+      iy += 35;
+    }
+
+    // 分割线
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px + 50, iy); ctx.lineTo(px + pw - 50, iy);
+    ctx.stroke();
+    iy += 20;
+
+    // 总分
+    ctx.fillStyle = C.gold;
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`总分: ${this.gameData.totalScore}`, this.w / 2, iy);
+    iy += 50;
+
+    // 按钮
+    const btnW = 180, btnH = 44, gap = 20;
+    const btnY = iy;
+
+    // 下一关 / 重试
+    if (passed) {
+      const nx = this.w / 2 - btnW - gap / 2;
+      this._btn(ctx, '↻ 重试', nx, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); });
+      const nx2 = this.w / 2 + gap / 2;
+      this._btn(ctx, '下一关 →', nx2, btnY, btnW, btnH, () => {
+        if (this.gameData.currentLevel < this.gameData.totalLevels) {
+          this.gameData.currentLevel++;
+          this.goTo(Screen.GAME_HUD);
+        }
+      });
+    } else {
+      this._btn(ctx, '↻ 重试', this.w / 2 - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); });
+    }
+
+    // 返回选关
+    const by2 = btnY + btnH + 15;
+    this._btn(ctx, '选关列表', this.w / 2 - btnW / 2, by2, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT));
+  }
+
+  // ========================
+  // 工具
+  // ========================
+  _btn(ctx, text, x, y, w, h, action) {
+    const hovered = this._isOver(x, y, w, h);
+    ctx.fillStyle = hovered ? C.btnHover : C.btn;
+    this._roundRect(ctx, x, y, w, h, 8, true);
+    ctx.fillStyle = C.text;
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(text, x + w / 2, y + h / 2 + 6);
+    this.buttons.push({ x, y, w, h, action });
+  }
+
+  _isOver(x, y, w, h) {
+    return this._mx >= x && this._mx <= x + w && this._my >= y && this._my <= y + h;
+  }
+
+  _roundRect(ctx, x, y, w, h, r, fill) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+    ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+    if (fill) ctx.fill();
+    else ctx.stroke();
+  }
+
+  _drawStars(ctx) {
+    for (let i = 0; i < 200; i++) {
+      const sx = (i * 7919 + 123) % this.w;
+      const sy = (i * 6271 + 456) % this.h;
+      const sr = 0.5 + ((i * 3571) % 100) / 100 * 1.5;
+      const sa = 0.3 + ((i * 4813) % 100) / 100 * 0.7;
+      ctx.fillStyle = `rgba(255, 255, 255, ${sa})`;
+      ctx.beginPath();
+      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // ========================
+  // 状态切换
+  // ========================
+  goTo(screen) {
+    this.screen = screen;
+    this._mx = -1; this._my = -1; // 防止残留 hover
+  }
+}

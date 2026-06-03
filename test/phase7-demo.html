@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 7 Demo — 界面系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas { display: block; margin: 0 auto; cursor: pointer; }
+    #screen-label {
+      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,0.4); font-family: monospace; font-size: 11px; pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="screen-label"></div>
+  <script type="module">
+    import { UIManager, Screen } from '../src/ui.js';
+
+    const canvas = document.getElementById('c');
+    canvas.width = 1200;
+    canvas.height = 800;
+    const ui = new UIManager(canvas);
+
+    // 模拟游戏数据，结算时用
+    ui.gameData.score = 450;
+    ui.gameData.totalScore = 850;
+    ui.gameData.bulletsRemaining = 2;
+    ui.gameData.enemiesKilled = 3;
+    ui.gameData.passed = true;
+
+    // 回调
+    ui._onStart = () => console.log('start');
+    ui._onSelectLevel = (n) => console.log('level', n);
+    ui._onNextLevel = () => console.log('next');
+    ui._onReplay = () => {
+      ui.gameData.score = 0;
+      ui.gameData.passed = false;
+      ui.goTo(Screen.GAME_HUD);
+    };
+    ui._onBackToMenu = () => ui.goTo(Screen.START);
+
+    // 屏幕标签
+    const label = document.getElementById('screen-label');
+    const labels = {
+      start: '🎮 开始界面',
+      levelSelect: '🗺 选关界面',
+      gameHud: '🎯 游戏 HUD（点击无反应，此界面叠在游戏画面上）',
+      result: '🏆 结算界面',
+    };
+
+    // 快捷键：1/2/3/4 切换界面
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '1') ui.goTo(Screen.START);
+      if (e.key === '2') ui.goTo(Screen.LEVEL_SELECT);
+      if (e.key === '3') ui.goTo(Screen.GAME_HUD);
+      if (e.key === '4') ui.goTo(Screen.RESULT);
+    });
+
+    function loop() {
+      ui.render();
+      label.textContent = labels[ui.screen] || '';
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>
