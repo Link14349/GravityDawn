@@ -156,8 +156,8 @@ export function initGame() {
         const result = LevelManager.checkResult(buildings, LEVELS[currentLevel].winCondition);
         ui.gameData.passed = result.passed;
         ui.gameData.stars = result.stars;
-        ui.gameData.totalScore = result.totalScore;
-        ui.gameData.score = result.totalScore;
+        ui.gameData.totalScore = result.passed ? result.totalScore : 0;
+        ui.gameData.score = result.passed ? result.totalScore : 0;
         ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && b.launched).length;
         ui.gameData.enemiesKilled = buildings.reduce((s, bld) => s + bld.points.filter(p => p.isEnemy && !p.alive).length, 0);
         saveLevel(currentLevel, result.stars, result.totalScore, result.passed);
