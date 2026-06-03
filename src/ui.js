@@ -189,8 +189,8 @@ export class UIManager {
         ctx.font = 'bold 20px Arial';
         ctx.fillText(`第 ${i + 1} 关`, cx + cardW / 2, cy + 40);
         ctx.fillStyle = C.sub;
-        ctx.font = 'bold 18px Arial';
-        ctx.fillText(levelNames[i], cx + cardW / 2, cy + 73);
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText(levelNames[i], cx + cardW / 2, cy + 68);
         let saved = null;
         try { saved = (getAllBest() || {})[i]; } catch(e) {}
         if (saved && saved.stars > 0) {
