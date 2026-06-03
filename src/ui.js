@@ -415,16 +415,10 @@ export class UIManager {
     if (!img) return;
     const lw = 480, lh = img.height * (480 / img.width);
     const lx = this.w / 2 - lw / 2, ly = this.h * 0.05;
-    const off = document.createElement('canvas');
-    off.width = lw; off.height = lh;
-    const oc = off.getContext('2d');
-    oc.drawImage(img, 0, 0, lw, lh);
-    const data = oc.getImageData(0, 0, lw, lh);
-    const px = data.data;
-    for (let i = 0; i < px.length; i += 4) {
-      if (px[i] > 200 && px[i+1] > 200 && px[i+2] > 200) px[i+3] = 0;
-    }
-    oc.putImageData(data, 0, 0);
-    ctx.drawImage(off, lx, ly);
+    // multiply 合成自动去白底（白色×任意色=原色）
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(img, lx, ly, lw, lh);
+    ctx.restore();
   }
 }
