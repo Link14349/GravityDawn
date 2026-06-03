@@ -186,7 +186,7 @@ export class UIManager {
       const cx = startX + col * (cardW + gapX);
       const cy = startY + row * (cardH + gapY);
       const hovered = this._isOver(cx, cy, cardW, cardH);
-      const locked = i > 1; // 仅前两关解锁（demo）
+      const locked = false; // demo 全部解锁
 
       // 卡片背景
       ctx.fillStyle = locked ? 'rgba(15, 20, 40, 0.6)' : C.card;
@@ -233,6 +233,18 @@ export class UIManager {
   // 游戏 HUD
   // ========================
   _drawHUD(ctx) {
+    // 背景（模拟游戏中画面）
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, this.w, this.h);
+    this._drawStars(ctx);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.font = 'bold 48px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('游戏画面', this.w / 2, this.h / 2 - 20);
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.font = '16px Arial';
+    ctx.fillText('（关卡内容将在 Phase 8 中接入）', this.w / 2, this.h / 2 + 20);
+
     // 半透明顶栏
     ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
     ctx.fillRect(0, 0, this.w, 44);
