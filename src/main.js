@@ -146,6 +146,8 @@ export function initGame() {
   const r = new Renderer(canvas);
   const ctx = r.ctx;
 
+  ui.gameData.totalLevels = LEVELS.length;
+
   // 预加载开始界面图片
   ['img/startup-bg.png', 'img/logo.png'].forEach((src, idx) => {
     const img = new Image();

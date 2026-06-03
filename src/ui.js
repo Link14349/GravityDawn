@@ -60,7 +60,7 @@ export class UIManager {
       stars: 0,
       passed: false,
       currentLevel: 1,
-      totalLevels: 7,
+      totalLevels: 3,
     };
 
     // 回调
