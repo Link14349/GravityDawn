@@ -17,7 +17,8 @@ export const PS_COLLISION_THRESHOLD = 120;
 export const ENEMY_PP_THRESHOLD = 150;
 export const ENEMY_PS_THRESHOLD = 200;
 /** 质点离游戏中心超过此距离则消失记分 */
-export const DESPAWN_RADIUS = 2000;
+// 初始缩放比下超出屏幕30%即消失: 1200/2*1.3=780
+export const DESPAWN_RADIUS = 800;
 
 // ========================
 // 工具函数
