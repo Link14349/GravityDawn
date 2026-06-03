@@ -47,7 +47,7 @@ export class LevelManager {
       const b = new Building();
       let coreWorldX = 0, coreWorldY = 0, initVx, initVy;
 
-      // 第一遍：找出核心点的世界位置和速度
+      // 第一遍：找出核心点（或建筑绑定）的世界位置和速度
       for (const pd of def.points) {
         if (pd.isCore && pd.orbit != null) {
           const orb = orbits[pd.orbit];
@@ -56,6 +56,14 @@ export class LevelManager {
           coreWorldX = wp.x; coreWorldY = wp.y;
           initVx = wv.vx; initVy = wv.vy;
         }
+      }
+      // 如果建筑没有核心但有 bindToBody，用该星体的位置和速度
+      if (initVx === undefined && def.bindToBody != null) {
+        const host = allBodies[def.bindToBody];
+        const hp = host.getPosition();
+        const hv = host.getVelocity();
+        coreWorldX = hp.x; coreWorldY = hp.y;
+        initVx = hv.vx; initVy = hv.vy;
       }
 
       // 第二遍：创建质点
