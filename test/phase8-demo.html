@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 8 Demo — 关卡系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas { display: block; margin: 0 auto; cursor: crosshair; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script type="module">
+    import { LevelManager } from '../src/level.js';
+    import { PhysicsEngine } from '../src/physics.js';
+    import { Renderer } from '../src/renderer.js';
+    import { CelestialBody } from '../src/celestial.js';
+    import { Bullet } from '../src/bullet.js';
+    import { Building } from '../src/building.js';
+    import { GameController } from '../src/game-controller.js';
+    import { Camera } from '../src/camera.js';
+    import { UIManager, Screen } from '../src/ui.js';
+
+    // =====================
+    // 关卡数据
+    // =====================
+    const levelData = {
+      name: '前哨站',
+      gravity: 300,
+      camera: { x: 700, y: 400, zoom: 0.85 },
+
+      stars: [
+        { mass: 8000, radius: 50, collisionRadius: 45, color: '#ffbb33', label: '恒星', orbit: { type: 'fixed', x: 600, y: 400 } },
+      ],
+
+      planets: [
+        { mass: 1500, radius: 55, collisionRadius: 50, color: '#66aaff', label: '目标行星', orbit: { type: 'fixed', x: 850, y: 400 } },
+      ],
+
+      bullets: [
+        { payloadMass: 5, fuelMass: 30, ve: 300, ignitionCount: 2, explosionRadius: 60, explosionImpulse: 3000, color: '#ffdd44', renderRadius: 8, orbitAround: { bodyIndex: 0, altitude: 80, phase: 0 } },
+        { payloadMass: 8, fuelMass: 20, ve: 250, ignitionCount: 3, explosionRadius: 40, explosionImpulse: 2000, color: '#ffdd44', renderRadius: 8, orbitAround: { bodyIndex: 0, altitude: 110, phase: Math.PI } },
+        { payloadMass: 20, fuelMass: 15, ve: 200, ignitionCount: 2, explosionRadius: 0, explosionImpulse: 0, color: '#ff4444', renderRadius: 12, hp: 200, orbitAround: { bodyIndex: 0, altitude: 140, phase: Math.PI * 0.7 } },
+      ],
+
+      buildings: [
+        // 塔楼
+        {
+          points: [
+            { x: 850, y: 230, mass: 200, radius: 8, score: 300, important: true, isCore: true, color: '#ffdd44', explosionRadius: 60, explosionImpulse: 3000 },
+            { x: 820, y: 310, mass: 8, radius: 5, score: 20, important: true, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
+            { x: 850, y: 310, mass: 8, radius: 5, score: 20, important: true, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
+            { x: 880, y: 310, mass: 8, radius: 5, score: 20, important: true, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
+            { x: 820, y: 275, mass: 8, radius: 5, score: 20, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
+            { x: 850, y: 275, mass: 8, radius: 5, score: 20, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
+            { x: 880, y: 275, mass: 8, radius: 5, score: 20, color: '#cccccc', explosionRadius: 15, explosionImpulse: 800 },
+            { x: 850, y: 340, mass: 10, radius: 6, score: 50, important: true, color: '#88aacc', explosionRadius: 20, explosionImpulse: 1000 },
+            { x: 840, y: 290, mass: 15, radius: 8, score: 200, important: true, isEnemy: true, hp: 200, color: '#44ff44', renderRadius: 9, explosionRadius: 30, explosionImpulse: 2000 },
+            { x: 865, y: 290, mass: 15, radius: 8, score: 200, important: true, isEnemy: true, hp: 200, color: '#44ff44', renderRadius: 9, explosionRadius: 30, explosionImpulse: 2000 },
+          ],
+          springs: [
+            { a: 0, b: 1, stiffness: 4000, damping: 20, breakTension: 7500 },
+            { a: 0, b: 2, stiffness: 4000, damping: 20, breakTension: 7500 },
+            { a: 0, b: 3, stiffness: 4000, damping: 20, breakTension: 7500 },
+            { a: 1, b: 4, stiffness: 3000, damping: 15, breakTension: 5000 },
+            { a: 2, b: 5, stiffness: 3000, damping: 15, breakTension: 5000 },
+            { a: 3, b: 6, stiffness: 3000, damping: 15, breakTension: 5000 },
+            { a: 4, b: 7, stiffness: 2500, damping: 15, breakTension: 4000 },
+            { a: 5, b: 7, stiffness: 3000, damping: 15, breakTension: 5000 },
+            { a: 6, b: 7, stiffness: 2500, damping: 15, breakTension: 4000 },
+            { a: 1, b: 2, stiffness: 1500, damping: 10, breakTension: 2500 },
+            { a: 2, b: 3, stiffness: 1500, damping: 10, breakTension: 2500 },
+            { a: 4, b: 5, stiffness: 1500, damping: 10, breakTension: 2500 },
+            { a: 5, b: 6, stiffness: 1500, damping: 10, breakTension: 2500 },
+          ],
+        },
+        // 方块
+        {
+          points: [
+            { x: 832, y: 470, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 },
+            { x: 868, y: 470, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 },
+            { x: 832, y: 506, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 },
+            { x: 868, y: 506, mass: 10, radius: 5, score: 30, important: true, color: '#ff9966', explosionRadius: 20, explosionImpulse: 600 },
+            { x: 850, y: 488, mass: 12, radius: 8, score: 300, important: true, isEnemy: true, hp: 200, color: '#44ff44', renderRadius: 9, explosionRadius: 30, explosionImpulse: 2000 },
+          ],
+          springs: [
+            { a: 0, b: 1, stiffness: 500, damping: 20, breakTension: 50000 },
+            { a: 1, b: 3, stiffness: 500, damping: 20, breakTension: 50000 },
+            { a: 3, b: 2, stiffness: 500, damping: 20, breakTension: 50000 },
+            { a: 2, b: 0, stiffness: 500, damping: 20, breakTension: 50000 },
+            { a: 0, b: 3, stiffness: 500, damping: 20, breakTension: 50000 },
+            { a: 1, b: 2, stiffness: 500, damping: 20, breakTension: 50000 },
+          ],
+        },
+      ],
+
+      winCondition: { destructionThreshold: 0.3, importantTargetsAll: true, minScore: 100 },
+    };
+
+    // =====================
+    // 加载关卡
+    // =====================
+    const { stars, planets, allBodies, bullets, buildings, physics, camera } = LevelManager.load(levelData);
+
+    // =====================
+    // 游戏对象
+    // =====================
+    const canvas = document.getElementById('c');
+    canvas.width = 1200; canvas.height = 800;
+    const BULLET_R = 6;
+    let physicsTime = 0;
+
+    const cam = new Camera(canvas, { shouldBlockPan: () => false });
+    cam.x = camera.x; cam.y = camera.y; cam.zoom = camera.zoom;
+
+    const ctrl = new GameController(canvas, { physics, bullets, camera: cam, getTime: () => physicsTime, buildings });
+    cam._shouldBlockPan = () => ctrl.getHoveredBullet() !== null;
+
+    const r = new Renderer(canvas);
+    const ui = new UIManager(canvas);
+    const ctx = r.ctx;
+
+    // 预加载开始界面图片
+    ['../img/startup-bg.png', '../img/logo.png'].forEach((src, idx) => {
+      const img = new Image();
+      img.onload = () => { if (idx === 0) ui._bgImage = img; else ui._logoImage = img; };
+      img.src = src;
+    });
+
+    // 初始化数据
+    const explosions = [];
+    for (const b of bullets) b._trail = [];
+
+    // 回调
+    ui._onReplay = () => {
+      location.reload();
+    };
+
+    let gameActive = false;
+
+    // =====================
+    // 主循环
+    // =====================
+    function loop() {
+      if (ui.screen === Screen.START || ui.screen === Screen.LEVEL_SELECT || ui.screen === Screen.RESULT) {
+        ui.render();
+        requestAnimationFrame(loop);
+        return;
+      }
+
+      // GAME_HUD 模式：运行游戏
+      if (!gameActive) { gameActive = true; }
+
+      // 物理
+      if (!ctrl.shouldPause()) {
+        physicsTime += 1 / 60;
+        for (let i = 0; i < allBodies.length; i++) {
+          const b = allBodies[i];
+          b.update(1 / 60);
+          physics.updateSourcePosition(i, b.getPosition().x, b.getPosition().y);
+        }
+        for (const bld of buildings) {
+          const bResult = bld.step(1 / 60, physics, allBodies);
+          for (const ex of bResult.explosions) explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
+        }
+        Building.checkCrossCollisions(buildings, explosions);
+        for (const b of bullets) {
+          if (!b.alive) continue;
+          if (!b.launched) { b.updateOrbitPosition(1 / 60); }
+          else {
+            const col = physics.stepParticle(b, undefined, BULLET_R);
+            b._trail.push({ x: b.x, y: b.y, life: 1.0 });
+            if (b._trail.length > 300) b._trail.shift();
+
+            let hitBuilding = false;
+            for (const bld of buildings) {
+              const colR = b.maxHp > 0 ? (b.renderRadius || BULLET_R) : BULLET_R;
+              const impact = bld.handleBulletImpact(b.x, b.y, colR, b.getEffectiveExplosionImpulse(), b.getEffectiveExplosionRadius());
+              if (impact.hit) {
+                if (b.maxHp > 0) { b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7); }
+                else { b.alive = false; }
+                explosions.push({ x: impact.explosion.x, y: impact.explosion.y, r: 0, maxR: impact.explosion.radius || 50 });
+                hitBuilding = true; break;
+              }
+            }
+            if (!hitBuilding && col) {
+              explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || (b.maxHp > 0 ? 15 : 50) });
+              if (b.maxHp > 0) b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7);
+              else b.alive = false;
+            }
+          }
+        }
+        for (const ex of explosions) ex.r += 4;
+      }
+
+      // 检查通关
+      const allLaunched = bullets.every(b => b.launched || !b.alive);
+      const allSettled = bullets.every(b => !b.alive || (b.launched && Math.sqrt(b.vx**2 + b.vy**2) < 5));
+      if (gameActive && allLaunched && allSettled && explosions.length === 0) {
+        const result = LevelManager.checkResult(buildings, levelData.winCondition);
+        ui.gameData.passed = result.passed;
+        ui.gameData.stars = result.stars;
+        ui.gameData.totalScore = result.totalScore;
+        ui.gameData.score = result.totalScore - bullets.filter(b => b.alive && b.launched).length * 100;
+        ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && b.launched).length;
+        ui.gameData.enemiesKilled = buildings.reduce((s, bld) => s + bld.points.filter(p => p.isEnemy && !p.alive).length, 0);
+        ui.goTo(Screen.RESULT);
+        gameActive = false;
+      }
+
+      // 更新 HUD
+      ui.gameData.score = buildings.reduce((s, bld) => s + bld.score, 0);
+      ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && !b.launched).length;
+
+      // 渲染
+      r.clear();
+      cam.applyTransform(ctx);
+      for (const b of allBodies) r.drawCelestialBody(b);
+      for (const bld of buildings) r.drawBuilding(bld);
+      for (const b of bullets) r.drawFadingTrail(b._trail);
+      r.drawAimOverlay(ctrl, allBodies);
+      const hovered = ctrl.getHoveredBullet();
+      for (const b of bullets) {
+        if (!b.alive || !isFinite(b.x)) continue;
+        r.drawBullet(b.x, b.y, b.vx, b.vy, b.renderRadius || BULLET_R, b.launched, b === hovered, b.color);
+      }
+      for (let i = explosions.length - 1; i >= 0; i--) {
+        if (r.drawExplosion(explosions[i].x, explosions[i].y, explosions[i].r, explosions[i].maxR)) explosions.splice(i, 1);
+      }
+      cam.restoreTransform(ctx);
+
+      // HUD 顶栏
+      ui.render();
+
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>
