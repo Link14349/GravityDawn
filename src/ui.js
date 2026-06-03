@@ -125,14 +125,6 @@ export class UIManager {
 
     // Logo 用 HTML overlay (img/logo.png) 显示，canvas 只画下方内容
 
-    // 英文副标题（Logo 正下方，小间距）
-    const subH = (this._logoImage ? this._logoImage.height * (768 / this._logoImage.width) : 200);
-    const subY = this.h * 0.18 + subH + 10;
-    ctx.fillStyle = C.accent2;
-    ctx.font = '20px "FZZhunYuan-M02", Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('GRAVITY DAWN', this.w / 2, subY);
-
     // 开始按钮
     const bw = 220, bh = 56;
     this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h * 0.62, bw, bh, () => this.goTo(Screen.LEVEL_SELECT), true);
