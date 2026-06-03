@@ -70,6 +70,16 @@ export class GameController {
     this.canvas.addEventListener('mouseleave', (e) => this._onMouseLeave(e));
     this.canvas.addEventListener('mouseenter', (e) => this._onMouseEnter(e));
     this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    window.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        if (this.state === GameState.PLAYING || this.state === GameState.AIMING) {
+          this.paused = !this.paused;
+          this._spacePaused = !this._spacePaused;
+        }
+      }
+    });
+    this._spacePaused = false;
   }
 
   /** 获取鼠标在 canvas 中的世界坐标 */
@@ -264,5 +274,10 @@ export class GameController {
   /** 是否应该暂停物理模拟 */
   shouldPause() {
     return this.paused;
+  }
+
+  /** 是否空格暂停 */
+  isSpacePaused() {
+    return this._spacePaused;
   }
 }

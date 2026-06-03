@@ -227,12 +227,13 @@ export class UIManager {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
     ctx.fillRect(0, 0, this.w, 44);
 
-    // 关卡名（居中）
+    // 关卡名（居中）+ 暂停标记
     const levelNames = this.gameData.levelNames;
+    const paused = this._ctrl && this._ctrl.isSpacePaused();
     ctx.fillStyle = C.accent;
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(`第${this.gameData.currentLevel}关 · ${levelNames[this.gameData.currentLevel - 1]}`, this.w / 2, 30);
+    ctx.fillText(`第${this.gameData.currentLevel}关 · ${levelNames[this.gameData.currentLevel - 1]}${paused ? '  ⏸ 暂停' : ''}`, this.w / 2, 30);
 
     // 分数 + 子弹
     ctx.fillStyle = C.text;

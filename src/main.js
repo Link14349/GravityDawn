@@ -60,6 +60,7 @@ export function initGame() {
     explosions = [];
     settling = false; settleTimer = 0; gameActive = false;
     for (const b of bullets) b._trail = [];
+    ui._ctrl = ctrl;
     ui.gameData.currentLevel = levelIndex + 1;
     ui.gameData.totalLevels = LEVELS.length;
   ui.gameData.levelNames = LEVELS.map(l => l.name);
