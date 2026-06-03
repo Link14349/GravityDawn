@@ -19,7 +19,7 @@ export const GameState = Object.freeze({
 const DRAG_TO_DV_SCALE = 0.5;
 
 // 子弹悬停检测半径（像素）
-const HOVER_RADIUS = 30;
+const HOVER_RADIUS = 40;
 
 export class GameController {
   /**
@@ -125,20 +125,19 @@ export class GameController {
   }
 
   _onMouseDown(e) {
-    if (e.button !== 0) return; // 只处理左键
+    if (e.button !== 0) return;
     const pos = this._getCanvasPos(e);
-
-    if (this.state === GameState.AIMING) {
-      const bullet = this._findBulletUnderMouse(pos.x, pos.y);
-      if (bullet && bullet.remainingIgnitions > 0 && bullet.remainingDeltaV > 0) {
-        this.dragging = true;
-        this.dragBullet = bullet;
-        this.dragStartX = bullet.x;
-        this.dragStartY = bullet.y;
-        this.dragCurrentX = pos.x;
-        this.dragCurrentY = pos.y;
-        this._updatePrediction();
-      }
+    const bullet = this._findBulletUnderMouse(pos.x, pos.y);
+    if (bullet && bullet.remainingIgnitions > 0 && bullet.remainingDeltaV > 0) {
+      this.dragging = true;
+      this.dragBullet = bullet;
+      this.dragStartX = bullet.x;
+      this.dragStartY = bullet.y;
+      this.dragCurrentX = pos.x;
+      this.dragCurrentY = pos.y;
+      this.paused = true;
+      this.state = GameState.AIMING;
+      this._updatePrediction();
     }
   }
 
