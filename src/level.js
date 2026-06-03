@@ -77,7 +77,6 @@ export class LevelManager {
           }
           pt.x = coreWorldX;
           pt.y = coreWorldY;
-          if (initVx !== undefined) { pt.vx = initVx; pt.vy = initVy; }
         } else {
           pt.x = (pd.x || 0) + coreWorldX;
           pt.y = (pd.y || 0) + coreWorldY;
