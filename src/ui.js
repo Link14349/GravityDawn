@@ -298,6 +298,7 @@ export class UIManager {
       this._btn(ctx, '返回关卡列表', cx + 10, btnY, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT), false);
     } else {
       this._btn(ctx, '↻ 重试', cx - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, true);
+      this._btn(ctx, '返回关卡列表', cx - btnW / 2, btnY + btnH + 15, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT), false);
     }
 
     // 下一关（宽按钮，实心）
