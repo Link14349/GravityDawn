@@ -56,9 +56,9 @@ export class MassPoint {
    * @param {string} [options.color='#888']
    * @param {number} [options.renderRadius]
    */
-  constructor({ x, y, mass = 10, radius = 8, score = 10, important = false, fixed = false, isCore = false, isEnemy = false, hp = 100, orbitFn = null, explosionRadius = 0, explosionImpulse = 0, color = '#888', renderRadius }) {
+  constructor({ x, y, mass = 10, radius = 8, score = 10, important = false, fixed = false, isCore = false, isEnemy = false, hp = 100, orbitFn = null, explosionRadius = 0, explosionImpulse = 0, color = '#888', renderRadius, vx = 0, vy = 0 }) {
     this.x = x; this.y = y;
-    this.vx = 0; this.vy = 0;
+    this.vx = vx; this.vy = vy;
     this.mass = mass;
     this.radius = radius;
     this.renderRadius = renderRadius ?? radius;
