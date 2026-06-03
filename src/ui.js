@@ -295,15 +295,17 @@ export class UIManager {
     const btnW = 160, btnH = 42, btnY = py + ph + 25;
     if (passed) {
       this._btn(ctx, '↻ 重试', cx - btnW - 10, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, false);
-      this._btn(ctx, '下一关 →', cx + 10, btnY, btnW, btnH, () => {
-        if (this.gameData.currentLevel < this.gameData.totalLevels) { this.gameData.currentLevel++; this.goTo(Screen.GAME_HUD); }
-      }, true);
+      this._btn(ctx, '返回关卡列表', cx + 10, btnY, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT), false);
     } else {
       this._btn(ctx, '↻ 重试', cx - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, true);
     }
 
-    // 返回关卡列表（左右对齐上方按钮，空心样式）
-    this._btn(ctx, '返回关卡列表', cx - btnW - 10, btnY + btnH + 15, btnW * 2 + 20, btnH, () => this.goTo(Screen.LEVEL_SELECT), false);
+    // 下一关（宽按钮，实心）
+    if (passed) {
+      this._btn(ctx, '下一关 →', cx - btnW - 10, btnY + btnH + 15, btnW * 2 + 20, btnH, () => {
+        if (this.gameData.currentLevel < this.gameData.totalLevels) { this.gameData.currentLevel++; this.goTo(Screen.GAME_HUD); }
+      }, true);
+    }
   }
 
   // ========================
