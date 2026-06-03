@@ -252,7 +252,7 @@ export class UIManager {
 
     // 星级评价
     const stars = this.gameData.stars || (passed ? 3 : 1);
-    const starY = this.h * 0.18;
+    const starY = this.h * 0.16;
     ctx.font = '48px Arial';
     ctx.textAlign = 'center';
     const starStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
@@ -302,8 +302,8 @@ export class UIManager {
       this._btn(ctx, '↻ 重试', cx - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, true);
     }
 
-    // 返回关卡列表
-    this._btn(ctx, '返回关卡列表', cx - 90, btnY + btnH + 15, 180, 42, () => this.goTo(Screen.LEVEL_SELECT), true);
+    // 返回关卡列表（左右对齐上方按钮，空心样式）
+    this._btn(ctx, '返回关卡列表', cx - btnW - 10, btnY + btnH + 15, btnW * 2 + 20, btnH, () => this.goTo(Screen.LEVEL_SELECT), false);
   }
 
   // ========================
