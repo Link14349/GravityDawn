@@ -422,7 +422,7 @@ export class UIManager {
     const data = oc.getImageData(0, 0, lw, lh);
     const px = data.data;
     for (let i = 0; i < px.length; i += 4) {
-      if (px[i] > 240 && px[i+1] > 240 && px[i+2] > 240) px[i+3] = 0;
+      if (px[i] > 200 && px[i+1] > 200 && px[i+2] > 200) px[i+3] = 0;
     }
     oc.putImageData(data, 0, 0);
     ctx.drawImage(off, lx, ly);
