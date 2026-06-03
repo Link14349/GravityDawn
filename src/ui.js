@@ -133,23 +133,9 @@ export class UIManager {
     ctx.textAlign = 'center';
     ctx.fillText('GRAVITY DAWN', this.w / 2, subY);
 
-    // 分隔线
-    ctx.strokeStyle = C.accent;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(this.w / 2 - 120, this.h * 0.58);
-    ctx.lineTo(this.w / 2 + 120, this.h * 0.58);
-    ctx.stroke();
-
-    // 剧情简介
-    ctx.fillStyle = C.sub;
-    ctx.font = '14px Arial';
-    ctx.fillText('桃子星系遭暗域军阀雷蒙王突袭，桃晶核心被盗，科学家被掳。', this.w / 2, this.h * 0.62);
-    ctx.fillText('驾驶晨星战机，借恒星引力之弓，收复据点，夺回家园。', this.w / 2, this.h * 0.62 + 22);
-
     // 开始按钮
     const bw = 220, bh = 56;
-    this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h * 0.62 + 60, bw, bh, () => this.goTo(Screen.LEVEL_SELECT), true);
+    this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h * 0.62, bw, bh, () => this.goTo(Screen.LEVEL_SELECT), true);
 
     // Credits
     ctx.fillStyle = 'rgba(255,255,255,0.15)';
