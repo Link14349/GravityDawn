@@ -173,7 +173,7 @@ export function initGame() {
     } else {
       ctrl.physics = physics; ctrl.bullets = bullets; ctrl._buildings = buildings; ctrl.camera = cam;
     }
-    cam._shouldBlockPan = () => ctrl.getHoveredBullet() !== null;
+    cam._shouldBlockPan = () => ctrl && ctrl.getHoveredBullet() !== null;
     physicsTime = 0;
     explosions = [];
     settling = false; settleTimer = 0; gameActive = false;
@@ -281,7 +281,8 @@ export function initGame() {
         ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && b.launched).length;
         ui.gameData.enemiesKilled = buildings.reduce((s, bld) => s + bld.points.filter(p => p.isEnemy && !p.alive).length, 0);
         ui.goTo(Screen.RESULT);
-        settling = false; gameActive = false;
+        requestAnimationFrame(loop);
+        return;
       }
     }
 
