@@ -148,6 +148,10 @@ export class GameController {
     const dvy = -(this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
 
     this.dragBullet.applyDeltaV(dvx, dvy);
+    if (!this.dragBullet._launchTimeSet) {
+      this.dragBullet.launchTime = (this._getTime ? this._getTime() : 0);
+      this.dragBullet._launchTimeSet = true;
+    }
     this.dragging = false;
     this.dragBullet = null;
     this.predictedPath = [];

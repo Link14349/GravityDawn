@@ -224,7 +224,10 @@
 
       // 沉淀状态判定
       const allLaunched = bullets.every(b => b.launched || !b.alive);
-      const allSettled = bullets.every(b => !b.alive || (b.launched && Math.sqrt(b.vx**2 + b.vy**2) < 5));
+      const FLIGHT_TIMEOUT = 15; // 最长飞行时间（秒）
+      const allSettled = bullets.every(b =>
+        !b.alive || (b.launched && (Math.sqrt(b.vx**2 + b.vy**2) < 5 || physicsTime - b.launchTime > FLIGHT_TIMEOUT))
+      );
       const condA = allLaunched && allSettled && explosions.length === 0;
       const condB = importantAllDead();
 

@@ -62,6 +62,7 @@ export class Bullet {
 
     // 状态标记
     this.launched = false;    // 是否已发射（脱离初始轨道）
+    this.launchTime = 0;      // 发射时刻（用于飞行时间兜底）
     this.alive = true;        // 是否存活
 
     // 用于计算加速度（由物理引擎填充）
