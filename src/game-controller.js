@@ -74,7 +74,6 @@ export class GameController {
       if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
         if (this.state === GameState.PLAYING || this.state === GameState.AIMING) {
-          this.paused = !this.paused;
           this._spacePaused = !this._spacePaused;
         }
       }
@@ -281,7 +280,7 @@ export class GameController {
 
   /** 是否应该暂停物理模拟 */
   shouldPause() {
-    return this.paused;
+    return this.paused || this._spacePaused;
   }
 
   /** 是否空格暂停 */
