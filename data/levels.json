@@ -152,8 +152,8 @@
     "name": "行星追逐", "gravity": 250, "camera": { "x": 600, "y": 400, "zoom": 0.55 },
     "orbits": [
       { "type": "fixed", "x": 600, "y": 400 },
-      { "type": "circular", "radius": 400, "period": 40, "parent": 0 },
-      { "type": "circular", "radius": 30, "period": 30, "phase": 4.712, "parent": 1 }
+      { "type": "circular", "radius": 500, "period": 60, "parent": 0 },
+      { "type": "circular", "radius": 132, "period": 50, "phase": 4.712, "parent": 1 }
     ],
     "stars": [
       { "mass": 8000, "radius": 50, "collisionRadius": 45, "color": "#ffbb33", "label": "恒星", "orbit": 0 }
