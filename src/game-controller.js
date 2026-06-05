@@ -59,6 +59,9 @@ export class GameController {
     this.predictedPath = [];
     this.predictedCollision = null; // { x, y, sourceIndex } | null
 
+    // 右键触发的子弹效果（供主循环处理）
+    this.triggeredBullets = [];
+
     this._bindEvents();
   }
 
@@ -69,7 +72,19 @@ export class GameController {
     this.canvas.addEventListener('mouseup', (e) => this._onMouseUp(e));
     this.canvas.addEventListener('mouseleave', (e) => this._onMouseLeave(e));
     this.canvas.addEventListener('mouseenter', (e) => this._onMouseEnter(e));
-    this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    this.canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      // 右键点击子弹 → 触发特殊效果
+      const pos = this._getCanvasPos(e);
+      const bullet = this._findBulletUnderMouse(pos.x, pos.y);
+      if (bullet && bullet.alive && bullet.launched && bullet.onImpact) {
+        bullet.triggerEffect();
+        this.triggeredBullets.push(bullet);
+        if (this.dragging && this.dragBullet === bullet) {
+          this.dragging = false; this.dragBullet = null;
+        }
+      }
+    });
     window.addEventListener('keydown', (e) => {
       if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
@@ -92,11 +107,14 @@ export class GameController {
     return { x: sx, y: sy };
   }
 
-  /** 检测鼠标是否悬停在可机动的子弹上 */
+  /** 检测鼠标是否悬停在子弹上（含不可机动但可右键触发的） */
   _findBulletUnderMouse(mx, my) {
     for (const b of this.bullets) {
       if (!b.alive) continue;
-      if (b.remainingIgnitions <= 0 || b.remainingDeltaV <= 0) continue;
+      // 可机动（有剩余点火+ΔV）或 可右键触发（特殊弹已耗尽）
+      const canManeuver = b.remainingIgnitions > 0 && b.remainingDeltaV > 0;
+      const canTrigger = b.onImpact && b.launched;
+      if (!canManeuver && !canTrigger) continue;
       const dx = mx - b.x;
       const dy = my - b.y;
       if (Math.sqrt(dx * dx + dy * dy) < HOVER_RADIUS) {
@@ -104,6 +122,12 @@ export class GameController {
       }
     }
     return null;
+  }
+
+  /** 悬停的子弹是否可机动（点火+DV都够） */
+  canHoveredManeuver() {
+    const b = this.getHoveredBullet();
+    return b && b.remainingIgnitions > 0 && b.remainingDeltaV > 0;
   }
 
   _onMouseMove(e) {

@@ -104,22 +104,17 @@
 ### BulletDef
 
 ```js
+// 新格式（推荐）：只需 type + orbitAround
 {
-  payloadMass: 5,            // 载荷质量（不变）
-  fuelMass: 30,              // 燃料质量
-  ve: 300,                   // 排气速度
-  ignitionCount: 2,          // 可点火次数
-  explosionRadius: 60,       // 爆炸半径 r₀（0=动能弹）
-  explosionImpulse: 3000,    // 爆炸冲量 P₀
-  color: '#ffdd44',          // 渲染颜色
-  renderRadius: 8,           // 渲染半径（px）
-  hp: 0,                     // 血量（>0=动能弹）
-  orbitAround: {             // 初始轨道绑定（子弹保留旧接口）
+  type: 'explosive',         // 子弹类型（8 种，见 doc/bullet.md）
+  orbitAround: {
     bodyIndex: 0,            // 绕行的星体索引
-    altitude: 80,            // 轨道高度
-    phase: 0                 // 初始相位
+    altitude: 100,           // 轨道高度
+    phase: 0.7854            // 初始相位（弧度）
   }
 }
+
+// 旧格式（兼容）：显式指定所有参数，type 缺失时默认 normal
 ```
 
 ### WinCond（通关条件）

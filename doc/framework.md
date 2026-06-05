@@ -90,23 +90,27 @@ y(t) = cy + R·sin(ωt + φ)
 
 ## 子弹系统 (bullet.js)
 
+### BULLET_TYPES 字典
+
+8 种子弹类型，详见 `doc/bullet.md`。`levels.json` 只需指定 `type` + `orbitAround`，`ve` 由 Δv 和质量自动推导。
+
 ### Bullet 类
 
 **质量模型：齐奥尔科夫斯基火箭公式**
 ```
 Δv = ve · ln(m₀/mf)
 mf = m₀ · exp(-Δv/ve)
+ve = Δv / ln((payload+fuel) / payload)  — 自动推导
 ```
-- `payloadMass`（不变）+ `fuelMass`（随 ΔV 递减）
-- `remainingDeltaV` = ve · ln((payloadMass + fuelMass) / payloadMass)
 
-**发射前轨道：** `bindOrbit(homeBody, altitude, radius, phase, G)` 绑定到母星体，通过 `updateOrbitPosition(dt)` 用参数方程更新位置。世界速度 = 母星速度 + 圆形轨道速度。
+**特殊效果方法：**
+| 方法 | 子弹类型 | 说明 |
+|------|---------|------|
+| `getSplitBullets()` | cluster | 返回 3 颗子子弹配置（60° 扇形，60% 速度，不可机动） |
+| `getGravityWell()` | gravity | 返回临时引力源 `{x,y,mass,duration}` |
+| `applyIncendiary(bld)` | incendiary | 对建筑所有弹簧施加 4 秒灼烧 |
 
-**发射后物理：** 应用 Delta-V 机动后，`launched=true`，切换为物理模拟。
-
-**爆炸属性：** `explosionRadius`(r₀), `explosionImpulse`(P₀)，受剩余燃料比例缩放。
-
-**动能弹：** r₀=0，`maxHp>0`，碰撞扣血不即死。`takeDamage(damage)`。
+**旧格式兼容：** 无 `type` 时默认 `normal`，显式 `ve` 会覆盖推导值。
 
 ---
 
@@ -250,6 +254,8 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | `drawFadingTrail(points)` | 衰减轨迹线 |
 | `drawAimOverlay(ctrl, bodies)` | 瞄准叠加（预测线+碰撞点+ΔV箭头） |
 | `drawExplosion(x,y,r,maxR)` | 爆炸光环+白色十字 |
+| `drawGravityWell(x,y,elapsed,duration,mass)` | 引力弹脉动紫色光环 |
+| `drawBurnEffect(spring)` | 燃烧弹火焰粒子 |
 | `drawPredictionPath(path, color)` | 预测虚线 |
 
 ---

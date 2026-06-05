@@ -149,11 +149,12 @@ export class Renderer {
    * @param {boolean} launched - 是否已发射（影响颜色）
    * @param {boolean} hovered - 是否悬停（加光环）
    */
-  drawBullet(x, y, vx, vy, radius, launched, hovered, color = '#44ccff') {
+  drawBullet(x, y, vx, vy, radius, launched, hovered, color = '#44ccff', canManeuver = true) {
     const ctx = this.ctx;
-    // 悬停光环
+    // 悬停光环（可机动=白色，不可机动=黄色）
     if (hovered) {
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.strokeStyle = canManeuver ? '#fff' : '#ffdd44';
+      ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(x, y, radius + 7, 0, Math.PI * 2); ctx.stroke();
     }
     // 主体渐变
@@ -389,6 +390,83 @@ export class Renderer {
     ctx.moveTo(x, y - crossLen); ctx.lineTo(x, y + crossLen);
     ctx.stroke();
     return false;
+  }
+
+  /**
+   * 绘制引力弹的临时引力源（脉动紫色光环）
+   * @param {number} x
+   * @param {number} y
+   * @param {number} elapsed — 已存在时间（秒）
+   * @param {number} duration — 总持续时间（秒）
+   * @param {number} mass — 引力质量
+   */
+  drawGravityWell(x, y, elapsed, duration, mass) {
+    const ctx = this.ctx;
+    if (elapsed >= duration) return;
+    const remaining = 1 - elapsed / duration;
+    const pulse = Math.sin(elapsed * 4) * 0.3 + 0.7; // 脉动
+    const r = (20 + mass * 0.06) * pulse;
+
+    // 外层光晕
+    const glowGrad = ctx.createRadialGradient(x, y, r * 0.1, x, y, r * 1.8);
+    glowGrad.addColorStop(0, `rgba(180, 120, 255, ${0.6 * remaining})`);
+    glowGrad.addColorStop(0.5, `rgba(140, 80, 220, ${0.3 * remaining})`);
+    glowGrad.addColorStop(1, `rgba(100, 40, 180, 0)`);
+    ctx.fillStyle = glowGrad;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 内环
+    ctx.strokeStyle = `rgba(200, 160, 255, ${0.7 * remaining * pulse})`;
+    ctx.lineWidth = 2.5 * remaining;
+    ctx.setLineDash([8, 4]);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 中心十字
+    const cs = 6 * pulse;
+    ctx.strokeStyle = `rgba(255, 220, 255, ${0.8 * remaining})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x - cs, y); ctx.lineTo(x + cs, y);
+    ctx.moveTo(x, y - cs); ctx.lineTo(x, y + cs);
+    ctx.stroke();
+  }
+
+  /**
+   * 绘制燃烧弹灼烧效果（弹簧上的火焰粒子）
+   * @param {import('./building.js').Spring} spring
+   */
+  drawBurnEffect(spring) {
+    if (!spring.alive || !spring._burnTimer || spring._burnTimer <= 0) return;
+    const ctx = this.ctx;
+    const t = spring._burnTimer;
+    const a = spring.a, b = spring.b;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    if (len < 1) return;
+
+    // 沿弹簧分布火焰粒子
+    const nx = dx / len, ny = dy / len;
+    const particleCount = Math.floor(len / 15);
+    const seed = (spring._burnTimer * 100) % 1000;
+
+    for (let i = 0; i < particleCount; i++) {
+      const frac = (i / particleCount + seed * 0.01) % 1;
+      const px = a.x + dx * frac + (Math.sin(seed + i * 7) * 4);
+      const py = a.y + dy * frac + (Math.cos(seed + i * 5) * 4);
+      const alpha = 0.4 + Math.random() * 0.4;
+      const r = 1.5 + Math.random() * 2.5;
+      const hue = Math.random() > 0.5 ? '255, 160, 40' : '255, 200, 60';
+
+      ctx.fillStyle = `rgba(${hue}, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   // --- 颜色工具 ---

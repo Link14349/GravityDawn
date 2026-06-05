@@ -10,7 +10,10 @@ module.exports = {
     clean: true,
   },
   devServer: {
-    static: './dist',
+    static: [
+      { directory: './dist' },
+      { directory: './' },
+    ],
     hot: true,
     port: 8080,
   },
@@ -57,6 +60,11 @@ module.exports = {
       template: './index.html',
       filename: 'index.html',
       inject: false, // 不注入 script，保留原始 inline module
+    }),
+    new HtmlWebpackPlugin({
+      template: './tools/design.html',
+      filename: 'tools/design.html',
+      inject: false,
     }),
   ],
   devtool: 'source-map',

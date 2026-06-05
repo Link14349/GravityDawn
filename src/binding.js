@@ -32,20 +32,20 @@ export class Orbit {
     this._phase = def.phase || 0;
   }
 
-  /** 自身局部坐标（不含父级） */
+  /** 自身局部坐标（不含父级），x/y 为圆心偏移量。Y 取负使相位逆时针（屏幕 Y 轴朝下） */
   getLocalPosition(t) {
     if (this.type === 'circular') {
       const omega = (2 * Math.PI) / this._period;
       return {
-        x: this._radius * Math.cos(omega * t + this._phase),
-        y: this._radius * Math.sin(omega * t + this._phase),
+        x: this._x + this._radius * Math.cos(omega * t + this._phase),
+        y: this._y - this._radius * Math.sin(omega * t + this._phase),
       };
     }
     if (this.type === 'elliptical') {
       const omega = (2 * Math.PI) / this._period;
       return {
-        x: this._rx * Math.cos(omega * t + this._phase),
-        y: this._ry * Math.sin(omega * t + this._phase),
+        x: this._x + this._rx * Math.cos(omega * t + this._phase),
+        y: this._y - this._ry * Math.sin(omega * t + this._phase),
       };
     }
     // fixed

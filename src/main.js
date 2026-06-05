@@ -5,6 +5,7 @@ import { LevelManager } from './level.js';
 import { Renderer } from './renderer.js';
 import { GameController } from './game-controller.js';
 import { Building } from './building.js';
+import { Bullet } from './bullet.js';
 import { Camera } from './camera.js';
 import { UIManager, Screen } from './ui.js';
 import { saveLevel, getAllBest } from './storage.js';
@@ -40,6 +41,16 @@ export function initGame() {
   // 游戏状态
   let stars, planets, allBodies, bullets, buildings, physics, camera, orbits;
   let cam, ctrl, physicsTime, explosions, settling, settleTimer, gameActive, currentLevel;
+  let tempGravityWells = []; // 引力弹产生的临时引力源
+
+  function _addGravityWell(gw) {
+    gw.startTime = physicsTime;
+    gw._sourceObj = { x: gw.x, y: gw.y, mass: gw.mass, collisionRadius: 0, orbitFn: null };
+    physics.addGravitySource(gw.x, gw.y, gw.mass, 0, null);
+    // addGravitySource 会 push，我们存引用最后加的那个
+    gw._sourceObj = physics.gravitySources[physics.gravitySources.length - 1];
+    tempGravityWells.push(gw);
+  }
 
   function startLevel(levelIndex) {
     currentLevel = levelIndex;
@@ -58,6 +69,7 @@ export function initGame() {
     cam._shouldBlockPan = () => ctrl && ctrl.getHoveredBullet() !== null;
     physicsTime = 0;
     explosions = [];
+    tempGravityWells = [];
     settling = false; settleTimer = 0; gameActive = false;
     for (const b of bullets) b._trail = [];
     ui._ctrl = ctrl;
@@ -77,7 +89,7 @@ export function initGame() {
   const _origGoTo = ui.goTo.bind(ui);
   ui.goTo = (screen) => {
     if (ui.screen === Screen.GAME_HUD && screen !== Screen.GAME_HUD) {
-      ctrl = null; buildings = null; gameActive = false;
+      ctrl = null; buildings = null; gameActive = false; tempGravityWells = [];
     }
     _origGoTo(screen);
   };
@@ -122,10 +134,29 @@ export function initGame() {
             const colR = b.maxHp > 0 ? (b.renderRadius || BULLET_R) : BULLET_R;
             const impact = bld.handleBulletImpact(b.x, b.y, colR, b.getEffectiveExplosionImpulse(), b.getEffectiveExplosionRadius());
             if (impact.hit) {
+              // 燃烧弹效果
+              b.applyIncendiary(bld);
               if (b.maxHp > 0) { b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7); }
               else { b.alive = false; }
               explosions.push({ x: impact.explosion.x, y: impact.explosion.y, r: 0, maxR: impact.explosion.radius || 50 });
-              frameHadEvent = true; hitBuilding = true; break;
+              frameHadEvent = true; hitBuilding = true;
+              // 分裂弹
+              const splits = b.getSplitBullets();
+              if (splits) {
+                for (const sd of splits) {
+                  const child = new Bullet(sd);
+                  child.launchTime = physicsTime;
+                  child._trail = [];
+                  bullets.push(child);
+                  if (ctrl) ctrl.bullets = bullets;
+                }
+                frameHadEvent = true;
+              }
+              // 引力弹
+              // 引力弹
+              const gw = b.getGravityWell();
+              if (gw) { _addGravityWell(gw); frameHadEvent = true; }
+              break;
             }
           }
           if (!hitBuilding && col) {
@@ -133,7 +164,77 @@ export function initGame() {
             if (b.maxHp > 0) b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7);
             else b.alive = false;
             frameHadEvent = true;
+            // 星体碰撞也触发分裂/引力效果
+            const splits = b.getSplitBullets();
+            if (splits) {
+              for (const sd of splits) {
+                const child = new Bullet(sd);
+                child.launchTime = physicsTime;
+                child._trail = [];
+                bullets.push(child);
+                if (ctrl) ctrl.bullets = bullets;
+              }
+              frameHadEvent = true;
+            }
+            const gw = b.getGravityWell();
+            if (gw) { _addGravityWell(gw); frameHadEvent = true; }
           }
+        }
+      }
+      // 处理右键触发的子弹效果
+      if (ctrl && ctrl.triggeredBullets.length > 0) {
+        for (const tb of ctrl.triggeredBullets) {
+          if (!tb._triggered) continue;
+          tb._triggered = false;
+          // 爆炸效果：对附近建筑施加爆炸伤害
+          if (tb.onImpact === 'explode') {
+            const er = tb.getEffectiveExplosionRadius();
+            const ep = tb.getEffectiveExplosionImpulse();
+            explosions.push({ x: tb.x, y: tb.y, r: 0, maxR: er || 50 });
+            for (const bld of buildings) {
+              const bldCenter = bld.points.length > 0 ? { x: bld.points[0].x, y: bld.points[0].y } : { x: 0, y: 0 };
+              const dist = Math.sqrt((bldCenter.x - tb.x) ** 2 + (bldCenter.y - tb.y) ** 2);
+              if (dist < er + 200) {
+                const ar = bld.applyExplosion(tb.x, tb.y, er, ep);
+                bld.score += ar.totalScore;
+              }
+            }
+          }
+          // 分裂弹
+          const splits = tb.getSplitBullets();
+          if (splits) {
+            for (const sd of splits) {
+              const child = new Bullet(sd);
+              child.launchTime = physicsTime; child._trail = [];
+              bullets.push(child);
+            }
+            if (ctrl) ctrl.bullets = bullets;
+          }
+          // 引力弹
+          const gw = tb.getGravityWell();
+          if (gw) _addGravityWell(gw);
+          // 燃烧弹
+          if (tb.onImpact === 'incendiary') {
+            for (const bld of buildings) {
+              const dist = Math.sqrt((bld.points[0]?.x - tb.x) ** 2 + (bld.points[0]?.y - tb.y) ** 2);
+              if (dist < tb.getEffectiveExplosionRadius() + 100) {
+                tb.applyIncendiary(bld);
+              }
+            }
+          }
+          frameHadEvent = true;
+        }
+        ctrl.triggeredBullets.length = 0;
+      }
+      // 处理临时引力源过期（用引用查找，避免索引问题）
+      for (let i = tempGravityWells.length - 1; i >= 0; i--) {
+        const gw = tempGravityWells[i];
+        if (physicsTime - gw.startTime > gw.duration) {
+          if (gw._sourceObj) {
+            const idx = physics.gravitySources.indexOf(gw._sourceObj);
+            if (idx >= 0) physics.removeGravitySource(idx);
+          }
+          tempGravityWells.splice(i, 1);
         }
       }
       for (const ex of explosions) ex.r += 4;
@@ -181,12 +282,26 @@ export function initGame() {
     for (const b of bullets) r.drawFadingTrail(b._trail);
     r.drawAimOverlay(ctrl, allBodies);
     const hovered = ctrl.getHoveredBullet();
+    const dragVec = ctrl.getDragVector();
     for (const b of bullets) {
       if (!b.alive || !isFinite(b.x)) continue;
-      r.drawBullet(b.x, b.y, b.vx, b.vy, b.renderRadius || BULLET_R, b.launched, b === hovered, b.color);
+      // 拖拽DV超过剩余 → 黄框预警
+      const overBudget = b === hovered && dragVec && dragVec.magnitude > b.remainingDeltaV;
+      const canMvr = b === hovered ? (!overBudget && ctrl.canHoveredManeuver()) : true;
+      r.drawBullet(b.x, b.y, b.vx, b.vy, b.renderRadius || BULLET_R, b.launched, b === hovered, b.color, canMvr);
     }
     for (let i = explosions.length - 1; i >= 0; i--) {
       if (r.drawExplosion(explosions[i].x, explosions[i].y, explosions[i].r, explosions[i].maxR)) explosions.splice(i, 1);
+    }
+    // 引力弹临时引力源
+    for (const gw of tempGravityWells) {
+      r.drawGravityWell(gw.x, gw.y, physicsTime - gw.startTime, gw.duration, gw.mass);
+    }
+    // 燃烧弹灼烧效果
+    for (const bld of buildings) {
+      for (const sp of bld.springs) {
+        if (sp._burnTimer > 0) r.drawBurnEffect(sp);
+      }
     }
     cam.restoreTransform(ctx);
     if (settling) {

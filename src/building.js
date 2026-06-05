@@ -222,6 +222,20 @@ export class Building {
         if (!sp.alive) continue;
         if (sp.tension > sp.breakTension) {
           sp.alive = false;
+          sp._burnTimer = 0; // 断裂时清除燃烧效果
+        }
+      }
+
+      // 7. 燃烧效果（燃烧弹施加）
+      for (const sp of this.springs) {
+        if (!sp.alive || !sp._burnTimer || sp._burnTimer <= 0) continue;
+        sp._burnTimer -= subDt;
+        sp.breakTension -= sp._burnRate * subDt;
+        if (sp.breakTension <= 0) sp.breakTension = 1;
+        // 燃烧时间到 或 弹簧已断
+        if (sp._burnTimer <= 0) {
+          sp._burnTimer = 0;
+          sp._burnRate = 0;
         }
       }
     }
@@ -527,7 +541,8 @@ export class Building {
     }
 
     // 区域爆炸效果
-    this.applyExplosion(bx, by, combinedR, combinedP);
+    const areaResult = this.applyExplosion(bx, by, combinedR, combinedP);
+    this.score += areaResult.totalScore;
 
     return { hit: true, explosion: { x: bx, y: by, radius: combinedR, impulse: combinedP } };
   }

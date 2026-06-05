@@ -1,73 +1,129 @@
-import { G } from './constants.js';
-
 /**
- * 子弹类 — 近地轨道、Delta-V 机动、齐奥尔科夫斯基火箭公式
+ * 子弹系统 — 类型字典 + 齐奥尔科夫斯基火箭公式 + 特殊效果
  *
- * 质量模型：
- *   - 载荷质量 (payloadMass)：机动中不变
- *   - 燃料质量 (fuelMass)：随 Delta-V 消耗递减
- *   - 齐奥尔科夫斯基公式：Δv = ve · ln(m₀/m_f)
- *     → m_f = m₀ · exp(-Δv/ve)
- *
- * 爆炸属性：
- *   - 爆炸半径 r0：动能武器 r0=0 时无爆炸冲击
- *   - 冲击力衰减：P(r) = P₀ · exp(-r/r₀)，r₀=0 时 P(r)=0
- *   - 剩余燃料影响爆炸半径与冲击力
+ * 从 levels.json 只需指定 type + orbitAround，其余属性从字典读取。
+ * ve 由 Δv 和载荷/燃料质量自动推导，不再作为外部参数。
  */
+
+// ---- 子弹类型字典 ----
+export const BULLET_TYPES = {
+  normal: {
+    name: '普通弹',
+    payloadMass: 5, fuelMass: 8, deltaV: 300, ignitionCount: 2,
+    explosionRadius: 30, explosionImpulse: 1500,
+    color: '#ff4444', renderRadius: 8,
+  },
+  explosive: {
+    name: '爆炸弹',
+    payloadMass: 10, fuelMass: 18, deltaV: 300, ignitionCount: 2,
+    explosionRadius: 200, explosionImpulse: 4000,
+    color: '#4488ff', renderRadius: 14,
+    onImpact: 'explode',
+  },
+  kinetic: {
+    name: '动能弹',
+    payloadMass: 20, fuelMass: 12, deltaV: 220, ignitionCount: 2,
+    explosionRadius: 0, explosionImpulse: 0,
+    color: '#ff4444', renderRadius: 16, hp: 300,
+  },
+  agile: {
+    name: '机动弹',
+    payloadMass: 3, fuelMass: 8, deltaV: 1000, ignitionCount: 10,
+    explosionRadius: 30, explosionImpulse: 2000,
+    color: '#ffdd44', renderRadius: 8,
+  },
+  cluster: {
+    name: '分裂弹',
+    payloadMass: 5, fuelMass: 10, deltaV: 280, ignitionCount: 2,
+    explosionRadius: 25, explosionImpulse: 1000,
+    color: '#44ff88', renderRadius: 8,
+    onImpact: 'split',
+  },
+  gravity: {
+    name: '引力弹',
+    payloadMass: 8, fuelMass: 10, deltaV: 260, ignitionCount: 2,
+    explosionRadius: 40, explosionImpulse: 500,
+    color: '#cc88ff', renderRadius: 10,
+    onImpact: 'gravity_well',
+  },
+  incendiary: {
+    name: '燃烧弹',
+    payloadMass: 6, fuelMass: 10, deltaV: 300, ignitionCount: 2,
+    explosionRadius: 0, explosionImpulse: 0,
+    color: '#ff6644', renderRadius: 9,
+    onImpact: 'incendiary',
+  },
+};
+
+// ---- 内部用：根据质量参数推导排气速度 ----
+function deriveVe(payloadMass, fuelMass, deltaV) {
+  const m0 = payloadMass + fuelMass;
+  // ve = Δv / ln(m₀ / m_payload)
+  return deltaV / Math.log(m0 / payloadMass);
+}
+
 export class Bullet {
   /**
    * @param {Object} options
-   * @param {number} options.payloadMass   - 载荷质量（不变）
-   * @param {number} options.fuelMass      - 初始燃料质量
-   * @param {number} options.ve            - 发动机排气速度
-   * @param {number} options.ignitionCount - 可点火（机动）次数
-   * @param {number} [options.explosionRadius=0]   - 爆炸半径 r₀
-   * @param {number} [options.explosionImpulse=0]  - 爆炸冲击量 P₀
+   * @param {string} [options.type='normal'] — 子弹类型 key
+   * @param {number} [options.payloadMass] — 覆盖字典中的载荷质量
+   * @param {number} [options.fuelMass] — 覆盖字典中的燃料质量
+   * @param {number} [options.deltaV] — 覆盖字典中的 Δv
+   * @param {number} [options.ignitionCount] — 覆盖点火次数
+   * @param {number} [options.explosionRadius=0]
+   * @param {number} [options.explosionImpulse=0]
+   * @param {string} [options.color]
+   * @param {number} [options.renderRadius]
+   * @param {number} [options.hp=0]
    */
-  constructor({
-    payloadMass,
-    fuelMass,
-    ve,
-    ignitionCount,
-    explosionRadius = 0,
-    explosionImpulse = 0,
-    color = '#44ccff',
-    renderRadius,
-    hp = 0,
-  }) {
-    this.payloadMass = payloadMass;
-    this.fuelMass = fuelMass;
-    this.initialFuelMass = fuelMass;
-    this.ve = ve;
-    this.color = color;
-    this.renderRadius = renderRadius;
-    this.hp = hp;
-    this.maxHp = hp;
+  constructor(options = {}) {
+    // 从字典读取默认值，允许覆盖
+    const typeKey = options.type || 'normal';
+    const def = BULLET_TYPES[typeKey] || BULLET_TYPES.normal;
+    this.type = typeKey;
+    this.typeName = def.name;
 
-    // Delta-V 预算：由燃料质量推导
-    this.maxDeltaV = ve * Math.log((payloadMass + fuelMass) / payloadMass);
+    this.payloadMass = options.payloadMass ?? def.payloadMass;
+    this.fuelMass = options.fuelMass ?? def.fuelMass;
+    this.initialFuelMass = this.fuelMass;
+
+    // ve: 优先用旧格式的显式值，否则从 deltaV 推导
+    if (options.ve != null) {
+      this.ve = options.ve;
+    } else {
+      const deltaV = options.deltaV ?? def.deltaV;
+      this.ve = deriveVe(this.payloadMass, this.fuelMass, deltaV);
+    }
+
+    this.ignitionCount = options.ignitionCount ?? def.ignitionCount;
+    this.color = options.color ?? def.color ?? '#44ccff';
+    this.renderRadius = options.renderRadius ?? def.renderRadius ?? 8;
+    this.hp = options.hp ?? def.hp ?? 0;
+    this.maxHp = this.hp;
+    this.onImpact = def.onImpact || null;
+
+    // Delta-V 预算
+    this.maxDeltaV = this.ve * Math.log((this.payloadMass + this.fuelMass) / this.payloadMass);
     this.remainingDeltaV = this.maxDeltaV;
 
-    this.ignitionCount = ignitionCount;
-    this.remainingIgnitions = ignitionCount;
+    this.remainingIgnitions = this.ignitionCount;
 
-    this.explosionRadius = explosionRadius;
-    this.explosionImpulse = explosionImpulse;
+    this.explosionRadius = options.explosionRadius ?? def.explosionRadius ?? 0;
+    this.explosionImpulse = options.explosionImpulse ?? def.explosionImpulse ?? 0;
 
     // 运动状态
-    this.x = 0;
-    this.y = 0;
-    this.vx = 0;
-    this.vy = 0;
+    this.x = options.x ?? 0; this.y = options.y ?? 0;
+    this.vx = options.vx ?? 0; this.vy = options.vy ?? 0;
 
     // 状态标记
-    this.launched = false;    // 是否已发射（脱离初始轨道）
-    this.launchTime = 0;      // 发射时刻（用于飞行时间兜底）
-    this.alive = true;        // 是否存活
+    this.launched = options.launched ?? false;
+    this.launchTime = options.launchTime ?? 0;
+    this.alive = true;
 
-    // 用于计算加速度（由物理引擎填充）
-    this.ax = 0;
-    this.ay = 0;
+    this.ax = 0; this.ay = 0;
+
+    // 燃烧弹：记录已点燃过的建筑（避免重复灼烧）
+    this._burnedBuildings = new Set();
   }
 
   /** 当前总质量 */
@@ -77,9 +133,6 @@ export class Bullet {
 
   /**
    * 应用 Delta-V 机动
-   * @param {number} dvx - x 方向 Delta-V
-   * @param {number} dvy - y 方向 Delta-V
-   * @returns {boolean} 是否成功
    */
   applyDeltaV(dvx, dvy) {
     const dv = Math.sqrt(dvx * dvx + dvy * dvy);
@@ -90,7 +143,6 @@ export class Bullet {
     const actualDv = Math.min(dv, this.remainingDeltaV);
     if (actualDv <= 0) return false;
 
-    // 齐奥尔科夫斯基：m_f = m₀ · exp(-Δv/ve)
     const m0 = this.totalMass;
     const mf = m0 * Math.exp(-actualDv / this.ve);
     const fuelUsed = m0 - mf;
@@ -99,7 +151,6 @@ export class Bullet {
     this.remainingDeltaV = this.ve * Math.log(this.totalMass / this.payloadMass);
     this.remainingIgnitions--;
 
-    // 应用速度变化
     const ratio = actualDv / dv;
     this.vx += dvx * ratio;
     this.vy += dvy * ratio;
@@ -108,30 +159,17 @@ export class Bullet {
     return true;
   }
 
-  /**
-   * 获取有效爆炸半径（受剩余燃料影响）
-   * 动能武器 (r₀=0) 始终为 0
-   */
   getEffectiveExplosionRadius() {
     if (this.explosionRadius <= 0) return 0;
     const fuelRatio = this.fuelMass / this.initialFuelMass;
     return this.explosionRadius * fuelRatio;
   }
 
-  /**
-   * 获取有效爆炸冲击量（受剩余燃料影响）
-   */
   getEffectiveExplosionImpulse() {
     const fuelRatio = this.fuelMass / this.initialFuelMass;
     return this.explosionImpulse * fuelRatio;
   }
 
-  /**
-   * 计算爆炸冲击力（距离爆心 r 处）
-   * P(r) = P₀ · exp(-r/r₀)，r₀=0 时 P(r)=0
-   * @param {number} dist - 到爆心的距离
-   * @returns {number}
-   */
   calcExplosionImpulse(dist) {
     const r0 = this.getEffectiveExplosionRadius();
     if (r0 <= 0) return 0;
@@ -139,64 +177,38 @@ export class Bullet {
     return p0 * Math.exp(-dist / r0);
   }
 
-  /**
-   * 将子弹绑定到某星体的圆形近地轨道（发射前用参数方程，非物理模拟）
-   * @param {Object} homeBody - CelestialBody 实例（需有 getPosition/getVelocity/mass）
-   * @param {number} altitude - 轨道高度（距星体表面）
-   * @param {number} bodyRadius - 星体渲染半径
-   * @param {number} [phase=0] - 初始相位角（弧度），0 = 正右方
-   * @param {number} [gravConstant] - 引力常量（默认使用 constants.G）
-   */
   bindOrbit(homeBody, altitude, bodyRadius, phase = 0, gravConstant = null) {
-    const bigG = gravConstant ?? G;
+    const bigG = gravConstant ?? 2000;
     this._homeBody = homeBody;
     this._orbitRadius = bodyRadius + altitude;
     this._orbitPhase = phase;
     this._orbitOmega = Math.sqrt(bigG * homeBody.mass / Math.pow(this._orbitRadius, 3));
     this._orbitG = bigG;
-
-    // 设置初始位置和速度
     this._syncOrbitState();
     this.launched = false;
   }
 
-  /** 根据母星体当前位置和速度同步子弹世界坐标 */
   _syncOrbitState() {
     const hp = this._homeBody.getPosition();
     const hv = this._homeBody.getVelocity();
     const r = this._orbitRadius;
     const ph = this._orbitPhase;
-
-    // 世界坐标 = 母星体位置 + 轨道偏移
     this.x = hp.x + r * Math.cos(ph);
-    this.y = hp.y + r * Math.sin(ph);
-
-    // 子弹相对母星体的轨道速度
+    this.y = hp.y - r * Math.sin(ph); // 屏幕Y朝下
     const vOrbit = Math.sqrt(this._orbitG * this._homeBody.mass / r);
     const tanAngle = ph + Math.PI / 2;
-
-    // 世界速度 = 母星体速度 + 轨道速度
     this.vx = hv.vx + vOrbit * Math.cos(tanAngle);
-    this.vy = hv.vy + vOrbit * Math.sin(tanAngle);
+    this.vy = hv.vy - vOrbit * Math.sin(tanAngle);
   }
 
-  /**
-   * 推进轨道相位并更新世界坐标（发射前每帧调用）
-   * @param {number} dt - 时间步长
-   */
   updateOrbitPosition(dt) {
     if (this.launched) return;
     this._orbitPhase += this._orbitOmega * dt;
     this._syncOrbitState();
   }
 
-  /**
-   * 受到伤害（动能弹用）
-   * @param {number} damage
-   * @returns {boolean} 是否死亡
-   */
   takeDamage(damage) {
-    if (this.maxHp <= 0) return true; // 无血量=爆炸弹，一击即毁
+    if (this.maxHp <= 0) return true;
     this.hp -= damage;
     if (this.hp <= 0) {
       this.hp = 0;
@@ -206,13 +218,84 @@ export class Bullet {
     return false;
   }
 
-  /** 获取位置 */
-  getPosition() {
-    return { x: this.x, y: this.y };
+  getPosition() { return { x: this.x, y: this.y }; }
+  getVelocity() { return { vx: this.vx, vy: this.vy }; }
+
+  /**
+   * 右键手动触发特殊效果（分裂/引爆/燃烧/引力）
+   */
+  triggerEffect() {
+    this.alive = false;
+    this._triggered = true;
   }
 
-  /** 获取速度 */
-  getVelocity() {
-    return { vx: this.vx, vy: this.vy };
+  // ========================
+  // 特殊效果
+  // ========================
+
+  /**
+   * 分裂弹：撞击时生成子子弹的配置列表
+   * @returns {Object[]|null} 子子弹配置数组，无效果返回 null
+   */
+  getSplitBullets() {
+    if (this.onImpact !== 'split') return null;
+    const count = 3;
+    const baseAngle = Math.atan2(this.vy, this.vx);
+    const spread = Math.PI / 3; // 60° 扇形
+    const parentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    const childSpeed = parentSpeed * 0.6;
+
+    const children = [];
+    for (let i = 0; i < count; i++) {
+      const angle = baseAngle + (i / (count - 1) - 0.5) * spread;
+      children.push({
+        type: 'normal',
+        payloadMass: this.payloadMass * 0.2,
+        fuelMass: this.fuelMass * 0.2,
+        deltaV: 0,             // 不可机动
+        ignitionCount: 0,
+        explosionRadius: 15,
+        explosionImpulse: 500,
+        color: '#88ffaa',
+        renderRadius: 5,
+        x: this.x, y: this.y,
+        vx: childSpeed * Math.cos(angle),
+        vy: childSpeed * Math.sin(angle),
+        launched: true,
+        launchTime: this.launchTime,
+      });
+    }
+    return children;
+  }
+
+  /**
+   * 引力弹：在撞击点生成临时引力源
+   * @returns {{ x: number, y: number, mass: number, duration: number }|null}
+   */
+  getGravityWell() {
+    if (this.onImpact !== 'gravity_well') return null;
+    return {
+      x: this.x,
+      y: this.y,
+      mass: 8000,
+      duration: 3, // 秒
+    };
+  }
+
+  /**
+   * 燃烧弹：给建筑施加灼烧效果
+   * @param {import('./building.js').Building} building
+   */
+  applyIncendiary(building) {
+    if (this.onImpact !== 'incendiary') return;
+    if (this._burnedBuildings.has(building)) return;
+    this._burnedBuildings.add(building);
+
+    // 对该建筑所有存活弹簧施加燃烧，持续 4 秒
+    for (const sp of building.springs) {
+      if (!sp.alive) continue;
+      sp._burnTimer = 4;
+      sp._burnRate = 80; // 每秒降低 breakTension
+    }
   }
 }

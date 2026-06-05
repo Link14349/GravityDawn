@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关卡设计器 — Gravity Dawn</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: Arial, sans-serif; }
+    canvas { display: block; cursor: crosshair; }
+
+    /* 导入弹窗 */
+    #import-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75); z-index: 100; justify-content: center; align-items: center;
+    }
+    #import-overlay.show { display: flex; }
+    #import-dialog {
+      background: #141c41; border: 1px solid rgba(61,214,200,0.3); border-radius: 12px;
+      padding: 24px; width: 560px; max-height: 80vh; display: flex; flex-direction: column;
+    }
+    #import-dialog h3 { color: #3dd6c8; margin-bottom: 12px; font-size: 18px; }
+    #import-textarea {
+      flex: 1; min-height: 300px; background: rgba(0,0,0,0.4); color: #d0d6e8;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 12px;
+      font-family: monospace; font-size: 12px; resize: vertical;
+    }
+    #import-btns { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+    #import-btns button {
+      padding: 8px 24px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px;
+      font-weight: bold;
+    }
+    .btn-primary { background: #3dd6c8; color: #0a1220; }
+    .btn-primary:hover { background: #5eeadb; }
+    .btn-secondary { background: transparent; color: #3dd6c8; border: 1px solid #3dd6c8 !important; }
+    .btn-secondary:hover { background: rgba(61,214,200,0.1); }
+
+    /* 测试模式提示 */
+    #test-mode-bar {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 36px;
+      background: rgba(255,100,40,0.85); z-index: 50; justify-content: center; align-items: center;
+      color: #fff; font-weight: bold; font-size: 14px; gap: 12px;
+    }
+    #test-mode-bar.show { display: flex; }
+    #test-mode-bar button {
+      padding: 4px 16px; border-radius: 4px; border: 1px solid #fff; background: transparent;
+      color: #fff; cursor: pointer; font-weight: bold; font-size: 13px;
+    }
+    #test-mode-bar button:hover { background: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+  <canvas id="c" width="1200" height="800"></canvas>
+
+  <!-- 测试模式顶栏 -->
+  <div id="test-mode-bar">
+    <span>⏺ 测试运行中</span>
+    <button id="btn-reset">⏹ 停止测试</button>
+  </div>
+
+  <!-- 导入弹窗 -->
+  <div id="import-overlay">
+    <div id="import-dialog">
+      <h3>导入关卡 JSON</h3>
+      <p style="color:#6b7a9d;margin-bottom:8px;font-size:12px;">
+        粘贴 levels.json 格式的关卡数据（单关卡对象或数组的第一个对象）
+      </p>
+      <textarea id="import-textarea" placeholder="粘贴 JSON 数据..."></textarea>
+      <div id="import-btns">
+        <button class="btn-secondary" id="btn-import-cancel">取消</button>
+        <button class="btn-primary" id="btn-import-ok">导入</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // ============================================================
+    // 关卡设计器 — 主入口
+    // ============================================================
+    import { DesignerData } from './designer.js';
+    import { EditModeUI } from './designer-ui.js';
+
+    // 游戏模块（测试模式使用）
+    import { LevelManager } from '../src/level.js';
+    import { Renderer } from '../src/renderer.js';
+    import { GameController } from '../src/game-controller.js';
+    import { Building } from '../src/building.js';
+    import { Bullet } from '../src/bullet.js';
+    import { Camera } from '../src/camera.js';
+
+    const canvas = document.getElementById('c');
+    const testBar = document.getElementById('test-mode-bar');
+    const btnReset = document.getElementById('btn-reset');
+    const importOverlay = document.getElementById('import-overlay');
+    const importTextarea = document.getElementById('import-textarea');
+    const btnImportOk = document.getElementById('btn-import-ok');
+    const btnImportCancel = document.getElementById('btn-import-cancel');
+
+    // ---- 模式 ----
+    let mode = 'edit'; // 'edit' | 'test'
+
+    // ---- 编辑器状态 ----
+    const dd = new DesignerData();
+    const editor = new EditModeUI(canvas, dd, {
+      onTest: enterTestMode,
+      onExport: doExport,
+      onImport: showImportDialog,
+      onNew: doNew,
+    });
+
+    // ---- 测试模式运行时 ----
+    let testRuntime = null;
+
+    // ---- 渲染循环 ----
+    let lastTime = performance.now();
+    let editAnimId = null;
+    let testAnimId = null;
+
+    function editLoop(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+      editor.update(dt);
+      editor.render();
+      editAnimId = requestAnimationFrame(editLoop);
+    }
+
+    function startEditLoop() {
+      if (editAnimId) return;
+      lastTime = performance.now();
+      editAnimId = requestAnimationFrame(editLoop);
+    }
+
+    function stopEditLoop() {
+      if (editAnimId) { cancelAnimationFrame(editAnimId); editAnimId = null; }
+    }
+
+    // ---- 模式切换 ----
+    function enterTestMode() {
+      // 保存当前编辑器相机状态
+      const savedCam = { x: editor.camX, y: editor.camY, zoom: editor.zoom };
+      stopEditLoop();
+      mode = 'test';
+      testBar.classList.add('show');
+      editor._toast = null;
+
+      // 构建测试运行时
+      testRuntime = buildTestRuntime(savedCam);
+      if (!testRuntime) {
+        // 构建失败，回到编辑模式
+        exitTestMode();
+        return;
+      }
+      testRuntime.start();
+    }
+
+    function exitTestMode() {
+      if (testRuntime) {
+        testRuntime.destroy();
+        testRuntime = null;
+      }
+      mode = 'edit';
+      testBar.classList.remove('show');
+      if (testAnimId) { cancelAnimationFrame(testAnimId); testAnimId = null; }
+      startEditLoop();
+    }
+
+    // ---- 构建测试运行时 ----
+    function buildTestRuntime(savedCam) {
+      try {
+        const levelData = dd.exportLevel();
+        // 确保至少有一个 bullets 配置（如果为空，给一个默认子弹）
+        if (!levelData.bullets || levelData.bullets.length === 0) {
+          levelData.bullets = [{ type: 'normal' }];
+        }
+
+        const loaded = LevelManager.load(levelData);
+        const { stars, planets, allBodies, bullets, buildings, physics, orbits } = loaded;
+
+        // 恢复编辑器相机
+        const cam = new Camera(canvas, { shouldBlockPan: () => false });
+        cam.x = savedCam.x;
+        cam.y = savedCam.y;
+        cam.zoom = savedCam.zoom;
+
+        const ctrl = new GameController(canvas, {
+          physics, bullets, camera: cam,
+          getTime: () => physicsTime,
+          buildings,
+        });
+        cam._shouldBlockPan = () => ctrl.getHoveredBullet() !== null;
+
+        let physicsTime = 0;
+        let explosions = [];
+        let tempGravityWells = [];
+        function _addGW(gw) {
+          gw.startTime = physicsTime;
+          physics.addGravitySource(gw.x, gw.y, gw.mass, 0, null);
+          gw._sourceObj = physics.gravitySources[physics.gravitySources.length - 1];
+          tempGravityWells.push(gw);
+        }
+        let settling = false;
+        let settleTimer = 0;
+        let gameActive = true;
+        const SETTLE_DURATION = 5;
+        const BULLET_R = 6;
+        const r = new Renderer(canvas);
+
+        for (const b of bullets) b._trail = [];
+
+        let running = true;
+
+        function testLoop() {
+          if (!running) return;
+
+          let frameHadEvent = false;
+
+          if (!ctrl.shouldPause()) {
+            physicsTime += 1 / 60;
+            for (let i = 0; i < allBodies.length; i++) {
+              const b = allBodies[i];
+              b.update(1 / 60);
+              physics.updateSourcePosition(i, b.getPosition().x, b.getPosition().y);
+            }
+            for (const bld of buildings) {
+              const bResult = bld.step(1 / 60, physics, allBodies);
+              if (bResult.explosions.length > 0) frameHadEvent = true;
+              for (const ex of bResult.explosions) explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
+            }
+            Building.checkCrossCollisions(buildings, explosions);
+            for (const b of bullets) {
+              if (!b.alive) continue;
+              if (!b.launched) { b.updateOrbitPosition(1 / 60); }
+              else {
+                const col = physics.stepParticle(b, undefined, BULLET_R);
+                b._trail.push({ x: b.x, y: b.y, life: 1.0 });
+                if (b._trail.length > 300) b._trail.shift();
+                let hitBuilding = false;
+                for (const bld of buildings) {
+                  const colR = b.maxHp > 0 ? (b.renderRadius || BULLET_R) : BULLET_R;
+                  const impact = bld.handleBulletImpact(b.x, b.y, colR, b.getEffectiveExplosionImpulse(), b.getEffectiveExplosionRadius());
+                  if (impact.hit) {
+                    b.applyIncendiary(bld);
+                    if (b.maxHp > 0) { b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7); }
+                    else { b.alive = false; }
+                    explosions.push({ x: impact.explosion.x, y: impact.explosion.y, r: 0, maxR: impact.explosion.radius || 50 });
+                    frameHadEvent = true; hitBuilding = true;
+                    const splits = b.getSplitBullets();
+                    if (splits) {
+                      for (const sd of splits) { const child = new Bullet(sd); child.launchTime = physicsTime; child._trail = []; bullets.push(child); }
+                      ctrl.bullets = bullets; frameHadEvent = true;
+                    }
+                    const gw = b.getGravityWell();
+                    if (gw) { _addGW(gw); frameHadEvent = true; }
+                    break;
+                  }
+                }
+                if (!hitBuilding && col) {
+                  explosions.push({ x: b.x, y: b.y, r: 0, maxR: b.getEffectiveExplosionRadius() || (b.maxHp > 0 ? 15 : 50) });
+                  if (b.maxHp > 0) b.takeDamage(Math.sqrt(b.vx ** 2 + b.vy ** 2) * 0.7);
+                  else b.alive = false;
+                  frameHadEvent = true;
+                  const splits = b.getSplitBullets();
+                  if (splits) {
+                    for (const sd of splits) { const child = new Bullet(sd); child.launchTime = physicsTime; child._trail = []; bullets.push(child); }
+                    ctrl.bullets = bullets; frameHadEvent = true;
+                  }
+                  const gw = b.getGravityWell();
+                  if (gw) { _addGW(gw); frameHadEvent = true; }
+                }
+              }
+            }
+            // 处理右键触发的子弹效果
+            if (ctrl.triggeredBullets && ctrl.triggeredBullets.length > 0) {
+              for (const tb of ctrl.triggeredBullets) {
+                if (!tb._triggered) continue;
+                tb._triggered = false;
+                if (tb.onImpact === 'explode') {
+                  const er = tb.getEffectiveExplosionRadius();
+                  const ep = tb.getEffectiveExplosionImpulse();
+                  explosions.push({ x: tb.x, y: tb.y, r: 0, maxR: er || 50 });
+                  for (const bld of buildings) {
+                    const bldCenter = bld.points.length > 0 ? { x: bld.points[0].x, y: bld.points[0].y } : { x: 0, y: 0 };
+                    const dist = Math.sqrt((bldCenter.x - tb.x) ** 2 + (bldCenter.y - tb.y) ** 2);
+                    if (dist < er + 200) { const ar = bld.applyExplosion(tb.x, tb.y, er, ep); bld.score += ar.totalScore; }
+                  }
+                }
+                const splits = tb.getSplitBullets();
+                if (splits) {
+                  for (const sd of splits) { const child = new Bullet(sd); child.launchTime = physicsTime; child._trail = []; bullets.push(child); }
+                  ctrl.bullets = bullets;
+                }
+                const gw = tb.getGravityWell();
+                if (gw) { _addGW(gw); }
+                if (tb.onImpact === 'incendiary') {
+                  for (const bld of buildings) {
+                    const dist = Math.sqrt((bld.points[0]?.x - tb.x) ** 2 + (bld.points[0]?.y - tb.y) ** 2);
+                    if (dist < (tb.getEffectiveExplosionRadius() || 50) + 100) { tb.applyIncendiary(bld); }
+                  }
+                }
+                frameHadEvent = true;
+              }
+              ctrl.triggeredBullets.length = 0;
+            }
+            // 临时引力源过期清理
+            for (let i = tempGravityWells.length - 1; i >= 0; i--) {
+              const gw = tempGravityWells[i];
+              if (physicsTime - gw.startTime > gw.duration) {
+                if (gw._sourceObj) {
+                  const idx = physics.gravitySources.indexOf(gw._sourceObj);
+                  if (idx >= 0) physics.removeGravitySource(idx);
+                }
+                tempGravityWells.splice(i, 1);
+              }
+            }
+            for (const ex of explosions) ex.r += 4;
+          }
+
+          const userInteracting = ctrl.state === 'aiming' || ctrl.dragging;
+          const allLaunched = bullets.every(b => b.launched || !b.alive);
+          const allSettled = bullets.every(b => !b.alive || (b.launched && (Math.sqrt(b.vx**2 + b.vy**2) < 5 || physicsTime - b.launchTime > 15)));
+          const importantAllDead = (() => {
+            for (const bld of buildings) for (const p of bld.points) if (p.important && p.alive) return false;
+            return true;
+          })();
+          const condA = allLaunched && allSettled && explosions.length === 0;
+          const condB = importantAllDead;
+
+          if (!settling) {
+            if (condA || condB) { settling = true; settleTimer = 0; }
+          } else {
+            settleTimer += 1 / 60;
+            if (frameHadEvent) { settling = false; settleTimer = 0; }
+            if (condB && (userInteracting || frameHadEvent)) { settling = false; settleTimer = 0; }
+            if (settleTimer >= SETTLE_DURATION) {
+              // 结算完成，继续运行以观察结果
+              settling = false;
+              settleTimer = 0;
+            }
+          }
+
+          const score = buildings.reduce((s, bld) => s + bld.score, 0);
+
+          // 渲染
+          r.clear();
+          cam.applyTransform(r.ctx);
+          for (const b of allBodies) r.drawCelestialBody(b);
+          for (const bld of buildings) r.drawBuilding(bld);
+          for (const b of bullets) r.drawFadingTrail(b._trail);
+          r.drawAimOverlay(ctrl, allBodies);
+          const hovered = ctrl.getHoveredBullet();
+          const dragVec = ctrl.getDragVector();
+          for (const b of bullets) {
+            if (!b.alive || !isFinite(b.x)) continue;
+            const overBudget = b === hovered && dragVec && dragVec.magnitude > b.remainingDeltaV;
+            const canMvr = b === hovered ? (!overBudget && ctrl.canHoveredManeuver()) : true;
+            r.drawBullet(b.x, b.y, b.vx, b.vy, b.renderRadius || BULLET_R, b.launched, b === hovered, b.color, canMvr);
+          }
+          for (let i = explosions.length - 1; i >= 0; i--) {
+            if (r.drawExplosion(explosions[i].x, explosions[i].y, explosions[i].r, explosions[i].maxR)) explosions.splice(i, 1);
+          }
+          for (const gw of tempGravityWells) {
+            r.drawGravityWell(gw.x, gw.y, physicsTime - gw.startTime, gw.duration, gw.mass);
+          }
+          for (const bld of buildings) {
+            for (const sp of bld.springs) {
+              if (sp._burnTimer > 0) r.drawBurnEffect(sp);
+            }
+          }
+          cam.restoreTransform(r.ctx);
+
+          // HUD 叠加
+          const ctx = r.ctx;
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+          ctx.fillRect(0, 0, canvas.width, 44);
+          const paused = ctrl.isSpacePaused();
+          ctx.fillStyle = '#3dd6c8';
+          ctx.font = 'bold 16px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${levelData.name}${paused ? '  ⏸ 暂停' : ''}`, canvas.width / 2, 30);
+          ctx.fillStyle = '#d0d6e8';
+          ctx.font = '14px monospace';
+          ctx.textAlign = 'right';
+          ctx.fillText(`分数: ${score}`, canvas.width - 20, 20);
+          ctx.fillText(`剩余子弹: ${bullets.filter(b => b.alive && !b.launched).length}`, canvas.width - 20, 38);
+
+          if (settling) {
+            ctx.fillStyle = 'rgba(0,0,0,0.45)';
+            ctx.fillRect(canvas.width / 2 - 140, canvas.height - 56, 280, 28);
+            ctx.fillStyle = '#ffd93d'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
+            ctx.fillText(`结算中... ${(SETTLE_DURATION - settleTimer).toFixed(1)}s`, canvas.width / 2, canvas.height - 36);
+          }
+
+          testAnimId = requestAnimationFrame(testLoop);
+        }
+
+        return {
+          start() {
+            running = true;
+            testAnimId = requestAnimationFrame(testLoop);
+          },
+          destroy() {
+            running = false;
+            if (testAnimId) { cancelAnimationFrame(testAnimId); testAnimId = null; }
+          },
+        };
+      } catch (err) {
+        console.error('构建测试运行时失败:', err);
+        alert('测试模式启动失败: ' + err.message);
+        return null;
+      }
+    }
+
+    // ---- 导出 ----
+    function doExport() {
+      const json = JSON.stringify(dd.exportLevel(), null, 2);
+      // 尝试复制到剪贴板
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(json).then(() => {
+          alert('✅ 关卡 JSON 已复制到剪贴板！\n可直接粘贴到 data/levels.json 中。');
+        }).catch(() => {
+          _downloadJSON(json);
+        });
+      } else {
+        _downloadJSON(json);
+      }
+    }
+
+    function _downloadJSON(json) {
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (dd.data.name || 'level') + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ---- 导入 ----
+    function showImportDialog() {
+      importTextarea.value = '';
+      importOverlay.classList.add('show');
+    }
+
+    function hideImportDialog() {
+      importOverlay.classList.remove('show');
+    }
+
+    btnImportOk.addEventListener('click', () => {
+      try {
+        const json = JSON.parse(importTextarea.value);
+        // 支持导入单关卡或数组的第一个
+        const levelData = Array.isArray(json) ? json[0] : json;
+        dd.importLevel(levelData);
+        editor.camX = dd.data.camera.x;
+        editor.camY = dd.data.camera.y;
+        editor.zoom = dd.data.camera.zoom;
+        hideImportDialog();
+      } catch (err) {
+        alert('JSON 解析失败: ' + err.message);
+      }
+    });
+
+    btnImportCancel.addEventListener('click', hideImportDialog);
+
+    // 点击遮罩关闭
+    importOverlay.addEventListener('click', (e) => {
+      if (e.target === importOverlay) hideImportDialog();
+    });
+
+    // ---- 新建 ----
+    function doNew() {
+      if (confirm('确定要新建关卡吗？当前未保存的数据将丢失。')) {
+        dd.newLevel();
+        editor.camX = 600;
+        editor.camY = 400;
+        editor.zoom = 0.75;
+      }
+    }
+
+    // ---- 重置按钮 ----
+    btnReset.addEventListener('click', exitTestMode);
+
+    // ---- 启动 ----
+    editLoop(performance.now());
+  </script>
+</body>
+</html>
