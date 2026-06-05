@@ -92,7 +92,7 @@ y(t) = cy + R·sin(ωt + φ)
 
 ### BULLET_TYPES 字典
 
-8 种子弹类型，详见 `doc/bullet.md`。`levels.json` 只需指定 `type` + `orbitAround`，`ve` 由 Δv 和质量自动推导。
+7 种子弹类型，详见 `doc/bullet.md`。关卡数据只需指定 `type` + `orbitAround`，`ve` 由 Δv 和质量自动推导。
 
 ### Bullet 类
 
@@ -376,7 +376,7 @@ Canvas 绘制的界面系统，四个屏幕状态：`START → LEVEL_SELECT → 
 - `getWorldPosition(t, orbits)` — 递归叠加 parent 链的世界坐标
 - `getWorldVelocity(t, orbits)` — 递归叠加 parent 链的世界速度
 
-**levels.json 格式：**
+**轨道数据示例（单关文件）：**
 ```json
 {
   "orbits": [
@@ -390,4 +390,4 @@ Canvas 绘制的界面系统，四个屏幕状态：`START → LEVEL_SELECT → 
 }
 ```
 
-所有实体通过数字索引引用 orbits 数组中的轨道。parent 链递归叠加位置和速度，支持行星绕恒星+建筑核心绕行星的嵌套。
+关卡分章节分文件存储在 `data/levels/`，详见 `doc/level.md`。

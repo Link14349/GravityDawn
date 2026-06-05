@@ -6,23 +6,36 @@
 
 ---
 
-## 关卡数据格式 (LevelData)
+## 关卡数据存储
 
-`data/levels.json` 顶层为章节结构：
+分章节分文件存储，三级索引：
 
-```js
-{
-  chapters: [
-    {
-      name: '第一章 · 初入星海',   // 章节名称
-      levels: [LevelDef, ...]       // 关卡列表
-    },
+```
+data/levels/
+  index.json            → ["ch1", "ch2"]              // 章节文件夹列表
+  ch1/
+    index.json          → { name, levels: [...] }      // 章节名 + 关卡文件列表
+    lv1.json            → LevelDef                     // 单关完整数据
+    lv2.json
+  ch2/
+    index.json
+    lv1.json
     ...
-  ]
-}
 ```
 
-向后兼容：若顶层为数组（无 chapters），自动包入名为「经典关卡」的默认章节。
+### 各层格式
+
+**`data/levels/index.json`** — 总索引：
+```json
+["ch1", "ch2"]
+```
+
+**`chN/index.json`** — 章节索引：
+```json
+{ "name": "第一章 · 初入星海", "levels": ["lv1", "lv2"] }
+```
+
+**`chN/lvN.json`** — 单关数据（LevelDef）：
 
 ### LevelDef（单关数据）
 

@@ -35,7 +35,7 @@ tools/
 ```js
 class DesignerData {
   constructor()           // 初始化空关卡数据
-  data                    // 关卡数据对象，结构与 levels.json 一致
+  data                    // 关卡数据对象，与单关文件格式一致
   tool                    // 当前工具: 'orbit'|'body'|'core'|'point'|'enemy'|'spring'|'select'
   selected                // 当前选中: { type, orbitIdx?, bodyIdx?, bldIdx?, ptIdx?, ... }
 }
@@ -80,7 +80,7 @@ class DesignerData {
 | `addPoint(bldIdx, ptDef, coreInfo?)` | 添加质点。有 coreInfo 则相对核心偏移，否则绝对坐标 |
 | `addSpring(bldIdx, aIdx, bIdx, overrides)` | 添加弹簧 |
 | `addBullet(overrides)` | 添加子弹配置 |
-| `exportLevel()` | 导出为 levels.json 格式（深拷贝） |
+| `exportLevel()` | 导出为单关 JSON（深拷贝） |
 | `importLevel(json)` | 从 JSON 导入 |
 | `getOrbitCenterWorld(idx)` | 计算轨道圆心世界坐标（不含圆周运动） |
 | `_calcOrbitWorld(orb, t)` | 递归计算轨道世界位置 |

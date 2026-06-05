@@ -11,19 +11,34 @@ import { UIManager, Screen } from './ui.js';
 import { saveLevel, getAllBest } from './storage.js';
 
 // ============================================================
-// 关卡定义
+// 关卡加载 — 分章节分文件
 // ============================================================
-  const resp = await fetch('data/levels.json');
-  const RAW = await resp.json();
-  // 章节结构：{ chapters: [{ name, levels: [...] }] }
-  const CHAPTERS = RAW.chapters || [{ name: '经典关卡', levels: RAW }];
-  // 构建全关卡索引（兼容旧格式）
-  const ALL_LEVELS = [];
-  for (const ch of CHAPTERS) {
-    for (const lv of ch.levels) {
-      ALL_LEVELS.push(lv);
+  async function loadChapters() {
+    // 1. 总索引: data/levels/index.json → ["ch1", "ch2", ...]
+    const idxResp = await fetch('data/levels/index.json');
+    const chDirs = await idxResp.json();
+
+    const chapters = [];
+    for (const chDir of chDirs) {
+      // 2. 章节索引: data/levels/ch1/index.json → { name, levels: ["lv1", ...] }
+      const chIdxResp = await fetch(`data/levels/${chDir}/index.json`);
+      const chIdx = await chIdxResp.json();
+
+      const levels = [];
+      for (const lvFile of chIdx.levels) {
+        // 3. 关卡数据: data/levels/ch1/lv1.json
+        const lvResp = await fetch(`data/levels/${chDir}/${lvFile}.json`);
+        const lvData = await lvResp.json();
+        levels.push(lvData);
+      }
+
+      chapters.push({ name: chIdx.name, levels });
     }
+
+    return chapters;
   }
+
+  const CHAPTERS = await loadChapters();
 
   function getLevelData(chapterIdx, levelIdx) {
     return CHAPTERS[chapterIdx].levels[levelIdx];
