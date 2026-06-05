@@ -14,7 +14,24 @@ import { saveLevel, getAllBest } from './storage.js';
 // 关卡定义
 // ============================================================
   const resp = await fetch('data/levels.json');
-  const LEVELS = await resp.json();
+  const RAW = await resp.json();
+  // 章节结构：{ chapters: [{ name, levels: [...] }] }
+  const CHAPTERS = RAW.chapters || [{ name: '经典关卡', levels: RAW }];
+  // 构建全关卡索引（兼容旧格式）
+  const ALL_LEVELS = [];
+  for (const ch of CHAPTERS) {
+    for (const lv of ch.levels) {
+      ALL_LEVELS.push(lv);
+    }
+  }
+
+  function getLevelData(chapterIdx, levelIdx) {
+    return CHAPTERS[chapterIdx].levels[levelIdx];
+  }
+
+  function getLevelWinCondition(chapterIdx, levelIdx) {
+    return getLevelData(chapterIdx, levelIdx).winCondition;
+  }
 
 // ============================================================
 // 游戏初始化
@@ -28,8 +45,10 @@ export function initGame() {
   const r = new Renderer(canvas);
   const ctx = r.ctx;
 
-  ui.gameData.totalLevels = LEVELS.length;
-  ui.gameData.levelNames = LEVELS.map(l => l.name);
+  // 传给 UI 的章节数据
+  ui.gameData.chapters = CHAPTERS;
+  ui.gameData.currentChapter = 0;
+  ui.gameData.currentLevel = 0;
 
   // 预加载开始界面图片
   ['img/startup-bg.png', 'img/logo.png'].forEach((src, idx) => {
@@ -40,7 +59,8 @@ export function initGame() {
 
   // 游戏状态
   let stars, planets, allBodies, bullets, buildings, physics, camera, orbits;
-  let cam, ctrl, physicsTime, explosions, settling, settleTimer, gameActive, currentLevel;
+  let cam, ctrl, physicsTime, explosions, settling, settleTimer, gameActive;
+  let currentChapter = 0, currentLevel = 0;
   let tempGravityWells = []; // 引力弹产生的临时引力源
 
   function _addGravityWell(gw) {
@@ -52,9 +72,10 @@ export function initGame() {
     tempGravityWells.push(gw);
   }
 
-  function startLevel(levelIndex) {
-    currentLevel = levelIndex;
-    const levelData = LEVELS[levelIndex];
+  function startLevel(chapterIdx, levelIdx) {
+    currentChapter = chapterIdx;
+    currentLevel = levelIdx;
+    const levelData = getLevelData(chapterIdx, levelIdx);
     const loaded = LevelManager.load(levelData);
     ({ stars, planets, allBodies, bullets, buildings, physics, camera, orbits } = loaded);
     if (!cam) {
@@ -73,14 +94,13 @@ export function initGame() {
     settling = false; settleTimer = 0; gameActive = false;
     for (const b of bullets) b._trail = [];
     ui._ctrl = ctrl;
-    ui.gameData.currentLevel = levelIndex + 1;
-    ui.gameData.totalLevels = LEVELS.length;
-  ui.gameData.levelNames = LEVELS.map(l => l.name);
+    ui.gameData.currentChapter = chapterIdx;
+    ui.gameData.currentLevel = levelIdx;
     ui.goTo(Screen.GAME_HUD);
   }
 
   // 回调
-  ui._onReplay = () => startLevel(currentLevel);
+  ui._onReplay = () => startLevel(currentChapter, currentLevel);
 
   // ============================================================
   // 主循环
@@ -101,7 +121,7 @@ export function initGame() {
       return;
     }
     if (!ctrl || !buildings) {
-      startLevel((ui.gameData.currentLevel || 1) - 1);
+      startLevel(ui.gameData.currentChapter || 0, ui.gameData.currentLevel || 0);
       requestAnimationFrame(loop);
       return;
     }
@@ -257,14 +277,14 @@ export function initGame() {
       if (frameHadEvent) { settling = false; settleTimer = 0; }
       if (condB && (userInteracting || frameHadEvent)) { settling = false; settleTimer = 0; }
       if (settleTimer >= SETTLE_DURATION) {
-        const result = LevelManager.checkResult(buildings, LEVELS[currentLevel].winCondition);
+        const result = LevelManager.checkResult(buildings, getLevelWinCondition(currentChapter, currentLevel));
         ui.gameData.passed = result.passed;
         ui.gameData.stars = result.stars;
         ui.gameData.totalScore = result.passed ? result.totalScore : 0;
         ui.gameData.score = result.passed ? result.totalScore : 0;
         ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && b.launched).length;
         ui.gameData.enemiesKilled = buildings.reduce((s, bld) => s + bld.points.filter(p => p.isEnemy && !p.alive).length, 0);
-        saveLevel(currentLevel, result.stars, result.totalScore, result.passed);
+        saveLevel(currentChapter, currentLevel, result.stars, result.totalScore, result.passed);
         ui.goTo(Screen.RESULT);
         requestAnimationFrame(loop);
         return;

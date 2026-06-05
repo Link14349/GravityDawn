@@ -26,29 +26,35 @@ function saveSaveData(data) {
   setCookie(COOKIE_KEY, JSON.stringify(data), COOKIE_DAYS);
 }
 
+/** 构建存储 key */
+function mkKey(chapterIdx, levelIdx) {
+  return `c${chapterIdx}-l${levelIdx}`;
+}
+
 /**
  * 获取某关最佳成绩
- * @param {number} levelIndex
+ * @param {number} chapterIdx
+ * @param {number} levelIdx
  * @returns {{ stars: number, score: number } | null}
  */
-export function getBest(levelIndex) {
+export function getBest(chapterIdx, levelIdx) {
   const data = loadSaveData();
-  return data.levels[levelIndex] || null;
+  return data.levels[mkKey(chapterIdx, levelIdx)] || null;
 }
 
 /**
  * 保存某关成绩（仅当比历史更优时更新）
- * @param {number} levelIndex
+ * @param {number} chapterIdx
+ * @param {number} levelIdx
  * @param {number} stars
  * @param {number} score
  * @param {boolean} passed
  */
-export function saveLevel(levelIndex, stars, score, passed) {
+export function saveLevel(chapterIdx, levelIdx, stars, score, passed) {
   const data = loadSaveData();
-  const key = String(levelIndex);
+  const key = mkKey(chapterIdx, levelIdx);
   const prev = data.levels[key];
   if (!passed) {
-    // 失败不覆盖更高成绩
     if (!prev) data.levels[key] = { stars: 0, score: 0 };
     saveSaveData(data);
     return;
@@ -61,7 +67,7 @@ export function saveLevel(levelIndex, stars, score, passed) {
 
 /**
  * 获取所有关卡最佳成绩
- * @returns {Object} { [levelIndex]: { stars, score } }
+ * @returns {Object} { 'c0-l1': { stars, score }, ... }
  */
 export function getAllBest() {
   return loadSaveData().levels;

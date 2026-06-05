@@ -66,9 +66,9 @@ export class UIManager {
       enemiesKilled: 0,
       stars: 0,
       passed: false,
-      currentLevel: 1,
-      totalLevels: 0,
-      levelNames: [],
+      currentChapter: 0,
+      currentLevel: 0,
+      chapters: [],
     };
 
     // 回调
@@ -162,25 +162,57 @@ export class UIManager {
     ctx.fillStyle = C.accent;
     ctx.font = 'bold 36px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('选 择 关 卡', this.w / 2, 70);
+    ctx.fillText('选 择 关 卡', this.w / 2, 60);
 
-    // 关卡卡片
+    const chapters = this.gameData.chapters || [];
+    // 当前选中的章节
+    if (this.gameData.currentChapter == null) this.gameData.currentChapter = 0;
+    const activeCh = Math.min(this.gameData.currentChapter, chapters.length - 1);
+
+    // ---- 章节标签 ----
+    const tabW = 180, tabH = 36, tabGap = 12;
+    const tabsTotalW = chapters.length * tabW + (chapters.length - 1) * tabGap;
+    const tabStartX = (this.w - tabsTotalW) / 2;
+    const tabY = 85;
+
+    for (let ci = 0; ci < chapters.length; ci++) {
+      const tx = tabStartX + ci * (tabW + tabGap);
+      const isActive = ci === activeCh;
+      const hovered = this._isOver(tx, tabY, tabW, tabH);
+
+      ctx.fillStyle = isActive ? C.accent : (hovered ? 'rgba(61,214,200,0.15)' : 'rgba(255,255,255,0.04)');
+      ctx.strokeStyle = isActive ? C.accent : 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = isActive ? 2 : 1;
+      this._roundRect(ctx, tx, tabY, tabW, tabH, 6, true);
+      this._roundRect(ctx, tx, tabY, tabW, tabH, 6, false);
+
+      ctx.fillStyle = isActive ? C.btnText : C.text;
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(chapters[ci].name, tx + tabW / 2, tabY + 24);
+
+      if (hovered && !isActive) {
+        this.buttons.push({ x: tx, y: tabY, w: tabW, h: tabH, action: () => { this.gameData.currentChapter = ci; } });
+      }
+    }
+
+    // ---- 关卡卡片 ----
+    const levels = chapters[activeCh]?.levels || [];
     const cardsPerRow = 4;
     const cardW = 200, cardH = 130, gapX = 40, gapY = 30;
     const startX = (this.w - (cardsPerRow * cardW + (cardsPerRow - 1) * gapX)) / 2;
-    const startY = 120;
+    const startY = 140;
+    const allBest = getAllBest();
 
-    const levelNames = this.gameData.levelNames;
-
-    for (let i = 0; i < this.gameData.totalLevels; i++) {
-      const col = i % cardsPerRow;
-      const row = Math.floor(i / cardsPerRow);
+    for (let li = 0; li < levels.length; li++) {
+      const lv = levels[li];
+      const col = li % cardsPerRow;
+      const row = Math.floor(li / cardsPerRow);
       const cx = startX + col * (cardW + gapX);
       const cy = startY + row * (cardH + gapY);
       const hovered = this._isOver(cx, cy, cardW, cardH);
-      const locked = false; // demo 全部解锁
+      const locked = false;
 
-      // 卡片背景
       ctx.fillStyle = locked ? 'rgba(15, 20, 40, 0.6)' : C.card;
       ctx.strokeStyle = hovered && !locked ? C.accent : C.cardBorder;
       ctx.lineWidth = hovered && !locked ? 2 : 1;
@@ -194,12 +226,11 @@ export class UIManager {
       } else {
         ctx.fillStyle = C.text;
         ctx.font = 'bold 20px Arial';
-        ctx.fillText(`第 ${i + 1} 关`, cx + cardW / 2, cy + 40);
+        ctx.fillText(`第 ${li + 1} 关`, cx + cardW / 2, cy + 40);
         ctx.fillStyle = C.sub;
         ctx.font = 'bold 16px Arial';
-        ctx.fillText(levelNames[i], cx + cardW / 2, cy + 63);
-        let saved = null;
-        try { saved = (getAllBest() || {})[i]; } catch(e) {}
+        ctx.fillText(lv.name, cx + cardW / 2, cy + 63);
+        const saved = allBest[`c${activeCh}-l${li}`];
         if (saved && saved.stars > 0) {
           ctx.fillStyle = C.gold;
           ctx.font = '13px Arial';
@@ -210,7 +241,12 @@ export class UIManager {
         }
 
         if (hovered && !locked) {
-          this.buttons.push({ x: cx, y: cy, w: cardW, h: cardH, action: () => { this.gameData.currentLevel = i + 1; this.goTo(Screen.GAME_HUD); } });
+          const ci = activeCh;
+          this.buttons.push({ x: cx, y: cy, w: cardW, h: cardH, action: () => {
+            this.gameData.currentChapter = ci;
+            this.gameData.currentLevel = li;
+            this.goTo(Screen.GAME_HUD);
+          }});
         }
       }
     }
@@ -228,12 +264,16 @@ export class UIManager {
     ctx.fillRect(0, 0, this.w, 44);
 
     // 关卡名（居中）+ 暂停标记
-    const levelNames = this.gameData.levelNames;
+    const chapters = this.gameData.chapters || [];
+    const chIdx = this.gameData.currentChapter || 0;
+    const lvIdx = this.gameData.currentLevel || 0;
+    const chName = chapters[chIdx]?.name || '';
+    const lvName = chapters[chIdx]?.levels[lvIdx]?.name || '';
     const paused = this._ctrl && this._ctrl.isSpacePaused();
     ctx.fillStyle = C.accent;
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(`第${this.gameData.currentLevel}关 · ${levelNames[this.gameData.currentLevel - 1]}${paused ? '  ⏸ 暂停' : ''}`, this.w / 2, 30);
+    ctx.fillText(`${chName} · 第${lvIdx + 1}关 ${lvName}${paused ? '  ⏸ 暂停' : ''}`, this.w / 2, 30);
 
     // 分数 + 子弹
     ctx.fillStyle = C.text;
@@ -316,9 +356,28 @@ export class UIManager {
 
     // 下一关（宽按钮，实心）
     if (passed) {
-      this._btn(ctx, '下一关 →', cx - btnW - 10, btnY + btnH + 15, btnW * 2 + 20, btnH, () => {
-        if (this.gameData.currentLevel < this.gameData.totalLevels) { this.gameData.currentLevel++; this.goTo(Screen.GAME_HUD); }
-      }, true);
+      const chapters = this.gameData.chapters || [];
+      const ci = this.gameData.currentChapter || 0;
+      const li = this.gameData.currentLevel || 0;
+      const curChapterLevels = chapters[ci]?.levels?.length || 0;
+      let hasNext = false;
+      if (li + 1 < curChapterLevels) {
+        hasNext = true;
+      } else if (ci + 1 < chapters.length && (chapters[ci + 1]?.levels?.length || 0) > 0) {
+        hasNext = true;
+      }
+      this._btn(ctx, hasNext ? '下一关 →' : '已是最后一关', cx - btnW - 10, btnY + btnH + 15, btnW * 2 + 20, btnH, () => {
+        if (li + 1 < curChapterLevels) {
+          this.gameData.currentLevel = li + 1;
+        } else if (ci + 1 < chapters.length && (chapters[ci + 1]?.levels?.length || 0) > 0) {
+          this.gameData.currentChapter = ci + 1;
+          this.gameData.currentLevel = 0;
+        } else {
+          this.goTo(Screen.LEVEL_SELECT);
+          return;
+        }
+        this.goTo(Screen.GAME_HUD);
+      }, hasNext);
     }
   }
 

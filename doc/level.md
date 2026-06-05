@@ -8,6 +8,24 @@
 
 ## 关卡数据格式 (LevelData)
 
+`data/levels.json` 顶层为章节结构：
+
+```js
+{
+  chapters: [
+    {
+      name: '第一章 · 初入星海',   // 章节名称
+      levels: [LevelDef, ...]       // 关卡列表
+    },
+    ...
+  ]
+}
+```
+
+向后兼容：若顶层为数组（无 chapters），自动包入名为「经典关卡」的默认章节。
+
+### LevelDef（单关数据）
+
 ```js
 {
   name: '前哨站',           // string — 关卡名称
