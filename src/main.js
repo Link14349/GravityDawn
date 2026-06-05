@@ -65,6 +65,20 @@ export function initGame() {
   ui.gameData.currentChapter = 0;
   ui.gameData.currentLevel = 0;
 
+  // 教程提示系统
+  let tutorialHint = null;
+  let tutorialHintTimer = 0;
+  const tutorialShown = {}; // 记录已显示的提示
+
+  function showTutorial(id, msg, duration = 5) {
+    if (tutorialShown[id]) return;
+    // 只有教程章(ch0)才显示
+    if (currentChapter !== 0) return;
+    tutorialShown[id] = true;
+    tutorialHint = msg;
+    tutorialHintTimer = duration;
+  }
+
   // 预加载开始界面图片
   ['img/startup-bg.png', 'img/logo.png'].forEach((src, idx) => {
     const img = new Image();
@@ -111,6 +125,15 @@ export function initGame() {
     ui._ctrl = ctrl;
     ui.gameData.currentChapter = chapterIdx;
     ui.gameData.currentLevel = levelIdx;
+    // 教程章初始化提示
+    if (chapterIdx === 0) {
+      // 清除之前的提示记录
+      for (const k of Object.keys(tutorialShown)) delete tutorialShown[k];
+      tutorialHint = '🎓 欢迎来到教程！使用鼠标拖拽空白区域来平移镜头';
+      tutorialHintTimer = 5;
+      // 几秒后提示缩放
+      setTimeout(() => showTutorial('zoom', '🔍 滚动鼠标滚轮来缩放镜头', 4), 6000);
+    }
     ui.goTo(Screen.GAME_HUD);
   }
 
@@ -309,6 +332,53 @@ export function initGame() {
     ui.gameData.score = buildings.reduce((s, bld) => s + bld.score, 0);
     ui.gameData.bulletsRemaining = bullets.filter(b => b.alive && !b.launched).length;
 
+    // ---- 教程提示触发 ----
+    if (currentChapter === 0) {
+      // 悬停子弹
+      if (ctrl.getHoveredBullet()) {
+        showTutorial('hover', '💡 悬停子弹 → 时间暂停。按住并向后拖拽 → 瞄准弹弓，松开 → 发射！', 6);
+      }
+      // 首次发射
+      const anyLaunched = bullets.some(b => b.launched);
+      if (anyLaunched) {
+        showTutorial('launch', '🚀 发射成功！可以再次悬停+拖拽进行中途修正（剩余点火次数>0时）', 5);
+      }
+      // 空格暂停
+      if (ctrl.isSpacePaused()) {
+        showTutorial('space', '⏸ 空格键可以随时暂停/恢复游戏，暂停时仍可查看场景', 4);
+      }
+      // 普通弹命中
+      const normalHit = bullets.some(b => b.type === 'normal' && b.launched && (b._trail?.length || 0) > 0);
+      if (normalHit) {
+        showTutorial('normal', '🔴 普通弹 — 均衡的爆炸伤害，适合清理集中的结构', 4);
+      }
+      // 爆炸弹命中
+      const explosiveHit = bullets.some(b => b.type === 'explosive' && b.launched && (b._trail?.length || 0) > 0);
+      if (explosiveHit) {
+        showTutorial('explosive', '🔵 爆炸弹 — 大范围爆炸（半径200），右键可提前手动引爆！', 5);
+      }
+      // 动能弹命中
+      const kineticHit = bullets.some(b => b.type === 'kinetic' && b.launched && (b._trail?.length || 0) > 0);
+      if (kineticHit) {
+        showTutorial('kinetic', '⚫ 动能弹 — 无爆炸，靠HP(300)和动能穿透多个目标', 5);
+      }
+      // 右键触发
+      if (ctrl.triggeredBullets.length > 0) {
+        showTutorial('rightclick', '🖱 右键点击已发射的特殊弹（爆炸弹/引力弹等）可以手动触发效果', 5);
+      }
+      // 拆除重要目标
+      const anyImportantDead = buildings.some(bld => bld.points.some(p => p.important && !p.alive));
+      if (anyImportantDead) {
+        showTutorial('important', '🎯 摧毁了重要目标（金色边框）！摧毁所有重要目标即可通关', 5);
+      }
+    }
+
+    // 教程提示计时
+    if (tutorialHintTimer > 0) {
+      tutorialHintTimer -= 1 / 60;
+      if (tutorialHintTimer <= 0) tutorialHint = null;
+    }
+
     // 渲染
     r.clear();
     cam.applyTransform(ctx);
@@ -344,6 +414,21 @@ export function initGame() {
       ctx.fillRect(canvas.width / 2 - 140, canvas.height - 56, 280, 28);
       ctx.fillStyle = '#ffd93d'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
       ctx.fillText(`结算中... ${(SETTLE_DURATION - settleTimer).toFixed(1)}s`, canvas.width / 2, canvas.height - 36);
+    }
+    // 教程提示
+    if (tutorialHint) {
+      const alpha = Math.min(1, tutorialHintTimer / 1.5, tutorialHintTimer);
+      ctx.fillStyle = `rgba(0,0,0,${0.7 * alpha})`;
+      const th = 36, tw = canvas.width - 40;
+      const tx = 20, ty = 50;
+      ctx.fillRect(tx, ty, tw, th);
+      ctx.strokeStyle = `rgba(61,214,200,${0.5 * alpha})`;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(tx, ty, tw, th);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(tutorialHint, canvas.width / 2, ty + 24);
     }
     ui.render();
     requestAnimationFrame(loop);

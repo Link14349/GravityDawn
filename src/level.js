@@ -21,8 +21,16 @@ export class LevelManager {
     const orbits = createOrbits(levelData.orbits || []);
 
     // 2. 星体
-    const stars = (levelData.stars || []).map(d => new CelestialBody({ ...d, orbit: orbits[d.orbit], orbits }));
-    const planets = (levelData.planets || []).map(d => new CelestialBody({ ...d, orbit: orbits[d.orbit], orbits }));
+    const stars = (levelData.stars || []).map(d => {
+      const orb = orbits[d.orbit];
+      if (!orb) throw new Error(`Star orbit ${d.orbit} not found in orbits array (length=${orbits.length})`);
+      return new CelestialBody({ ...d, orbit: orb, orbits });
+    });
+    const planets = (levelData.planets || []).map(d => {
+      const orb = orbits[d.orbit];
+      if (!orb) throw new Error(`Planet orbit ${d.orbit} not found in orbits array (length=${orbits.length})`);
+      return new CelestialBody({ ...d, orbit: orb, orbits });
+    });
     const allBodies = [...stars, ...planets];
 
     // 3. 物理引擎
