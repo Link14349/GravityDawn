@@ -209,6 +209,8 @@ export class DesignerData {
       if (sp.b > ptIdx) sp.b--;
     }
     bld.points.splice(ptIdx, 1);
+    // 质点清零 → 自动删除建筑
+    if (bld.points.length === 0) this.removeBuilding(bldIdx);
   }
 
   addSpring(bldIdx, aIdx, bIdx, overrides = {}) {

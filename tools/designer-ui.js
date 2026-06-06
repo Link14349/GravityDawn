@@ -34,6 +34,17 @@ const BTOOLS = [
   { id: 'spring', label: '弹簧', icon: '⏤' },
 ];
 
+const STAR_COLORS = [
+  { label: '金黄', value: '#ffbb33' },
+  { label: '暖橙', value: '#ff9933' },
+  { label: '赤红', value: '#ff6644' },
+  { label: '冰蓝', value: '#66aaff' },
+  { label: '青绿', value: '#44ccbb' },
+  { label: '粉红', value: '#ff6688' },
+  { label: '淡紫', value: '#aa88ff' },
+  { label: '灰白', value: '#ccddee' },
+];
+
 const POINT_TYPES = [
   { id: 'white',  label: '白色', color: '#cccccc', mass: 8,  radius: 5, score: 20, explosionRadius: 10, explosionImpulse: 500 },
   { id: 'gray',   label: '灰色', color: '#888888', mass: 10, radius: 6, score: 30, explosionRadius: 12, explosionImpulse: 600 },
@@ -206,9 +217,15 @@ export class EditModeUI {
     this._snapChk = { x: chkX, y: chkY, w: chkS + lw + 6, h: chkS + 2 };
 
     const actBtns = [
-      { id: 'test', label: '▶ 测试', primary: true },
+      { id: 'open', label: '打开', primary: false },
+      { id: 'rename', label: '改名', primary: false },
       { id: 'export', label: '导出', primary: false },
+      { id: 'test', label: '▶ 测试', primary: true },
     ];
+
+    // 关卡名称（居中）
+    ctx.fillStyle = C.text; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(this.dd.data.name || '新关卡', this.w / 2, tbY + 30);
     let ax = this.w - 12; const abtnW = 68;
     for (let i = actBtns.length - 1; i >= 0; i--) {
       const ab = actBtns[i]; ax -= abtnW + gap;
@@ -277,7 +294,7 @@ export class EditModeUI {
     const hasCore = bld.points.some(p => p.isCore && p.orbit != null);
     let bx2 = newX + newW + 12;
     for (const bt of BTOOLS) {
-      if (bt.id === 'core' && hasCore) continue; // 已有核心则隐藏核心工具
+      if (bt.id === 'core' && (hasCore || bld.points.length > 0)) { bt._bx = null; continue; } // 已有核心或非核心点则隐藏
       const bw = 46;
       const hov = this._inRect(this.mx, this.my, bx2, ddY, bw, ddH);
       const act = this._btool === bt.id;
@@ -323,6 +340,56 @@ export class EditModeUI {
           opt._ptypeOpt = true;
         }
       }
+    }
+
+    // 绑定星体选择器（无核心建筑时显示）
+    if (bld && !hasCore) {
+      const bindX = this._btool === 'point' ? this._ptypeDropRect.x + this._ptypeDropRect.w + 8 : (bx2 + 8);
+      const bindW = 80;
+      const bindIdx = bld.bindToBody;
+      const bindLabel = bindIdx != null ? `绑定#${bindIdx}` : '不绑定';
+      const bindOpen = this._dropdown && this._dropdown._bindDropdown;
+      ctx.fillStyle = bindOpen ? 'rgba(61,214,200,0.15)' : 'rgba(255,255,255,0.06)';
+      ctx.strokeStyle = bindOpen ? C.accent : 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
+      this._roundRect(ctx, bindX, ddY, bindW, ddH, 4, true); this._roundRect(ctx, bindX, ddY, bindW, ddH, 4, false);
+      ctx.fillStyle = C.text; ctx.font = '10px monospace'; ctx.textAlign = 'left';
+      ctx.fillText(bindLabel, bindX + 6, ddY + ddH / 2 + 4);
+      ctx.fillStyle = C.sub; ctx.font = '8px Arial'; ctx.textAlign = 'right'; ctx.fillText('▼', bindX + bindW - 4, ddY + ddH / 2 + 3);
+      this._bindDropRect = { x: bindX, y: ddY, w: bindW, h: ddH };
+
+      if (bindOpen) {
+        const allBodies = [...this.dd.data.stars, ...this.dd.data.planets];
+        const bopts = [{ label: '不绑定', value: null }];
+        for (let i = 0; i < allBodies.length; i++) {
+          bopts.push({ label: `${allBodies[i].label || '星体'}(${i})`, value: i });
+        }
+        this._dropdown._bindOptions = bopts;
+        const oH = 22, ddH3 = bopts.length * oH;
+        const ddy3 = ddY + ddH + 2;
+        ctx.fillStyle = 'rgba(20,28,65,0.99)'; ctx.strokeStyle = C.accent; ctx.lineWidth = 1;
+        this._roundRect(ctx, bindX, ddy3, bindW, ddH3, 4, true); this._roundRect(ctx, bindX, ddy3, bindW, ddH3, 4, false);
+        for (let oi = 0; oi < bopts.length; oi++) {
+          const opt = bopts[oi], oy = ddy3 + oi * oH;
+          const hov = this._inRect(this.mx, this.my, bindX, oy, bindW, oH);
+          if (hov) { ctx.fillStyle = 'rgba(61,214,200,0.2)'; ctx.fillRect(bindX + 2, oy + 1, bindW - 4, oH - 2); }
+          ctx.fillStyle = C.text; ctx.font = '10px monospace'; ctx.textAlign = 'left';
+          ctx.fillText(opt.label, bindX + 6, oy + 15);
+          opt._oy = oy; opt._ox = bindX; opt._ow = bindW; opt._oh = oH;
+          opt._bindOpt = true;
+        }
+      }
+    }
+
+    // 删除建筑按钮（最右侧）
+    if (bld && this._activeBld >= 0) {
+      const delW = 90, delX = this.w - 220 - delW - 8;
+      const delHov = this._inRect(this.mx, this.my, delX, ddY, delW, ddH);
+      ctx.fillStyle = delHov ? 'rgba(255,68,68,0.3)' : 'rgba(255,68,68,0.1)';
+      ctx.strokeStyle = delHov ? '#ff4444' : 'rgba(255,68,68,0.3)'; ctx.lineWidth = 1;
+      this._roundRect(ctx, delX, ddY, delW, ddH, 4, true); this._roundRect(ctx, delX, ddY, delW, ddH, 4, false);
+      ctx.fillStyle = delHov ? '#ff4444' : '#ff6b6b'; ctx.font = '11px Arial'; ctx.textAlign = 'center';
+      ctx.fillText('删除此建筑', delX + delW / 2, ddY + ddH / 2 + 4);
+      this._bldDelRect = { x: delX, y: ddY, w: delW, h: ddH };
     }
   }
 
@@ -463,11 +530,11 @@ export class EditModeUI {
       }
       case 'star': {
         const s = dd.stars[sel.starIdx]; if (!s) return [];
-        return [{ key: 'label', label: '名称', value: s.label }, { key: 'mass', label: '质量', value: s.mass }, { key: 'radius', label: '半径', value: s.radius }, { key: 'collisionRadius', label: '碰撞半径', value: s.collisionRadius }, { key: 'color', label: '颜色', value: s.color }, { key: 'orbit', label: '轨道', value: s.orbit, options: this._orbitOptions() }];
+        return [{ key: 'label', label: '名称', value: s.label }, { key: 'mass', label: '质量', value: s.mass }, { key: 'radius', label: '半径', value: s.radius }, { key: 'collisionRadius', label: '碰撞半径', value: s.collisionRadius }, { key: 'color', label: '颜色', value: s.color, options: STAR_COLORS }, { key: 'orbit', label: '轨道', value: s.orbit, options: this._orbitOptions() }];
       }
       case 'planet': {
         const p = dd.planets[sel.planetIdx]; if (!p) return [];
-        return [{ key: 'label', label: '名称', value: p.label }, { key: 'mass', label: '质量', value: p.mass }, { key: 'radius', label: '半径', value: p.radius }, { key: 'collisionRadius', label: '碰撞半径', value: p.collisionRadius }, { key: 'color', label: '颜色', value: p.color }, { key: 'orbit', label: '轨道', value: p.orbit, options: this._orbitOptions() }];
+        return [{ key: 'label', label: '名称', value: p.label }, { key: 'mass', label: '质量', value: p.mass }, { key: 'radius', label: '半径', value: p.radius }, { key: 'collisionRadius', label: '碰撞半径', value: p.collisionRadius }, { key: 'color', label: '颜色', value: p.color, options: STAR_COLORS }, { key: 'orbit', label: '轨道', value: p.orbit, options: this._orbitOptions() }];
       }
       case 'bullet': {
         const b = dd.bullets[sel.bulletIdx]; if (!b) return [];
@@ -572,11 +639,16 @@ export class EditModeUI {
     if (e.button !== 0) return;
 
     if (this._snapChk && this._inRect(sx, sy, this._snapChk.x, this._snapChk.y, this._snapChk.w, this._snapChk.h)) { this.snapToGrid = !this.snapToGrid; return; }
-    for (const tool of this._toolBtns || []) { if (this._inRect(sx, sy, tool._bx, tool._by, tool._bw, tool._bh)) { this.dd.tool = tool.id; this.dd.clearSelection(); return; } }
+    for (const tool of this._toolBtns || []) { if (this._inRect(sx, sy, tool._bx, tool._by, tool._bw, tool._bh)) { this.dd.tool = tool.id; this.dd.clearSelection(); this._activeBld = -1; this._bindDropRect = null; return; } }
     for (const ab of this._actBtns || []) {
       if (this._inRect(sx, sy, ab._bx, ab._by, ab._bw, ab._bh)) {
         if (ab.id === 'test' && this.cb.onTest) this.cb.onTest();
         if (ab.id === 'export' && this.cb.onExport) this.cb.onExport();
+        if (ab.id === 'open' && this.cb.onOpen) this.cb.onOpen();
+        if (ab.id === 'rename') {
+          const n = prompt('关卡名称:', this.dd.data.name || '新关卡');
+          if (n && n.trim()) this.dd.data.name = n.trim();
+        }
         return;
       }
     }
@@ -597,6 +669,34 @@ export class EditModeUI {
       if (dd._ptypeDropdown) {
         for (const opt of dd._ptypeOptions || []) {
           if (opt._ox != null && this._inRect(sx, sy, opt._ox, opt._oy, opt._ow, opt._oh)) { this._ptype = opt.value; this._dropdown = null; return; }
+        }
+        this._dropdown = null; return;
+      }
+      if (dd._bindDropdown) {
+        for (const opt of dd._bindOptions || []) {
+          if (opt._ox != null && this._inRect(sx, sy, opt._ox, opt._oy, opt._ow, opt._oh)) {
+            const bldIdx = this._activeBld;
+            const oldBind = this.dd.data.buildings[bldIdx].bindToBody;
+            // 保存切换前各质点的绝对世界位置
+            const worldPos = [];
+            for (let pi = 0; pi < this.dd.data.buildings[bldIdx].points.length; pi++) {
+              const pt = this.dd.data.buildings[bldIdx].points[pi];
+              if (pt.isCore && pt.orbit != null) continue; // 核心点不受影响
+              const pw = this.dd.getPointWorld(bldIdx, pi);
+              worldPos.push({ pi, x: pw.x, y: pw.y });
+            }
+            // 应用新绑定
+            this.dd.data.buildings[bldIdx].bindToBody = opt.value;
+            if (oldBind !== opt.value) this.dd._invalidateOrbitsCache();
+            // 计算新绑定下的核心参考位置，重算相对偏移
+            const newCore = this.dd.getBuildingCoreWorld(bldIdx);
+            for (const { pi, x: wx, y: wy } of worldPos) {
+              const pt = this.dd.data.buildings[bldIdx].points[pi];
+              pt.x = Math.round(wx - newCore.x);
+              pt.y = Math.round(wy - newCore.y);
+            }
+            this._dropdown = null; return;
+          }
         }
         this._dropdown = null; return;
       }
@@ -622,14 +722,30 @@ export class EditModeUI {
         this.dd.clearSelection();
         return;
       }
+      // 删除建筑按钮
+      if (this._bldDelRect && this._inRect(sx, sy, this._bldDelRect.x, this._bldDelRect.y, this._bldDelRect.w, this._bldDelRect.h)) {
+        if (this._activeBld >= 0 && this._activeBld < this.dd.data.buildings.length) {
+          this.dd.removeBuilding(this._activeBld);
+          this._activeBld = -1;
+          this.dd.clearSelection();
+          this._springFirst = null;
+        }
+        return;
+      }
       // 建筑子工具
-      for (const bt of this._btoolBtns || []) {
+      for (const bt of BTOOLS) {
         if (bt._bx != null && this._inRect(sx, sy, bt._bx, bt._by, bt._bw, bt._bh)) { this._btool = bt.id; this._springFirst = null; return; }
       }
       // 质点类型下拉
       if (this._ptypeDropRect && this._btool === 'point' && this._inRect(sx, sy, this._ptypeDropRect.x, this._ptypeDropRect.y, this._ptypeDropRect.w, this._ptypeDropRect.h)) {
         this._activeEdit = null;
         this._dropdown = { _ptypeDropdown: true };
+        return;
+      }
+      // 绑定星体下拉
+      if (this._bindDropRect && this._inRect(sx, sy, this._bindDropRect.x, this._bindDropRect.y, this._bindDropRect.w, this._bindDropRect.h)) {
+        this._activeEdit = null;
+        this._dropdown = { _bindDropdown: true };
         return;
       }
       return;
@@ -658,13 +774,28 @@ export class EditModeUI {
     const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
     if (sy < 46 || (sx > this.w - 220 && sy > 46)) return;
     if (this._rightPanMoved) return;
-    this._selectAt(this.screenToWorld(sx, sy));
+    const hit = this._selectAt(this.screenToWorld(sx, sy));
+    if (hit) this._autoSwitchTool();
   }
 
   // ======================== 工具 ========================
   _snap(wp) { if (!this.snapToGrid) return wp; return { x: Math.round(wp.x / 100) * 100, y: Math.round(wp.y / 100) * 100 }; }
 
-  _toolSelect(wp, sx, sy) { const hit = this._selectAt(wp); if (!hit) { this.dd.clearSelection(); this._lastRightPos = null; this._lastRightSel = null; this._panning = true; this._panSX = sx; this._panSY = sy; this._panCX = this.camX; this._panCY = this.camY; } }
+  _toolSelect(wp, sx, sy) { const hit = this._selectAt(wp); if (!hit) { this.dd.clearSelection(); this._lastRightPos = null; this._lastRightSel = null; this._panning = true; this._panSX = sx; this._panSY = sy; this._panCX = this.camX; this._panCY = this.camY; } else if (hit) this._autoSwitchTool(); }
+
+  _autoSwitchTool() {
+    const sel = this._lastRightSel || this.dd.selected;
+    if (!sel) return;
+    if (sel.type === 'orbit') this.dd.tool = 'orbit';
+    else if (sel.type === 'star') this.dd.tool = 'star';
+    else if (sel.type === 'planet') this.dd.tool = 'planet';
+    else if (sel.type === 'bullet') this.dd.tool = 'bullet';
+    else if (sel.type === 'point' || sel.type === 'spring') {
+      this.dd.tool = 'building';
+      this._activeBld = sel.bldIdx;
+      this._btool = sel.type;
+    }
+  }
   _toolOrbit(wp) { wp = this._snap(wp); const idx = this.dd.addOrbit('fixed', wp.x, wp.y); this.dd.select('orbit', { orbitIdx: idx }); }
   _toolStar(wp) { wp = this._snap(wp); const oi = this._findClosestOrbit(wp); if (oi < 0) { this._showToast('请先创建轨道'); return; } this.dd.select('star', { starIdx: this.dd.addStar(oi) }); }
   _toolPlanet(wp) { wp = this._snap(wp); const oi = this._findClosestOrbit(wp); if (oi < 0) { this._showToast('请先创建轨道'); return; } this.dd.select('planet', { planetIdx: this.dd.addPlanet(oi) }); }
@@ -698,9 +829,24 @@ export class EditModeUI {
         if (oi < 0) { this._showToast('请先创建轨道'); return; }
         this.dd.addPoint(bldIdx, { isCore: true, orbit: oi });
         this.dd.select('point', { bldIdx, ptIdx: this.dd.data.buildings[bldIdx].points.length - 1 });
+        this._btool = 'point'; // 核心放完自动切到质点工具
         break;
       }
       case 'point': {
+        const bld = this.dd.data.buildings[bldIdx];
+        // 无核心无绑定的自由建筑首个质点 → 自动绑定最近星体
+        if (bld && !bld.points.some(p => p.isCore && p.orbit != null) && bld.bindToBody == null && bld.points.length === 0) {
+          const allBodies = [...this.dd.data.stars, ...this.dd.data.planets];
+          if (allBodies.length > 0) {
+            let best = 0, bestD = Infinity;
+            for (let i = 0; i < allBodies.length; i++) {
+              const pos = this.dd._calcOrbitWorld(this.dd.data.orbits[allBodies[i].orbit]);
+              const d = Math.sqrt((wp.x - pos.x) ** 2 + (wp.y - pos.y) ** 2);
+              if (d < bestD) { bestD = d; best = i; }
+            }
+            bld.bindToBody = best;
+          }
+        }
         const pt = POINT_TYPES.find(t => t.id === this._ptype) || POINT_TYPES[0];
         const info = this._findClosestBuildingForBld(wp, bldIdx);
         const def = { x: wp.x, y: wp.y, mass: pt.mass, radius: pt.radius, score: pt.score, color: pt.color, explosionRadius: pt.explosionRadius, explosionImpulse: pt.explosionImpulse };
@@ -882,7 +1028,7 @@ export class EditModeUI {
     }
   }
 
-  _deleteSelected() { const s = this.dd.selected; if (!s) return; if (s.type === 'orbit') this.dd.removeOrbit(s.orbitIdx); else if (s.type === 'star') this.dd.removeStar(s.starIdx); else if (s.type === 'planet') this.dd.removePlanet(s.planetIdx); else if (s.type === 'bullet') this.dd.removeBullet(s.bulletIdx); else if (s.type === 'point') this.dd.removePoint(s.bldIdx, s.ptIdx); else if (s.type === 'spring') this.dd.removeSpring(s.bldIdx, s.spIdx); this.dd.clearSelection(); }
+  _deleteSelected() { const s = this.dd.selected; if (!s) return; if (s.type === 'orbit') this.dd.removeOrbit(s.orbitIdx); else if (s.type === 'star') this.dd.removeStar(s.starIdx); else if (s.type === 'planet') this.dd.removePlanet(s.planetIdx); else if (s.type === 'bullet') this.dd.removeBullet(s.bulletIdx); else if (s.type === 'point') { this.dd.removePoint(s.bldIdx, s.ptIdx); if (this._activeBld >= this.dd.data.buildings.length) this._activeBld = -1; } else if (s.type === 'spring') this.dd.removeSpring(s.bldIdx, s.spIdx); this.dd.clearSelection(); }
 
   // ======================== 工具函数 ========================
   _inRect(px, py, x, y, w, h) { return px >= x && px <= x + w && py >= y && py <= y + h; }

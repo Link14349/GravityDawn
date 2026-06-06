@@ -106,6 +106,7 @@
       onExport: doExport,
       onImport: showImportDialog,
       onNew: doNew,
+      onOpen: doOpen,
     });
 
     // ---- 测试模式运行时 ----
@@ -412,6 +413,50 @@
         alert('测试模式启动失败: ' + err.message);
         return null;
       }
+    }
+
+    // ---- 打开 ----
+    async function doOpen() {
+      try {
+        // 1. 加载章节列表
+        const idxResp = await fetch('../data/levels/index.json');
+        const chDirs = await idxResp.json();
+        // 2. 加载每个章节名
+        const chNames = [];
+        for (const d of chDirs) {
+          const r = await fetch(`../data/levels/${d}/index.json`);
+          const c = await r.json();
+          chNames.push(c.name);
+        }
+        // 3. 选章节
+        let chPrompt = '选择章节:\n';
+        chNames.forEach((n, i) => chPrompt += `  ${i}: ${n}\n`);
+        const chIdx = parseInt(prompt(chPrompt, '0'));
+        if (isNaN(chIdx) || chIdx < 0 || chIdx >= chDirs.length) return;
+        // 4. 加载关卡列表
+        const chR = await fetch(`../data/levels/${chDirs[chIdx]}/index.json`);
+        const chData = await chR.json();
+        const lvFiles = chData.levels;
+        // 5. 加载所有关卡名
+        const lvNames = [];
+        for (const f of lvFiles) {
+          const r = await fetch(`../data/levels/${chDirs[chIdx]}/${f}.json`);
+          const l = await r.json();
+          lvNames.push(l.name || f);
+        }
+        // 6. 选关卡
+        let lvPrompt = `选择关卡 (${chNames[chIdx]}):\n`;
+        lvNames.forEach((n, i) => lvPrompt += `  ${i}: ${n}\n`);
+        const lvIdx = parseInt(prompt(lvPrompt, '0'));
+        if (isNaN(lvIdx) || lvIdx < 0 || lvIdx >= lvFiles.length) return;
+        // 7. 加载并导入
+        const lvR = await fetch(`../data/levels/${chDirs[chIdx]}/${lvFiles[lvIdx]}.json`);
+        const lvData = await lvR.json();
+        dd.importLevel(lvData);
+        editor.camX = dd.data.camera.x;
+        editor.camY = dd.data.camera.y;
+        editor.zoom = dd.data.camera.zoom;
+      } catch (e) { alert('打开失败: ' + e.message); }
     }
 
     // ---- 导出 ----
