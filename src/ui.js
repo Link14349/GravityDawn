@@ -12,6 +12,7 @@ import { getAllBest } from './storage.js';
 export const Screen = Object.freeze({
   START: 'start',
   LEVEL_SELECT: 'levelSelect',
+  CUTSCENE: 'cutscene',
   GAME_HUD: 'gameHud',
   RESULT: 'result',
 });

@@ -8,6 +8,7 @@ import { Building } from './building.js';
 import { Bullet } from './bullet.js';
 import { Camera } from './camera.js';
 import { UIManager, Screen } from './ui.js';
+import { CutsceneManager } from './cutscene.js';
 import { saveLevel, getAllBest } from './storage.js';
 
 // ============================================================
@@ -90,7 +91,8 @@ export function initGame() {
   let stars, planets, allBodies, bullets, buildings, physics, camera, orbits;
   let cam, ctrl, physicsTime, explosions, settling, settleTimer, gameActive;
   let currentChapter = 0, currentLevel = 0;
-  let tempGravityWells = []; // 引力弹产生的临时引力源
+  let tempGravityWells = [];
+  let cutsceneMgr = null; // 播片管理器
 
   function _addGravityWell(gw) {
     gw.startTime = physicsTime;
@@ -101,7 +103,7 @@ export function initGame() {
     tempGravityWells.push(gw);
   }
 
-  function startLevel(chapterIdx, levelIdx) {
+  function startLevel(chapterIdx, levelIdx, skipCutscene = false) {
     currentChapter = chapterIdx;
     currentLevel = levelIdx;
     const levelData = getLevelData(chapterIdx, levelIdx);
@@ -125,20 +127,57 @@ export function initGame() {
     ui._ctrl = ctrl;
     ui.gameData.currentChapter = chapterIdx;
     ui.gameData.currentLevel = levelIdx;
+    // 检查是否有播片（重试时跳过）
+    if (!skipCutscene && levelData.cutscene && levelData.cutscene.scenes && levelData.cutscene.scenes.length > 0) {
+      cutsceneMgr = new CutsceneManager(canvas, levelData.cutscene, () => {
+        // 播片结束 → 进入关卡
+        cutsceneMgr = null;
+        _setupLevel(chapterIdx);
+        ui.goTo(Screen.GAME_HUD);
+      });
+      cutsceneMgr.start();
+      ui.goTo(Screen.CUTSCENE);
+    } else {
+      _setupLevel(chapterIdx);
+      ui.goTo(Screen.GAME_HUD);
+    }
+  }
+
+  function _setupLevel(chapterIdx) {
     // 教程章初始化提示
     if (chapterIdx === 0) {
-      // 清除之前的提示记录
       for (const k of Object.keys(tutorialShown)) delete tutorialShown[k];
       tutorialHint = '🎓 欢迎来到教程！使用鼠标拖拽空白区域来平移镜头';
       tutorialHintTimer = 5;
-      // 几秒后提示缩放
       setTimeout(() => showTutorial('zoom', '🔍 滚动鼠标滚轮来缩放镜头', 4), 6000);
+    } else {
+      // 非教程章清除残留提示
+      tutorialHint = null;
+      tutorialHintTimer = 0;
     }
-    ui.goTo(Screen.GAME_HUD);
   }
 
   // 回调
-  ui._onReplay = () => startLevel(currentChapter, currentLevel);
+  ui._onReplay = () => startLevel(currentChapter, currentLevel, true);
+
+  // 播片事件转发
+  canvas.addEventListener('click', (e) => {
+    if (ui.screen === Screen.CUTSCENE && cutsceneMgr) {
+      const rect = canvas.getBoundingClientRect();
+      cutsceneMgr.onClick(e.clientX - rect.left, e.clientY - rect.top);
+    }
+  });
+  canvas.addEventListener('mousemove', (e) => {
+    if (ui.screen === Screen.CUTSCENE && cutsceneMgr) {
+      const rect = canvas.getBoundingClientRect();
+      cutsceneMgr.onMouseMove(e.clientX - rect.left, e.clientY - rect.top);
+    }
+  });
+  window.addEventListener('keydown', (e) => {
+    if (ui.screen === Screen.CUTSCENE && cutsceneMgr) {
+      cutsceneMgr.onKeyDown(e);
+    }
+  });
 
   // ============================================================
   // 主循环
@@ -146,13 +185,25 @@ export function initGame() {
   // 退出关卡时销毁，重新进入时重建
   const _origGoTo = ui.goTo.bind(ui);
   ui.goTo = (screen) => {
-    if (ui.screen === Screen.GAME_HUD && screen !== Screen.GAME_HUD) {
+    // 离开关卡时销毁运行时（播片不算离开）
+    if (ui.screen === Screen.GAME_HUD && screen !== Screen.GAME_HUD && screen !== Screen.CUTSCENE) {
       ctrl = null; buildings = null; gameActive = false; tempGravityWells = [];
+      tutorialHint = null; tutorialHintTimer = 0;
     }
     _origGoTo(screen);
   };
 
   function loop() {
+    // 播片屏幕：CutsceneManager 自驱动渲染
+    if (ui.screen === Screen.CUTSCENE) {
+      if (cutsceneMgr) {
+        requestAnimationFrame(loop);
+        return; // cutsceneMgr 有自己的 requestAnimationFrame 循环
+      }
+      requestAnimationFrame(loop);
+      return;
+    }
+
     if (ui.screen !== Screen.GAME_HUD) {
       ui.render();
       requestAnimationFrame(loop);

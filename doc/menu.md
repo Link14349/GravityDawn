@@ -9,6 +9,7 @@
 | **[framework.md](framework.md)** | 游戏技术架构 — 项目概览、目录结构、模块职责、物理/渲染/相机系统 |
 | **[level.md](level.md)** | 关卡系统 — LevelManager 加载流程、levels.json 数据格式、轨道系统 (Orbit)、通关结算 |
 | **[bullet.md](bullet.md)** | 子弹系统 — 8 种类型详解、齐奥尔科夫斯基公式、特殊效果（分裂/引力/燃烧） |
+| **[cutscene.md](cutscene.md)** | 播片剧情系统 — 数据格式、界面布局、交互设计、CutsceneManager API |
 | **[story.md](story.md)** | 游戏故事 — 引力破晓的叙事文本 |
 | **[plot.md](plot.md)** | 剧情梗概 — 世界观设定、主线剧情大纲 |
 | **[style.md](style.md)** | 美术风格 — 配色方案、UI 设计规范、Canvas 渲染风格 |

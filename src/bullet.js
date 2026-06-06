@@ -202,7 +202,7 @@ export class Bullet {
   }
 
   updateOrbitPosition(dt) {
-    if (this.launched) return;
+    if (this.launched || !this._homeBody) return;
     this._orbitPhase += this._orbitOmega * dt;
     this._syncOrbitState();
   }

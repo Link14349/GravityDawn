@@ -2,7 +2,10 @@
  * 关卡设计器 — 数据模型 + 编辑器状态管理 + 导出/导入
  *
  * designerData 结构与 levels.json 一致，便于直接导出。
+ * 轨道坐标计算使用 binding.js 的 Orbit 类，与游戏逻辑完全一致。
  */
+
+import { Orbit, createOrbits } from '../src/binding.js';
 
 // ---- 默认空关卡 ----
 function makeDefaultData() {
@@ -49,14 +52,17 @@ export class DesignerData {
     if (type === 'elliptical') { def.rx = extra.rx ?? 200; def.ry = extra.ry ?? 120; def.period = extra.period ?? 20; def.phase = extra.phase ?? 0; }
     if (extra.parent != null) def.parent = extra.parent;
     this.data.orbits.push(def);
+    this._invalidateOrbitsCache();
     return this.data.orbits.length - 1;
   }
 
   updateOrbit(idx, props) {
     Object.assign(this.data.orbits[idx], props);
+    this._invalidateOrbitsCache();
   }
 
   removeOrbit(idx) {
+    this._invalidateOrbitsCache();
     // 移除引用该轨道的星体/行星/核心点
     this.data.stars = this.data.stars.filter(s => s.orbit !== idx);
     this.data.planets = this.data.planets.filter(p => p.orbit !== idx);
@@ -284,42 +290,39 @@ export class DesignerData {
   // 计算世界坐标（用于编辑模式渲染）
   // ========================
 
-  /** 获取轨道在 t=0 时的世界坐标（轨道上的点） */
+  /** 获取轨道在 t=0 时的世界坐标（轨道上的点），使用 binding.js Orbit 类 */
   getOrbitWorldPos(orbitIdx) {
-    const orb = this.data.orbits[orbitIdx];
-    if (!orb) return { x: 0, y: 0 };
-    return this._calcOrbitWorld(orb);
+    const orbits = this._buildOrbits();
+    const orb = orbits[orbitIdx];
+    return orb ? orb.getWorldPosition(0, orbits) : { x: 0, y: 0 };
   }
 
-  /** 获取轨道的圆心世界坐标（不含圆周运动，仅 x/y + parent） */
+  /** 获取轨道的圆心世界坐标（直接调 binding.js Orbit 的方法） */
   getOrbitCenterWorld(orbitIdx) {
-    const orb = this.data.orbits[orbitIdx];
-    if (!orb) return { x: 0, y: 0 };
-    let x = orb.x || 0, y = orb.y || 0;
-    if (orb.parent != null) {
-      const pw = this.getOrbitCenterWorld(orb.parent);
-      return { x: x + pw.x, y: y + pw.y };
-    }
-    return { x, y };
+    const orbits = this._buildOrbits();
+    const orb = orbits[orbitIdx];
+    return orb ? orb.getCenterWorld(0, orbits) : { x: 0, y: 0 };
   }
 
-  _calcOrbitWorld(orb, t = 0) {
-    let x = orb.x || 0, y = orb.y || 0;
-    if (orb.type === 'circular') {
-      const omega = (2 * Math.PI) / (orb.period || 20);
-      x += (orb.radius || 0) * Math.cos(omega * t + (orb.phase || 0));
-      y -= (orb.radius || 0) * Math.sin(omega * t + (orb.phase || 0)); // 屏幕Y朝下，取负使逆时针
-    } else if (orb.type === 'elliptical') {
-      const omega = (2 * Math.PI) / (orb.period || 20);
-      x += (orb.rx || 0) * Math.cos(omega * t + (orb.phase || 0));
-      y -= (orb.ry || 0) * Math.sin(omega * t + (orb.phase || 0));
-    }
-    // fixed: x, y 直接就是坐标
-    if (orb.parent != null) {
-      const pw = this._calcOrbitWorld(this.data.orbits[orb.parent], t);
-      return { x: x + pw.x, y: y + pw.y };
-    }
-    return { x, y };
+  /** 根据 data.orbits 构建 Orbit 实例数组（带缓存） */
+  _buildOrbits() {
+    if (this._orbitsCache) return this._orbitsCache;
+    this._orbitsCache = createOrbits(this.data.orbits);
+    return this._orbitsCache;
+  }
+
+  /** 标记 orbits 缓存失效（增删改 orbit 时调用） */
+  _invalidateOrbitsCache() {
+    this._orbitsCache = null;
+  }
+
+  /** 计算轨道世界坐标（使用 binding.js Orbit） */
+  _calcOrbitWorld(orbData, t = 0) {
+    const idx = this.data.orbits.indexOf(orbData);
+    if (idx < 0) return { x: 0, y: 0 };
+    const orbits = this._buildOrbits();
+    const o = orbits[idx];
+    return o ? o.getWorldPosition(t, orbits) : { x: 0, y: 0 };
   }
 
   /** 获取建筑核心的世界坐标（t=0） */
@@ -340,10 +343,7 @@ export class DesignerData {
         return this._calcOrbitWorld(this.data.orbits[body.orbit]);
       }
     }
-    // 取第一个质点的位置
-    if (bld.points.length > 0) {
-      return { x: bld.points[0].x || 0, y: bld.points[0].y || 0 };
-    }
+    // 无核心也无 bindToBody → 质点存的是绝对坐标，无需偏移
     return { x: 0, y: 0 };
   }
 

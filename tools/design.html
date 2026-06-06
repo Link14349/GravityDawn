@@ -169,9 +169,8 @@
       try {
         const levelData = dd.exportLevel();
         // 确保至少有一个 bullets 配置（如果为空，给一个默认子弹）
-        if (!levelData.bullets || levelData.bullets.length === 0) {
-          levelData.bullets = [{ type: 'normal' }];
-        }
+        // 没有子弹也行，纯看星体运动
+        if (!levelData.bullets) levelData.bullets = [];
 
         const loaded = LevelManager.load(levelData);
         const { stars, planets, allBodies, bullets, buildings, physics, orbits } = loaded;
@@ -208,28 +207,33 @@
         for (const b of bullets) b._trail = [];
 
         let running = true;
+        let lastTime = performance.now();
 
-        function testLoop() {
+        function testLoop(now) {
           if (!running) return;
+
+          const rawDt = (now - lastTime) / 1000;
+          lastTime = now;
+          const dt = Math.min(rawDt, 0.1); // 防止切tab后跳帧
 
           let frameHadEvent = false;
 
           if (!ctrl.shouldPause()) {
-            physicsTime += 1 / 60;
+            physicsTime += dt;
             for (let i = 0; i < allBodies.length; i++) {
               const b = allBodies[i];
-              b.update(1 / 60);
+              b.update(dt);
               physics.updateSourcePosition(i, b.getPosition().x, b.getPosition().y);
             }
             for (const bld of buildings) {
-              const bResult = bld.step(1 / 60, physics, allBodies);
+              const bResult = bld.step(dt, physics, allBodies);
               if (bResult.explosions.length > 0) frameHadEvent = true;
               for (const ex of bResult.explosions) explosions.push({ x: ex.x, y: ex.y, r: 0, maxR: ex.radius || 40 });
             }
             Building.checkCrossCollisions(buildings, explosions);
             for (const b of bullets) {
               if (!b.alive) continue;
-              if (!b.launched) { b.updateOrbitPosition(1 / 60); }
+              if (!b.launched) { b.updateOrbitPosition(dt); }
               else {
                 const col = physics.stepParticle(b, undefined, BULLET_R);
                 b._trail.push({ x: b.x, y: b.y, life: 1.0 });
@@ -312,7 +316,7 @@
                 tempGravityWells.splice(i, 1);
               }
             }
-            for (const ex of explosions) ex.r += 4;
+            for (const ex of explosions) ex.r += 240 * dt;
           }
 
           const userInteracting = ctrl.state === 'aiming' || ctrl.dragging;
@@ -328,7 +332,7 @@
           if (!settling) {
             if (condA || condB) { settling = true; settleTimer = 0; }
           } else {
-            settleTimer += 1 / 60;
+            settleTimer += dt;
             if (frameHadEvent) { settling = false; settleTimer = 0; }
             if (condB && (userInteracting || frameHadEvent)) { settling = false; settleTimer = 0; }
             if (settleTimer >= SETTLE_DURATION) {
