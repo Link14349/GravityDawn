@@ -1,0 +1,782 @@
+{
+  "name": "轨道轰炸",
+  "gravity": 300,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 0.75
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 2.6040157037351785,
+      "y": 1.072349170639999
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "orbit": 0,
+      "mass": 1500,
+      "radius": 45,
+      "collisionRadius": 40,
+      "color": "#66aaff",
+      "label": "行星"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "kinetic",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 94,
+        "phase": -0.26943169580917103
+      }
+    },
+    {
+      "type": "normal",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 101,
+        "phase": 0.2564499769005939
+      }
+    },
+    {
+      "type": "kinetic",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 110,
+        "phase": -2.5213005054900934
+      }
+    },
+    {
+      "type": "explosive",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 96,
+        "phase": -1.055920587952538
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "x": 18.363445173272165,
+          "y": -43.212193170677764,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 37.310813594324785,
+          "y": -31.21219317067777,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 20.99502412064058,
+          "y": -58.41219317067777,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 41.99502412064058,
+          "y": -48.01219317067776,
+          "mass": 10,
+          "radius": 5,
+          "score": 30,
+          "color": "#ff9966",
+          "explosionRadius": 15,
+          "explosionImpulse": 600
+        },
+        {
+          "x": 6.79502412064058,
+          "y": -45.61219317067777,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 46.795024120640576,
+          "y": -15.412193170677766,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 53.59502412064058,
+          "y": -36.61219317067777,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 9.395024120640581,
+          "y": -60.01219317067776,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -10.604975879359419,
+          "y": -45.41219317067777,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -1.6049758793594187,
+          "y": -59.81219317067776,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -0.8626289963475777,
+          "y": -74.74200647138153,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -17.599901385793885,
+          "y": -69.10841301170112,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 40.51975673386424,
+          "y": -65.6896095928977,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 60.81890203300954,
+          "y": -53.510122413410514,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 49.921466135573645,
+          "y": -79.7921736954618,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 16.226417488263184,
+          "y": -71.56760431561825,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        },
+        {
+          "x": 50.80198684644124,
+          "y": 2.46966276512709,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 61.27817732263172,
+          "y": -18.95890866344434,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 65.08770113215553,
+          "y": -41.33986104439673,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -31.814367205677527,
+          "y": -30.85248241142542,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -27.084637475947794,
+          "y": -52.92455448349749,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -2.0151124064227357,
+          "y": -89.22909078803382,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 16.666206274895952,
+          "y": -89.50381606275909,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        },
+        {
+          "x": 29.02884363753332,
+          "y": -78.78953034847336,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        },
+        {
+          "x": 33.424448033137715,
+          "y": -93.62469518363821,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        },
+        {
+          "x": 5.6771952858849595,
+          "y": -100.49282705177008,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 16.1167557254454,
+          "y": -108.18513474407777,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 28.479393088082773,
+          "y": -108.45986001880304,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 43.58928319797289,
+          "y": -105.43788199682503,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 50.73214034083003,
+          "y": -89.77854133748436,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 2,
+          "b": 0,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 3,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 4,
+          "b": 7,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 7,
+          "b": 2,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 2,
+          "b": 4,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 4,
+          "b": 0,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 3,
+          "b": 6,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 6,
+          "b": 1,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 5,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 5,
+          "b": 6,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 9,
+          "b": 7,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 9,
+          "b": 8,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 8,
+          "b": 4,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 9,
+          "b": 4,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 11,
+          "b": 10,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 9,
+          "b": 11,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 10,
+          "b": 9,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 9,
+          "b": 9,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 11,
+          "b": 8,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 10,
+          "b": 7,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 12,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 2,
+          "b": 12,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 14,
+          "b": 13,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 3,
+          "b": 13,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 13,
+          "b": 6,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 14,
+          "b": 12,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 12,
+          "b": 13,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 5,
+          "b": 16,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 5,
+          "b": 17,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 17,
+          "b": 16,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 6,
+          "b": 17,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 17,
+          "b": 18,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 6,
+          "b": 18,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 18,
+          "b": 13,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 11,
+          "b": 20,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 20,
+          "b": 8,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 8,
+          "b": 19,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 19,
+          "b": 20,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 11,
+          "b": 21,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 21,
+          "b": 10,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 21,
+          "b": 25,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 25,
+          "b": 26,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 26,
+          "b": 27,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 27,
+          "b": 28,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 28,
+          "b": 29,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 29,
+          "b": 14,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 25,
+          "b": 10,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 28,
+          "b": 14,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 28,
+          "b": 12,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 8000
+        },
+        {
+          "a": 19,
+          "b": 16,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 5,
+          "b": 8,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 4,
+          "b": 1,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        }
+      ]
+    }
+  ],
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100
+  }
+}
