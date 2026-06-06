@@ -384,7 +384,14 @@ export class DesignerData {
 
   /** 导出为 levels.json 格式（单关卡对象） */
   exportLevel() {
-    // 深拷贝 + 清理内部字段
+    // 自动对准第一个星体，都没有则 (0,0)
+    const bodies = [...this.data.stars, ...this.data.planets];
+    if (bodies.length > 0) {
+      const pos = this._calcOrbitWorld(this.data.orbits[bodies[0].orbit]);
+      this.data.camera = { x: pos.x, y: pos.y, zoom: this.data.camera?.zoom ?? 0.75 };
+    } else {
+      this.data.camera = { x: 0, y: 0, zoom: this.data.camera?.zoom ?? 0.75 };
+    }
     return JSON.parse(JSON.stringify(this.data));
   }
 

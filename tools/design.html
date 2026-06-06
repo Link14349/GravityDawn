@@ -137,10 +137,10 @@
 
     // ---- 模式切换 ----
     function enterTestMode() {
-      // 保存当前编辑器相机状态
       const savedCam = { x: editor.camX, y: editor.camY, zoom: editor.zoom };
       stopEditLoop();
       mode = 'test';
+      editor._disabled = true;
       testBar.classList.add('show');
       editor._toast = null;
 
@@ -160,6 +160,7 @@
         testRuntime = null;
       }
       mode = 'edit';
+      editor._disabled = false;
       testBar.classList.remove('show');
       if (testAnimId) { cancelAnimationFrame(testAnimId); testAnimId = null; }
       startEditLoop();

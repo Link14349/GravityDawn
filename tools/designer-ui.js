@@ -68,6 +68,7 @@ export class EditModeUI {
     this.snapToGrid = false;
     this._lastRightPos = null; this._lastRightSel = null;
     this._toast = null; this._toastTimer = 0;
+    this._disabled = false; // 测试模式时禁用编辑交互
     this._stars = this._genStars(150);
 
     this._propInputs = [];
@@ -559,7 +560,7 @@ export class EditModeUI {
       }
       case 'point': {
         const pt = dd.buildings[sel.bldIdx]?.points[sel.ptIdx]; if (!pt) return [];
-        const props = [{ key: 'mass', label: '质量', value: pt.mass }, { key: 'score', label: '分数', value: pt.score }, { key: 'important', label: '重要', value: pt.important ? '是' : '否' }];
+        const props = [{ key: 'mass', label: '质量', value: pt.mass }, { key: 'score', label: '分数', value: pt.score }, { key: 'important', label: '重要', value: pt.important ? '是' : '否', options: [{ label: '是', value: true }, { label: '否', value: false }] }];
         if (pt.isCore) { props.push({ key: 'orbit', label: '轨道', value: pt.orbit, options: this._orbitOptions() }); }
         if (pt.isEnemy) { props.push({ key: 'hp', label: 'HP', value: pt.hp }); }
         return props;
@@ -626,6 +627,7 @@ export class EditModeUI {
   }
 
   _onMove(e) {
+    if (this._disabled) return;
     const rect = this.canvas.getBoundingClientRect();
     this.mx = e.clientX - rect.left; this.my = e.clientY - rect.top;
     if (this._panning) { const dx = this.mx - this._panSX, dy = this.my - this._panSY; if (Math.abs(dx) > 3 || Math.abs(dy) > 3) this._rightPanMoved = true; this.camX = this._panCX - dx / this.zoom; this.camY = this._panCY - dy / this.zoom; return; }
@@ -633,6 +635,7 @@ export class EditModeUI {
   }
 
   _onDown(e) {
+    if (this._disabled) return;
     const rect = this.canvas.getBoundingClientRect();
     const sx = e.clientX - rect.left, sy = e.clientY - rect.top, wp = this.screenToWorld(sx, sy);
     if (e.button === 2) { if (sy < 46 || (sx > this.w - 220 && sy > 46)) return; this._panning = true; this._panSX = sx; this._panSY = sy; this._panCX = this.camX; this._panCY = this.camY; this._rightPanMoved = false; return; }

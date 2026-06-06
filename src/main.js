@@ -16,19 +16,18 @@ import { saveLevel, getAllBest } from './storage.js';
 // ============================================================
   async function loadChapters() {
     // 1. 总索引: data/levels/index.json → ["ch1", "ch2", ...]
-    const idxResp = await fetch('data/levels/index.json');
+    const _v = Date.now();
+    const idxResp = await fetch(`data/levels/index.json?v=${_v}`);
     const chDirs = await idxResp.json();
 
     const chapters = [];
     for (const chDir of chDirs) {
-      // 2. 章节索引: data/levels/ch1/index.json → { name, levels: ["lv1", ...] }
-      const chIdxResp = await fetch(`data/levels/${chDir}/index.json`);
+      const chIdxResp = await fetch(`data/levels/${chDir}/index.json?v=${_v}`);
       const chIdx = await chIdxResp.json();
 
       const levels = [];
       for (const lvFile of chIdx.levels) {
-        // 3. 关卡数据: data/levels/ch1/lv1.json
-        const lvResp = await fetch(`data/levels/${chDir}/${lvFile}.json`);
+        const lvResp = await fetch(`data/levels/${chDir}/${lvFile}.json?v=${_v}`);
         const lvData = await lvResp.json();
         levels.push(lvData);
       }
