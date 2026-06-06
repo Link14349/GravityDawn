@@ -303,7 +303,7 @@ export class DesignerData {
   getOrbitCenterWorld(orbitIdx) {
     const orbits = this._buildOrbits();
     const orb = orbits[orbitIdx];
-    return orb ? orb.getCenterWorld(0, orbits) : { x: 0, y: 0 };
+    return orb ? orb.getCenterWorld(orbits) : { x: 0, y: 0 };
   }
 
   /** 根据 data.orbits 构建 Orbit 实例数组（带缓存） */
@@ -401,6 +401,7 @@ export class DesignerData {
     this.data.camera = this.data.camera || { x: 600, y: 400, zoom: 0.75 };
     this.data.gravity = this.data.gravity ?? 300;
     this.data.name = this.data.name || '导入关卡';
+    this._invalidateOrbitsCache();
     this.clearSelection();
   }
 
@@ -412,6 +413,7 @@ export class DesignerData {
   /** 创建新关卡（重置所有数据） */
   newLevel() {
     this.data = makeDefaultData();
+    this._invalidateOrbitsCache();
     this.clearSelection();
   }
 }

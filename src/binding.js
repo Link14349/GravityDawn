@@ -68,13 +68,12 @@ export class Orbit {
     return { x: pw.x + local.x, y: pw.y + local.y };
   }
 
-  /** 轨道圆心世界坐标（仅 x/y 偏移 + parent 链，不含圆周/椭圆运动） */
-  getCenterWorld(t, orbits) {
+  /** 轨道圆心世界坐标（仅 x/y 偏移 + parent 圆心链，不含圆周/椭圆运动） */
+  getCenterWorld(orbits) {
     let x = this._x, y = this._y;
     if (this.parent != null) {
-      const pw = orbits[this.parent].getCenterWorld(t, orbits);
-      const offset = orbits[this.parent].getLocalPosition(t);
-      return { x: x + offset.x + pw.x, y: y + offset.y + pw.y };
+      const pw = orbits[this.parent].getWorldPosition(0, orbits);
+      return { x: x + pw.x, y: y + pw.y };
     }
     return { x, y };
   }
