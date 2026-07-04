@@ -1,0 +1,73 @@
+{
+  "name": "补给链断绝",
+  "gravity": 300,
+  "camera": { "x": 250, "y": 50, "zoom": 0.55 },
+  "orbits": [
+    { "type": "fixed", "x": 0, "y": 0 },
+    { "type": "fixed", "x": 500, "y": -180 },
+    { "type": "fixed", "x": 0, "y": -40, "parent": 1 },
+    { "type": "fixed", "x": 560, "y": 60 },
+    { "type": "fixed", "x": 0, "y": -40, "parent": 3 },
+    { "type": "fixed", "x": 440, "y": 300 },
+    { "type": "fixed", "x": 0, "y": -40, "parent": 5 }
+  ],
+  "stars": [
+    { "mass": 6500, "radius": 46, "collisionRadius": 41, "color": "#ffbb33", "label": "恒星", "orbit": 0 }
+  ],
+  "planets": [
+    { "mass": 300, "radius": 14, "collisionRadius": 12, "color": "#997755", "label": "补给点甲", "orbit": 1 },
+    { "mass": 300, "radius": 14, "collisionRadius": 12, "color": "#997755", "label": "补给点乙", "orbit": 3 },
+    { "mass": 300, "radius": 14, "collisionRadius": 12, "color": "#997755", "label": "补给点丙", "orbit": 5 }
+  ],
+  "bullets": [
+    { "type": "cluster", "orbitAround": { "bodyIndex": 0, "altitude": 85, "phase": 0 } },
+    { "type": "cluster", "orbitAround": { "bodyIndex": 0, "altitude": 130, "phase": 2.094 } },
+    { "type": "gravity", "orbitAround": { "bodyIndex": 0, "altitude": 175, "phase": 4.189 } },
+    { "type": "normal", "orbitAround": { "bodyIndex": 0, "altitude": 220, "phase": 1.047 } }
+  ],
+  "buildings": [
+    {
+      "points": [
+        { "mass": 140, "radius": 8, "score": 300, "important": true, "isCore": true, "orbit": 2, "color": "#ffdd44", "explosionRadius": 40, "explosionImpulse": 1800 },
+        { "x": -18, "y": 20, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 18, "y": 20, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 0, "y": 34, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 }
+      ],
+      "springs": [
+        { "a": 0, "b": 1, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 0, "b": 2, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 1, "b": 3, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 2, "b": 3, "stiffness": 1800, "damping": 15, "breakTension": 3000 }
+      ]
+    },
+    {
+      "points": [
+        { "mass": 140, "radius": 8, "score": 300, "important": true, "isCore": true, "orbit": 4, "color": "#ffdd44", "explosionRadius": 40, "explosionImpulse": 1800 },
+        { "x": -18, "y": 20, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 18, "y": 20, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 0, "y": 34, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 }
+      ],
+      "springs": [
+        { "a": 0, "b": 1, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 0, "b": 2, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 1, "b": 3, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 2, "b": 3, "stiffness": 1800, "damping": 15, "breakTension": 3000 }
+      ]
+    },
+    {
+      "points": [
+        { "mass": 140, "radius": 8, "score": 300, "important": true, "isCore": true, "orbit": 6, "color": "#ffdd44", "explosionRadius": 40, "explosionImpulse": 1800 },
+        { "x": -18, "y": 20, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 18, "y": 20, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 0, "y": 34, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 }
+      ],
+      "springs": [
+        { "a": 0, "b": 1, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 0, "b": 2, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 1, "b": 3, "stiffness": 1800, "damping": 15, "breakTension": 3000 },
+        { "a": 2, "b": 3, "stiffness": 1800, "damping": 15, "breakTension": 3000 }
+      ]
+    }
+  ],
+  "winCondition": { "destructionThreshold": 0.3, "importantTargetsAll": true, "minScore": 500 }
+}

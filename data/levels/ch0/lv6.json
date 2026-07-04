@@ -1,0 +1,399 @@
+{
+  "name": "特种武器 · 战术课",
+  "gravity": 300,
+  "camera": {
+    "x": 400,
+    "y": 60,
+    "zoom": 0.55
+  },
+  "cutscene": {
+    "assets": {
+      "backgrounds": {
+        "bridge": "bridge"
+      },
+      "characters": {
+        "commander": "commander",
+        "peach": "peach"
+      }
+    },
+    "scenes": [
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": null,
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "常规弹药你已经玩得很熟了。今天开放军械库最后一排——特种武器。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": "peach:standing",
+        "dialogue": {
+          "speaker": "桃子",
+          "text": "分裂弹撞击后炸成三颗小弹，对付摊开的补给堆场最合适。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": null,
+        "right": "peach:thinking",
+        "dialogue": {
+          "speaker": "桃子",
+          "text": "燃烧弹不靠爆炸——它灼烧弹簧，持续降低断裂阈值。再硬的桁架，烧一会儿就自己散了。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": "peach:confident",
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "还有引力弹：撞击点生成三秒引力阱，能把别的子弹轨道弯过来。北面的堆场、南面的装甲塔，各个击破。"
+        }
+      }
+    ]
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "type": "fixed",
+      "x": 720,
+      "y": -180
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -110,
+      "parent": 1
+    },
+    {
+      "type": "fixed",
+      "x": 760,
+      "y": 330
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -108,
+      "parent": 3
+    }
+  ],
+  "stars": [
+    {
+      "mass": 6000,
+      "radius": 45,
+      "collisionRadius": 40,
+      "color": "#ffbb33",
+      "label": "恒星",
+      "orbit": 0
+    }
+  ],
+  "planets": [
+    {
+      "mass": 1000,
+      "radius": 40,
+      "collisionRadius": 36,
+      "color": "#88bb77",
+      "label": "堆场行星",
+      "orbit": 1
+    },
+    {
+      "mass": 900,
+      "radius": 38,
+      "collisionRadius": 34,
+      "color": "#aa7788",
+      "label": "装甲行星",
+      "orbit": 3
+    }
+  ],
+  "bullets": [
+    {
+      "type": "cluster",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 80,
+        "phase": 0
+      }
+    },
+    {
+      "type": "incendiary",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 125,
+        "phase": 1.571
+      }
+    },
+    {
+      "type": "gravity",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 170,
+        "phase": 3.142
+      }
+    },
+    {
+      "type": "normal",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 215,
+        "phase": 4.712
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "mass": 160,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 2,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 1800
+        },
+        {
+          "x": -52,
+          "y": 30,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -26,
+          "y": 42,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 48,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 26,
+          "y": 42,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 52,
+          "y": 30,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        },
+        {
+          "a": 0,
+          "b": 4,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        },
+        {
+          "a": 0,
+          "b": 5,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        },
+        {
+          "a": 4,
+          "b": 5,
+          "stiffness": 1600,
+          "damping": 15,
+          "breakTension": 3200
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "mass": 200,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 4,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 1800
+        },
+        {
+          "x": -20,
+          "y": 26,
+          "mass": 12,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 20,
+          "y": 26,
+          "mass": 12,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -20,
+          "y": 56,
+          "mass": 12,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 20,
+          "y": 56,
+          "mass": 12,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 40,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 6000
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 6000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 6000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 6000
+        },
+        {
+          "a": 2,
+          "b": 4,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 6000
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 6000
+        }
+      ]
+    }
+  ],
+  "winCondition": {
+    "destructionThreshold": 0.25,
+    "importantTargetsAll": true,
+    "minScore": 300
+  }
+}

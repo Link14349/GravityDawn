@@ -1,0 +1,248 @@
+{
+  "name": "引力弹弓 · 借力飞行",
+  "gravity": 300,
+  "camera": {
+    "x": 480,
+    "y": 0,
+    "zoom": 0.52
+  },
+  "cutscene": {
+    "assets": {
+      "backgrounds": {
+        "bridge": "bridge"
+      },
+      "characters": {
+        "commander": "commander",
+        "peach": "peach"
+      }
+    },
+    "scenes": [
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": null,
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "今天的课程是所有星际炮手的分水岭——引力弹弓。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": "peach:thinking",
+        "dialogue": {
+          "speaker": "桃子",
+          "text": "目标太远了，普通弹的 ΔV 根本飞不到吧？"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": "peach:thinking",
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "所以要借力。看到中途那颗气态巨行星了吗？从它身后掠过，它的引力会把子弹甩出去。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": null,
+        "right": "peach:confident",
+        "dialogue": {
+          "speaker": "桃子",
+          "text": "原来如此——沿它公转的方向贴身绕过，就能白拿一段速度！机动弹点火次数多，先拿它练手。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": "peach:confident",
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "记住：瞄准巨行星的侧后方，而不是目标本身。轨道会带你去终点。"
+        }
+      }
+    ]
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "type": "circular",
+      "radius": 380,
+      "period": 38,
+      "parent": 0
+    },
+    {
+      "type": "fixed",
+      "x": 1060,
+      "y": 0
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -128,
+      "parent": 2
+    }
+  ],
+  "stars": [
+    {
+      "mass": 5000,
+      "radius": 40,
+      "collisionRadius": 36,
+      "color": "#ffbb33",
+      "label": "母星",
+      "orbit": 0
+    }
+  ],
+  "planets": [
+    {
+      "mass": 3000,
+      "radius": 52,
+      "collisionRadius": 48,
+      "color": "#cc8855",
+      "label": "气态巨行星",
+      "orbit": 1
+    },
+    {
+      "mass": 1300,
+      "radius": 44,
+      "collisionRadius": 40,
+      "color": "#66aaff",
+      "label": "遥远目标",
+      "orbit": 2
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 80,
+        "phase": 0
+      }
+    },
+    {
+      "type": "agile",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 130,
+        "phase": 2.094
+      }
+    },
+    {
+      "type": "normal",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 180,
+        "phase": 4.189
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "mass": 180,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 3,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 2000
+        },
+        {
+          "x": -30,
+          "y": 34,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 30,
+          "y": 34,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 56,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 20,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        }
+      ]
+    }
+  ],
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200
+  }
+}

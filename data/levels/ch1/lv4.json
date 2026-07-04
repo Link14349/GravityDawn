@@ -1,0 +1,304 @@
+{
+  "name": "月面基地",
+  "gravity": 300,
+  "camera": {
+    "x": 100,
+    "y": 0,
+    "zoom": 0.55
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "type": "circular",
+      "radius": 400,
+      "period": 37.5,
+      "parent": 0
+    },
+    {
+      "type": "circular",
+      "radius": 130,
+      "period": 12.7,
+      "parent": 1
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -62,
+      "parent": 2
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -116,
+      "parent": 1
+    }
+  ],
+  "stars": [
+    {
+      "mass": 6000,
+      "radius": 45,
+      "collisionRadius": 40,
+      "color": "#ffbb33",
+      "label": "恒星",
+      "orbit": 0
+    }
+  ],
+  "planets": [
+    {
+      "mass": 1800,
+      "radius": 48,
+      "collisionRadius": 44,
+      "color": "#66aaff",
+      "label": "母行星",
+      "orbit": 1
+    },
+    {
+      "mass": 400,
+      "radius": 18,
+      "collisionRadius": 15,
+      "color": "#ccccdd",
+      "label": "卫星",
+      "orbit": 2
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 85,
+        "phase": 0
+      }
+    },
+    {
+      "type": "agile",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 130,
+        "phase": 2.094
+      }
+    },
+    {
+      "type": "normal",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 175,
+        "phase": 4.189
+      }
+    },
+    {
+      "type": "explosive",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 220,
+        "phase": 1.047
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "mass": 150,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 3,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 1800
+        },
+        {
+          "x": -20,
+          "y": 22,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 20,
+          "y": 22,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 38,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 16,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 4,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 2,
+          "b": 4,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "mass": 180,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 4,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 1800
+        },
+        {
+          "x": -24,
+          "y": 28,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 24,
+          "y": 28,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 46,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 30,
+          "y": 45,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        }
+      ]
+    }
+  ],
+  "winCondition": {
+    "destructionThreshold": 0.25,
+    "importantTargetsAll": true,
+    "minScore": 400
+  }
+}

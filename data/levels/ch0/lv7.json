@@ -1,0 +1,408 @@
+{
+  "name": "结业考核 · 综合测试",
+  "gravity": 300,
+  "camera": {
+    "x": 380,
+    "y": 80,
+    "zoom": 0.55
+  },
+  "cutscene": {
+    "assets": {
+      "backgrounds": {
+        "bridge": "bridge",
+        "outpost": "outpost"
+      },
+      "characters": {
+        "commander": "commander",
+        "peach": "peach"
+      }
+    },
+    "scenes": [
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": null,
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "训练到此为止。接下来是结业考核——没有新知识，只有你学过的一切。"
+        }
+      },
+      {
+        "bg": "outpost",
+        "left": null,
+        "right": "peach:standing",
+        "dialogue": {
+          "speaker": "桃子",
+          "text": "两处目标：一座绕行星运动的哨站，一座固定的要塞，里面驻扎着敌人。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": "peach:confident",
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "弹药随你选：普通、动能、爆炸、机动。摧毁全部重要目标，你就毕业了。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": null,
+        "right": "peach:confident",
+        "dialogue": {
+          "speaker": "桃子",
+          "text": "放轻松——想想每种弹该打什么，先打谁后打谁。祝你好运，学员。"
+        }
+      }
+    ]
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "type": "circular",
+      "radius": 330,
+      "period": 28,
+      "parent": 0
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -105,
+      "parent": 1
+    },
+    {
+      "type": "fixed",
+      "x": 860,
+      "y": 260
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -122,
+      "parent": 3
+    }
+  ],
+  "stars": [
+    {
+      "mass": 6000,
+      "radius": 45,
+      "collisionRadius": 40,
+      "color": "#ffbb33",
+      "label": "恒星",
+      "orbit": 0
+    }
+  ],
+  "planets": [
+    {
+      "mass": 1200,
+      "radius": 40,
+      "collisionRadius": 36,
+      "color": "#66aaff",
+      "label": "巡逻行星",
+      "orbit": 1
+    },
+    {
+      "mass": 1400,
+      "radius": 45,
+      "collisionRadius": 41,
+      "color": "#bb6666",
+      "label": "要塞行星",
+      "orbit": 3
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 80,
+        "phase": 0
+      }
+    },
+    {
+      "type": "kinetic",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 125,
+        "phase": 1.571
+      }
+    },
+    {
+      "type": "explosive",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 170,
+        "phase": 3.142
+      }
+    },
+    {
+      "type": "agile",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 215,
+        "phase": 4.712
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "mass": 160,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 2,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 1800
+        },
+        {
+          "x": -24,
+          "y": 30,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 24,
+          "y": 30,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 50,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 17,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 1,
+          "b": 4,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        },
+        {
+          "a": 2,
+          "b": 4,
+          "stiffness": 2000,
+          "damping": 15,
+          "breakTension": 4000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "mass": 200,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 4,
+          "color": "#ffdd44",
+          "explosionRadius": 50,
+          "explosionImpulse": 2200
+        },
+        {
+          "x": -36,
+          "y": 28,
+          "mass": 10,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 36,
+          "y": 28,
+          "mass": 10,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -36,
+          "y": 58,
+          "mass": 10,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 36,
+          "y": 58,
+          "mass": 10,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 66,
+          "mass": 10,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -14,
+          "y": 40,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        },
+        {
+          "x": 16,
+          "y": 44,
+          "isEnemy": true,
+          "hp": 150,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 200,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 2200,
+          "damping": 15,
+          "breakTension": 4500
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 2200,
+          "damping": 15,
+          "breakTension": 4500
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 2200,
+          "damping": 15,
+          "breakTension": 4500
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2200,
+          "damping": 15,
+          "breakTension": 4500
+        },
+        {
+          "a": 2,
+          "b": 4,
+          "stiffness": 2200,
+          "damping": 15,
+          "breakTension": 4500
+        },
+        {
+          "a": 3,
+          "b": 5,
+          "stiffness": 2200,
+          "damping": 15,
+          "breakTension": 4500
+        },
+        {
+          "a": 4,
+          "b": 5,
+          "stiffness": 2200,
+          "damping": 15,
+          "breakTension": 4500
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "stiffness": 2200,
+          "damping": 15,
+          "breakTension": 4500
+        }
+      ]
+    }
+  ],
+  "winCondition": {
+    "destructionThreshold": 0.3,
+    "importantTargetsAll": true,
+    "minScore": 500
+  }
+}

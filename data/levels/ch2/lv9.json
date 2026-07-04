@@ -1,0 +1,70 @@
+{
+  "name": "雷蒙的旗舰",
+  "gravity": 250,
+  "camera": { "x": 0, "y": 0, "zoom": 0.48 },
+  "orbits": [
+    { "type": "fixed", "x": 0, "y": 0 },
+    { "type": "circular", "radius": 500, "period": 49.7, "parent": 0 },
+    { "type": "circular", "radius": 320, "period": 25.4, "parent": 0, "phase": 1.571 }
+  ],
+  "stars": [
+    { "mass": 8000, "radius": 50, "collisionRadius": 45, "color": "#ffbb33", "label": "决战星域", "orbit": 0 }
+  ],
+  "planets": [],
+  "bullets": [
+    { "type": "agile", "orbitAround": { "bodyIndex": 0, "altitude": 90, "phase": 0 } },
+    { "type": "agile", "orbitAround": { "bodyIndex": 0, "altitude": 135, "phase": 1.047 } },
+    { "type": "kinetic", "orbitAround": { "bodyIndex": 0, "altitude": 180, "phase": 2.094 } },
+    { "type": "explosive", "orbitAround": { "bodyIndex": 0, "altitude": 225, "phase": 3.142 } },
+    { "type": "gravity", "orbitAround": { "bodyIndex": 0, "altitude": 270, "phase": 4.189 } },
+    { "type": "incendiary", "orbitAround": { "bodyIndex": 0, "altitude": 315, "phase": 5.236 } }
+  ],
+  "buildings": [
+    {
+      "points": [
+        { "mass": 260, "radius": 9, "score": 400, "important": true, "isCore": true, "orbit": 1, "color": "#ffdd44", "explosionRadius": 60, "explosionImpulse": 2600 },
+        { "x": -120, "y": 10, "mass": 16, "radius": 6, "score": 30, "color": "#8899aa", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": -70, "y": -10, "mass": 16, "radius": 6, "score": 30, "color": "#8899aa", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": -70, "y": 30, "mass": 16, "radius": 6, "score": 30, "color": "#8899aa", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 0, "y": 36, "mass": 16, "radius": 6, "score": 30, "color": "#8899aa", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 70, "y": -10, "mass": 16, "radius": 6, "score": 30, "color": "#8899aa", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 70, "y": 30, "mass": 16, "radius": 6, "score": 30, "color": "#8899aa", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 120, "y": 10, "mass": 16, "radius": 6, "score": 30, "color": "#8899aa", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 0, "y": -20, "mass": 16, "radius": 6, "score": 30, "color": "#8899aa", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": -35, "y": 10, "isEnemy": true, "hp": 220, "mass": 12, "radius": 7, "renderRadius": 8, "score": 300, "important": true, "color": "#44ff44", "explosionRadius": 30, "explosionImpulse": 2000 },
+        { "x": 35, "y": 10, "isEnemy": true, "hp": 220, "mass": 12, "radius": 7, "renderRadius": 8, "score": 300, "important": true, "color": "#44ff44", "explosionRadius": 30, "explosionImpulse": 2000 },
+        { "x": 0, "y": 18, "isEnemy": true, "hp": 220, "mass": 12, "radius": 7, "renderRadius": 8, "score": 300, "important": true, "color": "#44ff44", "explosionRadius": 30, "explosionImpulse": 2000 }
+      ],
+      "springs": [
+        { "a": 1, "b": 2, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 1, "b": 3, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 2, "b": 3, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 2, "b": 8, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 3, "b": 4, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 8, "b": 5, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 4, "b": 6, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 5, "b": 6, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 5, "b": 7, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 6, "b": 7, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 0, "b": 2, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 0, "b": 5, "stiffness": 2800, "damping": 18, "breakTension": 6000 },
+        { "a": 0, "b": 8, "stiffness": 2800, "damping": 18, "breakTension": 6000 }
+      ]
+    },
+    {
+      "points": [
+        { "mass": 150, "radius": 8, "score": 300, "important": true, "isCore": true, "orbit": 2, "color": "#ffdd44", "explosionRadius": 40, "explosionImpulse": 1800 },
+        { "x": -18, "y": 18, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 18, "y": 18, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 },
+        { "x": 0, "y": 32, "mass": 8, "radius": 5, "score": 20, "color": "#cccccc", "explosionRadius": 10, "explosionImpulse": 500 }
+      ],
+      "springs": [
+        { "a": 0, "b": 1, "stiffness": 2000, "damping": 15, "breakTension": 4000 },
+        { "a": 0, "b": 2, "stiffness": 2000, "damping": 15, "breakTension": 4000 },
+        { "a": 1, "b": 3, "stiffness": 2000, "damping": 15, "breakTension": 4000 },
+        { "a": 2, "b": 3, "stiffness": 2000, "damping": 15, "breakTension": 4000 }
+      ]
+    }
+  ],
+  "winCondition": { "destructionThreshold": 0.35, "importantTargetsAll": true, "minScore": 1000 }
+}

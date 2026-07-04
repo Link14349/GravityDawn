@@ -1,0 +1,263 @@
+{
+  "name": "熔断行动",
+  "gravity": 300,
+  "camera": {
+    "x": 380,
+    "y": 0,
+    "zoom": 0.6
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "type": "fixed",
+      "x": 780,
+      "y": 80
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -135,
+      "parent": 1
+    }
+  ],
+  "stars": [
+    {
+      "mass": 6000,
+      "radius": 45,
+      "collisionRadius": 40,
+      "color": "#ffbb33",
+      "label": "恒星",
+      "orbit": 0
+    }
+  ],
+  "planets": [
+    {
+      "mass": 1600,
+      "radius": 50,
+      "collisionRadius": 46,
+      "color": "#bb6666",
+      "label": "工业行星",
+      "orbit": 1
+    }
+  ],
+  "bullets": [
+    {
+      "type": "incendiary",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 85,
+        "phase": 0
+      }
+    },
+    {
+      "type": "incendiary",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 130,
+        "phase": 2.094
+      }
+    },
+    {
+      "type": "kinetic",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 175,
+        "phase": 4.189
+      }
+    },
+    {
+      "type": "normal",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 220,
+        "phase": 1.047
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "mass": 200,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 2,
+          "color": "#ffdd44",
+          "explosionRadius": 50,
+          "explosionImpulse": 2200
+        },
+        {
+          "x": -26,
+          "y": 24,
+          "mass": 14,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 26,
+          "y": 24,
+          "mass": 14,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -26,
+          "y": 56,
+          "mass": 14,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 26,
+          "y": 56,
+          "mass": 14,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": -26,
+          "y": 88,
+          "mass": 14,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 26,
+          "y": 88,
+          "mass": 14,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 56,
+          "isEnemy": true,
+          "hp": 200,
+          "mass": 12,
+          "radius": 7,
+          "renderRadius": 8,
+          "score": 250,
+          "important": true,
+          "color": "#44ff44",
+          "explosionRadius": 30,
+          "explosionImpulse": 2000
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 2,
+          "b": 4,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 1,
+          "b": 4,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 3,
+          "b": 5,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 4,
+          "b": 6,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 5,
+          "b": 6,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 3,
+          "b": 6,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        },
+        {
+          "a": 4,
+          "b": 5,
+          "stiffness": 2600,
+          "damping": 18,
+          "breakTension": 5500
+        }
+      ]
+    }
+  ],
+  "winCondition": {
+    "destructionThreshold": 0.3,
+    "importantTargetsAll": true,
+    "minScore": 400
+  }
+}
