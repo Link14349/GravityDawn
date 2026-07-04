@@ -359,11 +359,14 @@ export function initGame() {
     const condB = importantAllDead;
 
     if (!settling) {
-      if (condA || condB) { settling = true; settleTimer = 0; }
+      if ((condA || condB) && !userInteracting && !ctrl.shouldPause()) { settling = true; settleTimer = 0; }
     } else {
-      settleTimer += 1 / 60;
+      // 暂停或用户操作时不计时
+      if (!ctrl.shouldPause() && !userInteracting) {
+        settleTimer += 1 / 60;
+      }
       if (frameHadEvent) { settling = false; settleTimer = 0; }
-      if (condB && (userInteracting || frameHadEvent)) { settling = false; settleTimer = 0; }
+      if (userInteracting || ctrl.shouldPause() || (condB && frameHadEvent)) { settling = false; settleTimer = 0; }
       if (settleTimer >= SETTLE_DURATION) {
         const result = LevelManager.checkResult(buildings, getLevelWinCondition(currentChapter, currentLevel));
         ui.gameData.passed = result.passed;
@@ -460,25 +463,12 @@ export function initGame() {
     }
     cam.restoreTransform(ctx);
     if (settling) {
-      ctx.fillStyle = 'rgba(0,0,0,0.45)';
-      ctx.fillRect(canvas.width / 2 - 140, canvas.height - 56, 280, 28);
-      ctx.fillStyle = '#ffd93d'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
-      ctx.fillText(`结算中... ${(SETTLE_DURATION - settleTimer).toFixed(1)}s`, canvas.width / 2, canvas.height - 36);
+      ui.drawSettleCountdown(SETTLE_DURATION - settleTimer, SETTLE_DURATION);
     }
     // 教程提示
     if (tutorialHint) {
       const alpha = Math.min(1, tutorialHintTimer / 1.5, tutorialHintTimer);
-      ctx.fillStyle = `rgba(0,0,0,${0.7 * alpha})`;
-      const th = 36, tw = canvas.width - 40;
-      const tx = 20, ty = 50;
-      ctx.fillRect(tx, ty, tw, th);
-      ctx.strokeStyle = `rgba(61,214,200,${0.5 * alpha})`;
-      ctx.lineWidth = 1;
-      ctx.strokeRect(tx, ty, tw, th);
-      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-      ctx.font = 'bold 14px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(tutorialHint, canvas.width / 2, ty + 24);
+      ui.drawTutorialHint(tutorialHint, alpha);
     }
     ui.render();
     requestAnimationFrame(loop);

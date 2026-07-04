@@ -3,9 +3,12 @@
  *
  * 四个界面：
  *   START       — 开始界面（标题 + 开始按钮）
- *   LEVEL_SELECT— 选关界面（关卡列表）
+ *   LEVEL_SELECT— 选关界面（章节标签 + 关卡卡片）
  *   GAME_HUD    — 游戏内 HUD（叠在游戏画面上方）
- *   RESULT      — 结算界面（分数明细 + 通关判定）
+ *   RESULT      — 结算界面（星级 + 分数明细 + 通关判定）
+ *
+ * 视觉体系：深空玻璃拟态 — 动态星云背景 + 半透明面板 + 冷青发光强调，
+ * 所有交互元素带时间驱动的缓动动画（悬停、入场、星级弹出、分数滚动）。
  */
 import { getAllBest } from './storage.js';
 
@@ -17,22 +20,47 @@ export const Screen = Object.freeze({
   RESULT: 'result',
 });
 
-// 扁平鲜艳调色板
+// ========================
+// 设计基调
+// ========================
 const C = {
-  bg: '#0a0e27',
-  panel: 'rgba(14, 20, 50, 0.92)',
-  accent: '#3dd6c8',
-  accent2: '#6b7dff',
-  text: '#d0d6e8',
-  sub: '#6b7a9d',
-  btn: '#3dd6c8',
-  btnHover: '#5eeadb',
-  btnText: '#0a1220',
-  gold: '#ffd93d',
-  green: '#44ff88',
-  red: '#ff6b6b',
-  card: 'rgba(20, 28, 65, 0.8)',
-  cardBorder: 'rgba(61, 214, 200, 0.2)',
+  bgTop: '#03050d',
+  bgMid: '#0a102b',
+  bgBot: '#120b2e',
+  panel: 'rgba(12, 18, 44, 0.82)',
+  panelBorder: 'rgba(94, 234, 219, 0.16)',
+  accent: '#4fe3d4',
+  accentBright: '#8ffcef',
+  accentDim: 'rgba(79, 227, 212, 0.35)',
+  accent2: '#8b9cff',
+  text: '#e9edf7',
+  sub: '#8b96b8',
+  faint: 'rgba(233, 237, 247, 0.35)',
+  btnText: '#04121a',
+  gold: '#ffd166',
+  goldDim: 'rgba(255, 209, 102, 0.28)',
+  red: '#ff5d6c',
+  green: '#4ade80',
+};
+
+const FONT = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, "Segoe UI", sans-serif';
+const MONO = '"SF Mono", Menlo, Consolas, "Courier New", monospace';
+const font = (weight, size, mono = false) => `${weight} ${size}px ${mono ? MONO : FONT}`;
+
+// ========================
+// 缓动函数
+// ========================
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+const easeOutCubic = (p) => 1 - Math.pow(1 - p, 3);
+const backOut = (p) => {
+  const c = 1.70158;
+  const q = p - 1;
+  return 1 + (c + 1) * q * q * q + c * q * q;
+};
+// 确定性伪随机（星空布点用）
+const hash = (n) => {
+  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
 };
 
 export class UIManager {
@@ -46,6 +74,8 @@ export class UIManager {
     this.h = canvas.height;
     this.screen = Screen.START;
     this.buttons = [];
+    this._mx = -1;
+    this._my = -1;
     this._bindMouse();
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -57,6 +87,12 @@ export class UIManager {
     // 图片由外部预加载后注入
     this._bgImage = null;
     this._logoImage = null;
+
+    // 动画状态
+    this._hoverAnim = {};          // 按钮悬停缓动值 key → 0..1
+    this._screenEnterAt = performance.now();
+    this._lastFrameAt = performance.now();
+    this._starLayers = null;       // 星空缓存
 
     // 游戏状态数据（供 HUD 和结算使用）
     this.gameData = {
@@ -89,6 +125,10 @@ export class UIManager {
       this._mx = e.clientX - rect.left;
       this._my = e.clientY - rect.top;
     });
+    this.canvas.addEventListener('mouseleave', () => {
+      this._mx = -1;
+      this._my = -1;
+    });
     this.canvas.addEventListener('click', (e) => {
       const rect = this.canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
@@ -108,6 +148,12 @@ export class UIManager {
   render() {
     this.buttons = [];
     const ctx = this.ctx;
+    const now = performance.now();
+    this._t = now / 1000;
+    this._dt = Math.min(0.05, (now - this._lastFrameAt) / 1000);
+    this._lastFrameAt = now;
+    this._enter = clamp01((now - this._screenEnterAt) / 400);
+
     ctx.save();
     // GAME_HUD 在游戏画面上叠加，不清屏
     if (this.screen !== Screen.GAME_HUD) {
@@ -122,87 +168,251 @@ export class UIManager {
     }
 
     ctx.restore();
+    this._updateCursor();
+  }
+
+  _updateCursor() {
+    const over = this.buttons.some((b) => this._isOver(b.x, b.y, b.w, b.h));
+    if (over) this.canvas.style.cursor = 'pointer';
+    else if (this.screen === Screen.GAME_HUD) this.canvas.style.cursor = 'crosshair';
+    else this.canvas.style.cursor = 'default';
+  }
+
+  // ========================
+  // 动态深空背景
+  // ========================
+  _buildStars() {
+    const layers = [];
+    const spec = [
+      { count: 110, rMax: 0.9, alpha: 0.45, drift: 1.5 },
+      { count: 70, rMax: 1.4, alpha: 0.7, drift: 3.5 },
+      { count: 34, rMax: 2.0, alpha: 1.0, drift: 7 },
+    ];
+    let seed = 1;
+    for (const s of spec) {
+      const stars = [];
+      for (let i = 0; i < s.count; i++) {
+        stars.push({
+          x: hash(seed++) * this.w,
+          y: hash(seed++) * this.h,
+          r: 0.4 + hash(seed++) * s.rMax,
+          phase: hash(seed++) * Math.PI * 2,
+          twSpeed: 0.6 + hash(seed++) * 1.8,
+          baseA: (0.3 + hash(seed++) * 0.7) * s.alpha,
+        });
+      }
+      layers.push({ stars, drift: s.drift });
+    }
+    this._starLayers = layers;
+  }
+
+  _nebula(ctx, x, y, r, color) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, color);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
+  _drawSpaceBg(ctx) {
+    const t = this._t;
+    // 深空渐变
+    const g = ctx.createLinearGradient(0, 0, 0, this.h);
+    g.addColorStop(0, C.bgTop);
+    g.addColorStop(0.55, C.bgMid);
+    g.addColorStop(1, C.bgBot);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, this.w, this.h);
+
+    // 漂移星云
+    this._nebula(ctx, this.w * 0.22 + Math.sin(t * 0.05) * 40, this.h * 0.32 + Math.cos(t * 0.04) * 24, 360, 'rgba(79, 227, 212, 0.05)');
+    this._nebula(ctx, this.w * 0.80 + Math.cos(t * 0.033) * 50, this.h * 0.62 + Math.sin(t * 0.05) * 30, 440, 'rgba(139, 156, 255, 0.06)');
+    this._nebula(ctx, this.w * 0.55 + Math.sin(t * 0.02) * 60, this.h * 0.12, 280, 'rgba(255, 93, 108, 0.028)');
+
+    // 三层视差星空 + 闪烁
+    if (!this._starLayers) this._buildStars();
+    for (const layer of this._starLayers) {
+      for (const s of layer.stars) {
+        const x = (s.x + t * layer.drift) % this.w;
+        const a = s.baseA * (0.55 + 0.45 * Math.sin(t * s.twSpeed + s.phase));
+        ctx.fillStyle = `rgba(255, 255, 255, ${a.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // 偶发流星
+    const period = 7;
+    const phase = (t % period) / 1.1;
+    if (phase < 1) {
+      const seed = Math.floor(t / period);
+      const sx = hash(seed * 3 + 1) * this.w * 0.7 + this.w * 0.15;
+      const sy = hash(seed * 7 + 2) * this.h * 0.35 + 30;
+      const px = sx + phase * 260;
+      const py = sy + phase * 110;
+      const lg = ctx.createLinearGradient(px, py, px - 120, py - 50);
+      lg.addColorStop(0, `rgba(255, 255, 255, ${(0.8 * (1 - phase)).toFixed(3)})`);
+      lg.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.strokeStyle = lg;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(px - 120, py - 50);
+      ctx.stroke();
+    }
+
+    // 边缘暗角
+    const v = ctx.createRadialGradient(this.w / 2, this.h / 2, this.h * 0.45, this.w / 2, this.h / 2, this.h * 0.95);
+    v.addColorStop(0, 'rgba(0,0,0,0)');
+    v.addColorStop(1, 'rgba(0, 0, 6, 0.55)');
+    ctx.fillStyle = v;
+    ctx.fillRect(0, 0, this.w, this.h);
   }
 
   // ========================
   // 开始界面
   // ========================
   _drawStart(ctx) {
-    // 背景图
-    if (this._bgImage) { ctx.drawImage(this._bgImage, 0, 0, this.w, this.h); }
-    else { ctx.fillStyle = C.bg; ctx.fillRect(0, 0, this.w, this.h); this._drawStars(ctx); }
+    if (this._bgImage) {
+      ctx.drawImage(this._bgImage, 0, 0, this.w, this.h);
+      // 压暗，保证前景可读
+      const ov = ctx.createLinearGradient(0, 0, 0, this.h);
+      ov.addColorStop(0, 'rgba(3, 5, 13, 0.35)');
+      ov.addColorStop(0.6, 'rgba(3, 5, 13, 0.45)');
+      ov.addColorStop(1, 'rgba(3, 5, 13, 0.75)');
+      ctx.fillStyle = ov;
+      ctx.fillRect(0, 0, this.w, this.h);
+    } else {
+      this._drawSpaceBg(ctx);
+    }
 
-    // Logo（白底去背）
-    this._drawLogo(ctx);
+    const t = this._t;
+    const float = Math.sin(t * 1.1) * 6;
 
-    // Logo 用 HTML overlay (img/logo.png) 显示，canvas 只画下方内容
+    if (this._logoImage) {
+      const lw = 680;
+      const lh = this._logoImage.height * (lw / this._logoImage.width);
+      ctx.save();
+      ctx.shadowColor = 'rgba(79, 227, 212, 0.45)';
+      ctx.shadowBlur = 34;
+      ctx.drawImage(this._logoImage, this.w / 2 - lw / 2, this.h * 0.12 + float, lw, lh);
+      ctx.restore();
+    } else {
+      // 无 Logo 时的文字标题
+      ctx.textAlign = 'center';
+      ctx.save();
+      const tg = ctx.createLinearGradient(this.w / 2 - 220, 0, this.w / 2 + 220, 0);
+      tg.addColorStop(0, C.accentBright);
+      tg.addColorStop(1, C.accent2);
+      ctx.fillStyle = tg;
+      ctx.shadowColor = 'rgba(79, 227, 212, 0.5)';
+      ctx.shadowBlur = 30;
+      ctx.font = font('bold', 84);
+      ctx.fillText('引 力 破 晓', this.w / 2, this.h * 0.30 + float);
+      ctx.restore();
+      ctx.fillStyle = C.accent2;
+      ctx.font = font('600', 17, true);
+      ctx.fillText('G R A V I T Y   D A W N', this.w / 2, this.h * 0.30 + 42 + float);
+    }
 
-    // 开始按钮
-    const bw = 220, bh = 56;
-    this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h * 0.62, bw, bh, () => this.goTo(Screen.LEVEL_SELECT), true);
+    // 标语
+    ctx.textAlign = 'center';
+    ctx.fillStyle = C.sub;
+    ctx.font = font('400', 15);
+    ctx.fillText('万有引力 · 弹弓机动 · 轨道打击', this.w / 2, this.h * 0.54);
 
-    // Credits
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.font = '12px Arial';
-    ctx.fillText('制作人: Link14349 | 程序: Claude Code | 音乐美术: 待定', this.w / 2, this.h - 38);
-    // 版本
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.font = '11px monospace';
-    ctx.fillText('v0.7 — Phase 7 Demo', this.w / 2, this.h - 20);
+    // 开始按钮（呼吸发光）
+    const bw = 260, bh = 60;
+    this._btn(ctx, '开 始 游 戏', this.w / 2 - bw / 2, this.h * 0.62, bw, bh,
+      () => this.goTo(Screen.LEVEL_SELECT), { primary: true, size: 19, pulse: true });
+
+    // Credits + 版本
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.font = font('400', 12);
+    ctx.fillText('制作人: Link14349 | 程序: Claude Code | 音乐美术: 待定', this.w / 2, this.h - 40);
+    ctx.fillStyle = 'rgba(255,255,255,0.14)';
+    ctx.font = font('400', 11, true);
+    ctx.fillText('v0.9', this.w / 2, this.h - 20);
   }
 
   // ========================
   // 选关界面
   // ========================
   _drawLevelSelect(ctx) {
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, this.w, this.h);
-    this._drawStars(ctx);
+    this._drawSpaceBg(ctx);
+    const slide = (1 - easeOutCubic(this._enter)) * 16;
+    ctx.save();
+    ctx.globalAlpha = this._enter;
+    ctx.translate(0, slide);
 
-    // 标题
-    ctx.fillStyle = C.accent;
-    ctx.font = 'bold 36px Arial';
+    // 标题 + 强调下划线
     ctx.textAlign = 'center';
-    ctx.fillText('选 择 关 卡', this.w / 2, 60);
+    ctx.fillStyle = C.text;
+    ctx.font = font('bold', 32);
+    ctx.fillText('选 择 关 卡', this.w / 2, 62);
+    const ug = ctx.createLinearGradient(this.w / 2 - 40, 0, this.w / 2 + 40, 0);
+    ug.addColorStop(0, C.accent);
+    ug.addColorStop(1, C.accent2);
+    ctx.fillStyle = ug;
+    this._roundRect(ctx, this.w / 2 - 40, 74, 80, 3, 1.5, true);
 
     const chapters = this.gameData.chapters || [];
-    // 当前选中的章节
     if (this.gameData.currentChapter == null) this.gameData.currentChapter = 0;
     const activeCh = Math.min(this.gameData.currentChapter, chapters.length - 1);
 
-    // ---- 章节标签 ----
-    const tabW = 180, tabH = 36, tabGap = 12;
-    const tabsTotalW = chapters.length * tabW + (chapters.length - 1) * tabGap;
-    const tabStartX = (this.w - tabsTotalW) / 2;
-    const tabY = 85;
+    // ---- 章节胶囊标签 ----
+    const tabH = 38, tabGap = 14, tabPad = 46;
+    ctx.font = font('600', 14);
+    const tabWs = chapters.map((ch) => Math.ceil(ctx.measureText(ch.name).width) + tabPad);
+    const tabsTotalW = tabWs.reduce((s, w) => s + w, 0) + (chapters.length - 1) * tabGap;
+    let tx = (this.w - tabsTotalW) / 2;
+    const tabY = 102;
 
     for (let ci = 0; ci < chapters.length; ci++) {
-      const tx = tabStartX + ci * (tabW + tabGap);
+      const tw = tabWs[ci];
       const isActive = ci === activeCh;
-      const hovered = this._isOver(tx, tabY, tabW, tabH);
+      const hv = this._hover(`tab${ci}`, tx, tabY, tw, tabH);
 
-      ctx.fillStyle = isActive ? C.accent : (hovered ? 'rgba(61,214,200,0.15)' : 'rgba(255,255,255,0.04)');
-      ctx.strokeStyle = isActive ? C.accent : 'rgba(255,255,255,0.1)';
-      ctx.lineWidth = isActive ? 2 : 1;
-      this._roundRect(ctx, tx, tabY, tabW, tabH, 6, true);
-      this._roundRect(ctx, tx, tabY, tabW, tabH, 6, false);
-
-      ctx.fillStyle = isActive ? C.btnText : C.text;
-      ctx.font = 'bold 14px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(chapters[ci].name, tx + tabW / 2, tabY + 24);
-
-      if (hovered && !isActive) {
-        this.buttons.push({ x: tx, y: tabY, w: tabW, h: tabH, action: () => { this.gameData.currentChapter = ci; } });
+      if (isActive) {
+        const tg = ctx.createLinearGradient(tx, tabY, tx + tw, tabY);
+        tg.addColorStop(0, C.accent);
+        tg.addColorStop(1, '#3bbfb2');
+        ctx.save();
+        ctx.shadowColor = 'rgba(79, 227, 212, 0.4)';
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = tg;
+        this._roundRect(ctx, tx, tabY, tw, tabH, tabH / 2, true);
+        ctx.restore();
+        ctx.fillStyle = C.btnText;
+      } else {
+        ctx.fillStyle = `rgba(79, 227, 212, ${(0.04 + hv * 0.10).toFixed(3)})`;
+        this._roundRect(ctx, tx, tabY, tw, tabH, tabH / 2, true);
+        ctx.strokeStyle = `rgba(139, 150, 184, ${(0.25 + hv * 0.4).toFixed(3)})`;
+        ctx.lineWidth = 1;
+        this._roundRect(ctx, tx, tabY, tw, tabH, tabH / 2, false);
+        ctx.fillStyle = hv > 0.3 ? C.text : C.sub;
       }
+      ctx.font = font('600', 14);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(chapters[ci].name, tx + tw / 2, tabY + tabH / 2 + 1);
+      ctx.textBaseline = 'alphabetic';
+
+      if (!isActive) {
+        const idx = ci;
+        this.buttons.push({ x: tx, y: tabY, w: tw, h: tabH, action: () => { this.gameData.currentChapter = idx; } });
+      }
+      tx += tw + tabGap;
     }
 
     // ---- 关卡卡片 ----
     const levels = chapters[activeCh]?.levels || [];
     const cardsPerRow = 4;
-    const cardW = 200, cardH = 130, gapX = 40, gapY = 30;
+    const cardW = 224, cardH = 158, gapX = 30, gapY = 28;
     const startX = (this.w - (cardsPerRow * cardW + (cardsPerRow - 1) * gapX)) / 2;
-    const startY = 140;
+    const startY = 176;
     const allBest = getAllBest();
 
     for (let li = 0; li < levels.length; li++) {
@@ -210,164 +420,287 @@ export class UIManager {
       const col = li % cardsPerRow;
       const row = Math.floor(li / cardsPerRow);
       const cx = startX + col * (cardW + gapX);
-      const cy = startY + row * (cardH + gapY);
-      const hovered = this._isOver(cx, cy, cardW, cardH);
+      const baseY = startY + row * (cardH + gapY);
       const locked = false;
+      const hv = locked ? 0 : this._hover(`card${activeCh}-${li}`, cx, baseY, cardW, cardH);
+      const cy = baseY - hv * 5; // 悬停轻微上浮
 
-      ctx.fillStyle = locked ? 'rgba(15, 20, 40, 0.6)' : C.card;
-      ctx.strokeStyle = hovered && !locked ? C.accent : C.cardBorder;
-      ctx.lineWidth = hovered && !locked ? 2 : 1;
-      this._roundRect(ctx, cx, cy, cardW, cardH, 8, true);
-      this._roundRect(ctx, cx, cy, cardW, cardH, 8, false);
+      // 卡片底
+      ctx.save();
+      if (hv > 0.01) {
+        ctx.shadowColor = `rgba(79, 227, 212, ${(hv * 0.35).toFixed(3)})`;
+        ctx.shadowBlur = 22;
+      }
+      const cg = ctx.createLinearGradient(cx, cy, cx, cy + cardH);
+      cg.addColorStop(0, locked ? 'rgba(14, 18, 38, 0.72)' : 'rgba(20, 28, 64, 0.88)');
+      cg.addColorStop(1, locked ? 'rgba(10, 13, 28, 0.72)' : 'rgba(11, 15, 36, 0.88)');
+      ctx.fillStyle = cg;
+      this._roundRect(ctx, cx, cy, cardW, cardH, 14, true);
+      ctx.restore();
+      ctx.strokeStyle = locked
+        ? 'rgba(139, 150, 184, 0.12)'
+        : `rgba(79, 227, 212, ${(0.14 + hv * 0.6).toFixed(3)})`;
+      ctx.lineWidth = 1 + hv;
+      this._roundRect(ctx, cx, cy, cardW, cardH, 14, false);
 
       if (locked) {
-        ctx.fillStyle = 'rgba(255,255,255,0.2)';
-        ctx.font = '40px Arial';
-        ctx.fillText('🔒', cx + cardW / 2, cy + cardH / 2 + 5);
+        ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.font = font('400', 34);
+        ctx.textAlign = 'center';
+        ctx.fillText('🔒', cx + cardW / 2, cy + cardH / 2 + 12);
       } else {
-        ctx.fillStyle = C.text;
-        ctx.font = 'bold 20px Arial';
-        ctx.fillText(`第 ${li + 1} 关`, cx + cardW / 2, cy + 40);
+        // 序号水印
+        ctx.fillStyle = `rgba(79, 227, 212, ${(0.10 + hv * 0.08).toFixed(3)})`;
+        ctx.font = font('bold', 52, true);
+        ctx.textAlign = 'right';
+        ctx.fillText(String(li + 1).padStart(2, '0'), cx + cardW - 14, cy + 52);
+
+        ctx.textAlign = 'left';
         ctx.fillStyle = C.sub;
-        ctx.font = 'bold 16px Arial';
-        ctx.fillText(lv.name, cx + cardW / 2, cy + 63);
+        ctx.font = font('600', 12);
+        ctx.fillText(`第 ${li + 1} 关`, cx + 18, cy + 32);
+        ctx.fillStyle = C.text;
+        ctx.font = font('bold', 19);
+        ctx.fillText(lv.name, cx + 18, cy + 62);
+
+        // 星级 + 最佳成绩
         const saved = allBest[`c${activeCh}-l${li}`];
+        const starN = saved && saved.stars > 0 ? saved.stars : 0;
+        for (let s = 0; s < 3; s++) {
+          this._drawStarShape(ctx, cx + 28 + s * 26, cy + 102, 9, s < starN);
+        }
         if (saved && saved.stars > 0) {
-          ctx.fillStyle = C.gold;
-          ctx.font = '13px Arial';
-          ctx.fillText('★'.repeat(saved.stars) + '☆'.repeat(3 - saved.stars), cx + cardW / 2, cy + 85);
           ctx.fillStyle = C.sub;
-          ctx.font = '10px monospace';
-          ctx.fillText(`${saved.score || 0}分`, cx + cardW / 2, cy + 105);
+          ctx.font = font('500', 12, true);
+          ctx.textAlign = 'left';
+          ctx.fillText(`最佳 ${saved.score || 0}`, cx + 18, cy + 136);
+        } else {
+          ctx.fillStyle = C.faint;
+          ctx.font = font('400', 12);
+          ctx.textAlign = 'left';
+          ctx.fillText('尚未挑战', cx + 18, cy + 136);
         }
 
-        if (hovered && !locked) {
-          const ci = activeCh;
-          this.buttons.push({ x: cx, y: cy, w: cardW, h: cardH, action: () => {
+        const ci = activeCh;
+        this.buttons.push({
+          x: cx, y: baseY, w: cardW, h: cardH, action: () => {
             this.gameData.currentChapter = ci;
             this.gameData.currentLevel = li;
             this.goTo(Screen.GAME_HUD);
-          }});
-        }
+          },
+        });
       }
     }
 
-    // 返回
-    this._btn(ctx, '← 退出', 8, 7, 78, 28, () => this.goTo(Screen.START), false);
+    ctx.restore();
+
+    // 返回按钮（不参与入场平移，位置稳定）
+    this._btn(ctx, '← 返回', 20, 18, 92, 34, () => this.goTo(Screen.START), { primary: false, size: 13 });
+
+    ctx.fillStyle = C.faint;
+    ctx.font = font('400', 12);
+    ctx.textAlign = 'center';
+    ctx.fillText('ESC 返回主菜单', this.w / 2, this.h - 22);
   }
 
   // ========================
   // 游戏 HUD
   // ========================
   _drawHUD(ctx) {
-    // 半透明顶栏（透明底，游戏画面在下层）
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-    ctx.fillRect(0, 0, this.w, 44);
+    // 顶部渐隐遮罩（取代黑色实心条）
+    const tg = ctx.createLinearGradient(0, 0, 0, 72);
+    tg.addColorStop(0, 'rgba(3, 6, 15, 0.82)');
+    tg.addColorStop(1, 'rgba(3, 6, 15, 0)');
+    ctx.fillStyle = tg;
+    ctx.fillRect(0, 0, this.w, 72);
 
-    // 关卡名（居中）+ 暂停标记
+    // 关卡名（居中，两行层级）
     const chapters = this.gameData.chapters || [];
     const chIdx = this.gameData.currentChapter || 0;
     const lvIdx = this.gameData.currentLevel || 0;
     const chName = chapters[chIdx]?.name || '';
     const lvName = chapters[chIdx]?.levels[lvIdx]?.name || '';
-    const paused = this._ctrl && this._ctrl.isSpacePaused();
-    ctx.fillStyle = C.accent;
-    ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(`${chName} · 第${lvIdx + 1}关 ${lvName}${paused ? '  ⏸ 暂停' : ''}`, this.w / 2, 30);
-
-    // 分数 + 子弹
+    ctx.fillStyle = C.sub;
+    ctx.font = font('500', 11);
+    ctx.fillText(chName, this.w / 2, 22);
     ctx.fillStyle = C.text;
-    ctx.font = '14px monospace';
+    ctx.font = font('bold', 17);
+    ctx.fillText(`第 ${lvIdx + 1} 关 · ${lvName}`, this.w / 2, 44);
+
+    // 右侧状态：得分 + 剩余子弹
     ctx.textAlign = 'right';
-    ctx.fillText(`分数: ${this.gameData.score}`, this.w - 20, 20);
-    ctx.fillText(`剩余子弹: ${this.gameData.bulletsRemaining}`, this.w - 20, 38);
+    ctx.fillStyle = C.sub;
+    ctx.font = font('500', 11);
+    ctx.fillText('得分', this.w - 24, 20);
+    ctx.fillStyle = C.gold;
+    ctx.font = font('bold', 17, true);
+    ctx.fillText(String(this.gameData.score), this.w - 24, 40);
 
-    // 操作提示
-    ctx.fillStyle = 'rgba(255,255,255,0.22)';
-    ctx.font = '11px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('鼠标悬停子弹 → 时间暂停 | 拖拽子弹（向后拉=向前射）→ 松开发射 | 滚轮缩放 | 空白处拖拽平移镜头', this.w / 2, this.h - 10);
+    const n = this.gameData.bulletsRemaining;
+    ctx.fillStyle = C.sub;
+    ctx.font = font('500', 11);
+    ctx.fillText('剩余子弹', this.w - 110, 20);
+    const dots = Math.min(n, 6);
+    for (let i = 0; i < dots; i++) {
+      ctx.fillStyle = C.accent;
+      ctx.beginPath();
+      ctx.arc(this.w - 110 - (dots - 1 - i) * 14, 35, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (n > 6 || n === 0) {
+      ctx.fillStyle = n === 0 ? C.red : C.accent;
+      ctx.font = font('bold', 13, true);
+      ctx.fillText(n === 0 ? '0' : `×${n}`, this.w - 110, 40);
+    }
 
-    // 退出按钮（黑条内）
-    this._btn(ctx, '← 退出', 8, 7, 78, 28, () => this.goTo(Screen.LEVEL_SELECT), false);
+    // 暂停指示（居中胶囊，呼吸）
+    if (this._ctrl && this._ctrl.isSpacePaused()) {
+      const a = 0.75 + 0.25 * Math.sin(this._t * 4);
+      this._pill(ctx, '⏸ 已暂停 · 空格继续', this.w / 2, 92, {
+        bg: 'rgba(6, 10, 26, 0.85)',
+        border: `rgba(255, 209, 102, ${(0.5 * a).toFixed(3)})`,
+        color: C.gold,
+        size: 13,
+      });
+    }
+
+    // 底部操作提示胶囊
+    this._pill(ctx, '悬停子弹暂停时间 · 拖拽瞄准松开发射 · 右键引爆特殊弹 · 滚轮缩放 · 拖拽空白平移', this.w / 2, this.h - 24, {
+      bg: 'rgba(3, 6, 15, 0.55)',
+      border: 'rgba(139, 150, 184, 0.15)',
+      color: 'rgba(233, 237, 247, 0.4)',
+      size: 11,
+    });
+
+    // 退出按钮
+    this._btn(ctx, '✕ 退出', 20, 14, 84, 32, () => this.goTo(Screen.LEVEL_SELECT), { primary: false, size: 12 });
   }
 
   // ========================
   // 结算界面
   // ========================
   _drawResult(ctx) {
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, this.w, this.h);
-    this._drawStars(ctx);
-
+    this._drawSpaceBg(ctx);
     const passed = this.gameData.passed;
     const cx = this.w / 2;
+    const elapsed = (performance.now() - this._screenEnterAt) / 1000;
 
-    // 星级评价
+    // 面板背后的氛围光
+    const glow = ctx.createRadialGradient(cx, this.h * 0.42, 0, cx, this.h * 0.42, 420);
+    glow.addColorStop(0, passed ? 'rgba(79, 227, 212, 0.10)' : 'rgba(255, 93, 108, 0.08)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, this.w, this.h);
+
+    // ---- 星级（逐个弹出）----
     const stars = this.gameData.stars ?? (passed ? 3 : 0);
-    const starY = this.h * 0.16;
-    ctx.font = '48px Arial';
+    const starY = this.h * 0.155;
+    for (let i = 0; i < 3; i++) {
+      const sx = cx + (i - 1) * 84;
+      const filled = i < stars;
+      let scale = 1;
+      if (filled) {
+        const p = clamp01((elapsed - 0.25 - i * 0.22) / 0.45);
+        if (p <= 0) continue;
+        scale = backOut(p);
+      }
+      this._drawStarShape(ctx, sx, starY, 30 * scale, filled, filled);
+    }
+
+    // ---- 标题 ----
     ctx.textAlign = 'center';
-    const starStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
-    ctx.fillStyle = C.gold;
-    ctx.fillText(starStr, cx, starY);
+    ctx.save();
+    if (passed) {
+      const tg = ctx.createLinearGradient(cx - 100, 0, cx + 100, 0);
+      tg.addColorStop(0, C.gold);
+      tg.addColorStop(1, '#ffe9a8');
+      ctx.fillStyle = tg;
+      ctx.shadowColor = 'rgba(255, 209, 102, 0.35)';
+    } else {
+      ctx.fillStyle = C.red;
+      ctx.shadowColor = 'rgba(255, 93, 108, 0.35)';
+    }
+    ctx.shadowBlur = 24;
+    ctx.font = font('bold', 34);
+    ctx.fillText(passed ? '任 务 完 成' : '任 务 失 败', cx, starY + 78);
+    ctx.restore();
 
-    // 标题
-    ctx.fillStyle = passed ? C.gold : C.red;
-    ctx.font = 'bold 28px Arial';
-    ctx.fillText(passed ? '任务完成' : '任务失败', cx, starY + 50);
-
-    // 分数面板
-    const pw = 400, ph = 180;
-    const px = cx - pw / 2, py = starY + 70;
+    // ---- 分数面板 ----
+    const pw = 440, ph = 216;
+    const px = cx - pw / 2, py = starY + 100;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 30;
     ctx.fillStyle = C.panel;
-    this._roundRect(ctx, px, py, pw, ph, 12, true);
+    this._roundRect(ctx, px, py, pw, ph, 16, true);
+    ctx.restore();
+    ctx.strokeStyle = C.panelBorder;
+    ctx.lineWidth = 1;
+    this._roundRect(ctx, px, py, pw, ph, 16, false);
+    // 顶部高光线
+    const hg = ctx.createLinearGradient(px, 0, px + pw, 0);
+    hg.addColorStop(0, 'rgba(143, 252, 239, 0)');
+    hg.addColorStop(0.5, 'rgba(143, 252, 239, 0.35)');
+    hg.addColorStop(1, 'rgba(143, 252, 239, 0)');
+    ctx.fillStyle = hg;
+    ctx.fillRect(px + 20, py, pw - 40, 1);
 
     const items = [
-      ['建筑毁伤', `${this.gameData.score}`],
-      ['剩余子弹', `+${this.gameData.bulletsRemaining * 100}`],
-      ['摧毁敌人', `${this.gameData.enemiesKilled}`],
+      ['建筑毁伤', String(this.gameData.score), C.text],
+      ['剩余子弹奖励', `+${this.gameData.bulletsRemaining * 100}`, C.green],
+      ['摧毁敌人', `×${this.gameData.enemiesKilled}`, C.text],
     ];
-    let iy = py + 30;
-    for (const [label, val] of items) {
-      ctx.fillStyle = C.sub; ctx.font = '16px Arial'; ctx.textAlign = 'left';
-      ctx.fillText(label, px + 40, iy);
-      ctx.fillStyle = C.text; ctx.font = 'bold 18px monospace'; ctx.textAlign = 'right';
-      ctx.fillText(val, px + pw - 40, iy);
-      iy += 34;
+    let iy = py + 42;
+    for (const [label, val, color] of items) {
+      ctx.fillStyle = C.sub;
+      ctx.font = font('400', 15);
+      ctx.textAlign = 'left';
+      ctx.fillText(label, px + 36, iy);
+      ctx.fillStyle = color;
+      ctx.font = font('bold', 17, true);
+      ctx.textAlign = 'right';
+      ctx.fillText(val, px + pw - 36, iy);
+      iy += 36;
     }
     // 分割线
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(px + 30, iy); ctx.lineTo(px + pw - 30, iy); ctx.stroke();
-    iy += 15;
-    // 总分
-    ctx.fillStyle = C.gold; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
-    ctx.fillText(`总分  ${this.gameData.totalScore}`, cx, iy + 20);
+    const dg = ctx.createLinearGradient(px + 30, 0, px + pw - 30, 0);
+    dg.addColorStop(0, 'rgba(139, 150, 184, 0)');
+    dg.addColorStop(0.5, 'rgba(139, 150, 184, 0.35)');
+    dg.addColorStop(1, 'rgba(139, 150, 184, 0)');
+    ctx.fillStyle = dg;
+    ctx.fillRect(px + 30, iy - 12, pw - 60, 1);
 
-    // 按钮
-    const btnW = 160, btnH = 42, btnY = py + ph + 25;
-    if (passed) {
-      this._btn(ctx, '↻ 重试', cx - btnW - 10, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, false);
-      this._btn(ctx, '返回关卡列表', cx + 10, btnY, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT), false);
-    } else {
-      this._btn(ctx, '↻ 重试', cx - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, true);
-      this._btn(ctx, '返回关卡列表', cx - btnW / 2, btnY + btnH + 15, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT), false);
-    }
+    // 总分（滚动计数）
+    const countP = easeOutCubic(clamp01((elapsed - 0.3) / 1.1));
+    const shown = Math.round(this.gameData.totalScore * countP);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = C.sub;
+    ctx.font = font('500', 13);
+    ctx.fillText('总 分', cx, iy + 16);
+    ctx.save();
+    ctx.fillStyle = C.gold;
+    ctx.shadowColor = C.goldDim;
+    ctx.shadowBlur = 18;
+    ctx.font = font('bold', 40, true);
+    ctx.fillText(String(shown), cx, iy + 58);
+    ctx.restore();
 
-    // 下一关（宽按钮，实心）
+    // ---- 按钮 ----
+    const btnW = 168, btnH = 44, btnY = py + ph + 28;
     if (passed) {
+      this._btn(ctx, '↻ 重试', cx - btnW - 12, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, { primary: false });
+      this._btn(ctx, '返回关卡列表', cx + 12, btnY, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT), { primary: false });
+
       const chapters = this.gameData.chapters || [];
       const ci = this.gameData.currentChapter || 0;
       const li = this.gameData.currentLevel || 0;
       const curChapterLevels = chapters[ci]?.levels?.length || 0;
       let hasNext = false;
-      if (li + 1 < curChapterLevels) {
-        hasNext = true;
-      } else if (ci + 1 < chapters.length && (chapters[ci + 1]?.levels?.length || 0) > 0) {
-        hasNext = true;
-      }
-      this._btn(ctx, hasNext ? '下一关 →' : '已是最后一关', cx - btnW - 10, btnY + btnH + 15, btnW * 2 + 20, btnH, () => {
+      if (li + 1 < curChapterLevels) hasNext = true;
+      else if (ci + 1 < chapters.length && (chapters[ci + 1]?.levels?.length || 0) > 0) hasNext = true;
+
+      this._btn(ctx, hasNext ? '下一关 →' : '已是最后一关', cx - btnW - 12, btnY + btnH + 16, btnW * 2 + 24, btnH, () => {
         if (li + 1 < curChapterLevels) {
           this.gameData.currentLevel = li + 1;
         } else if (ci + 1 < chapters.length && (chapters[ci + 1]?.levels?.length || 0) > 0) {
@@ -378,31 +711,170 @@ export class UIManager {
           return;
         }
         this.goTo(Screen.GAME_HUD);
-      }, hasNext);
+      }, { primary: hasNext, size: 16 });
+    } else {
+      this._btn(ctx, '↻ 重试', cx - btnW / 2, btnY, btnW, btnH, () => { if (this._onReplay) this._onReplay(); }, { primary: true });
+      this._btn(ctx, '返回关卡列表', cx - btnW / 2, btnY + btnH + 16, btnW, btnH, () => this.goTo(Screen.LEVEL_SELECT), { primary: false });
+    }
+  }
+
+  // ========================
+  // 游戏内浮层（供 main.js 调用）
+  // ========================
+  /** 教程提示条 */
+  drawTutorialHint(text, alpha = 1) {
+    const ctx = this.ctx;
+    this._pill(ctx, text, this.w / 2, 96, {
+      bg: `rgba(6, 10, 26, ${(0.85 * alpha).toFixed(3)})`,
+      border: `rgba(79, 227, 212, ${(0.4 * alpha).toFixed(3)})`,
+      color: `rgba(233, 237, 247, ${alpha.toFixed(3)})`,
+      size: 14,
+      padX: 26,
+      height: 40,
+    });
+  }
+
+  /** 结算沉淀倒计时 */
+  drawSettleCountdown(remaining, total) {
+    const ctx = this.ctx;
+    const w = 300, h = 52;
+    const x = this.w / 2 - w / 2, y = this.h - 118;
+    ctx.fillStyle = 'rgba(6, 10, 26, 0.85)';
+    this._roundRect(ctx, x, y, w, h, 12, true);
+    ctx.strokeStyle = 'rgba(255, 209, 102, 0.35)';
+    ctx.lineWidth = 1;
+    this._roundRect(ctx, x, y, w, h, 12, false);
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = C.sub;
+    ctx.font = font('500', 13);
+    ctx.fillText('局势沉淀中', x + 18, y + 23);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = C.gold;
+    ctx.font = font('bold', 15, true);
+    ctx.fillText(`${remaining.toFixed(1)}s`, x + w - 18, y + 24);
+
+    // 进度条
+    const bw = w - 36, bh = 4, bx = x + 18, by = y + h - 16;
+    ctx.fillStyle = 'rgba(139, 150, 184, 0.18)';
+    this._roundRect(ctx, bx, by, bw, bh, 2, true);
+    const p = clamp01(1 - remaining / total);
+    if (p > 0.01) {
+      const pg = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+      pg.addColorStop(0, C.gold);
+      pg.addColorStop(1, '#ffe9a8');
+      ctx.fillStyle = pg;
+      this._roundRect(ctx, bx, by, bw * p, bh, 2, true);
     }
   }
 
   // ========================
   // 工具
   // ========================
-  _btn(ctx, text, x, y, w, h, action, primary = true) {
-    const hovered = this._isOver(x, y, w, h);
+  /** 悬停缓动值 0→1 */
+  _hover(key, x, y, w, h) {
+    const target = this._isOver(x, y, w, h) ? 1 : 0;
+    const cur = this._hoverAnim[key] ?? 0;
+    const next = cur + (target - cur) * Math.min(1, (this._dt || 0.016) * 14);
+    this._hoverAnim[key] = next;
+    return next;
+  }
+
+  _btn(ctx, text, x, y, w, h, action, opts = {}) {
+    const { primary = true, size = 16, pulse = false } = opts;
+    const hv = this._hover(`btn:${text}:${Math.round(x)}:${Math.round(y)}`, x, y, w, h);
+    const r = Math.min(12, h / 2);
+
+    ctx.save();
     if (primary) {
-      ctx.fillStyle = hovered ? C.btnHover : C.btn;
-      this._roundRect(ctx, x, y, w, h, 8, true);
+      const glow = 14 + hv * 16 + (pulse ? (Math.sin(this._t * 2.4) + 1) * 5 : 0);
+      ctx.shadowColor = 'rgba(79, 227, 212, 0.55)';
+      ctx.shadowBlur = glow;
+      const bg = ctx.createLinearGradient(x, y, x, y + h);
+      bg.addColorStop(0, hv > 0 ? this._mix('#5ff0e0', '#8ffcef', hv) : '#5ff0e0');
+      bg.addColorStop(1, '#2fae9f');
+      ctx.fillStyle = bg;
+      this._roundRect(ctx, x, y, w, h, r, true);
+      ctx.restore();
       ctx.fillStyle = C.btnText;
     } else {
-      ctx.fillStyle = 'transparent';
-      ctx.strokeStyle = hovered ? C.btnHover : C.accent;
-      ctx.lineWidth = 1.5;
-      this._roundRect(ctx, x, y, w, h, 8, false);
-      this._roundRect(ctx, x, y, w, h, 8, false);
-      ctx.fillStyle = hovered ? C.btnHover : C.accent;
+      ctx.restore();
+      ctx.fillStyle = `rgba(79, 227, 212, ${(0.05 + hv * 0.12).toFixed(3)})`;
+      this._roundRect(ctx, x, y, w, h, r, true);
+      ctx.strokeStyle = `rgba(79, 227, 212, ${(0.45 + hv * 0.55).toFixed(3)})`;
+      ctx.lineWidth = 1.2 + hv * 0.6;
+      this._roundRect(ctx, x, y, w, h, r, false);
+      ctx.fillStyle = hv > 0.4 ? C.accentBright : C.accent;
     }
-    ctx.font = 'bold 16px Arial';
+    ctx.font = font('bold', size);
     ctx.textAlign = 'center';
-    ctx.fillText(text, x + w / 2, y + h / 2 + 6);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x + w / 2, y + h / 2 + 1);
+    ctx.textBaseline = 'alphabetic';
     this.buttons.push({ x, y, w, h, action });
+  }
+
+  /** 居中文字胶囊，x/y 为胶囊中心 */
+  _pill(ctx, text, cx, cy, opts = {}) {
+    const { bg, border, color, size = 13, padX = 20, height = 32 } = opts;
+    ctx.font = font('500', size);
+    const tw = ctx.measureText(text).width;
+    const w = tw + padX * 2;
+    const x = cx - w / 2, y = cy - height / 2;
+    if (bg) {
+      ctx.fillStyle = bg;
+      this._roundRect(ctx, x, y, w, height, height / 2, true);
+    }
+    if (border) {
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 1;
+      this._roundRect(ctx, x, y, w, height, height / 2, false);
+    }
+    ctx.fillStyle = color || C.text;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, cx, cy + 1);
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  /** 五角星，filled=实心金色，glow=带光晕 */
+  _drawStarShape(ctx, cx, cy, r, filled, glow = false) {
+    if (r <= 0.1) return;
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const ang = -Math.PI / 2 + (i * Math.PI) / 5;
+      const rad = i % 2 === 0 ? r : r * 0.45;
+      const px = cx + Math.cos(ang) * rad;
+      const py = cy + Math.sin(ang) * rad;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    if (filled) {
+      if (glow) {
+        ctx.shadowColor = 'rgba(255, 209, 102, 0.6)';
+        ctx.shadowBlur = 18;
+      }
+      const g = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+      g.addColorStop(0, '#ffe9a8');
+      g.addColorStop(1, C.gold);
+      ctx.fillStyle = g;
+      ctx.fill();
+    } else {
+      ctx.strokeStyle = 'rgba(139, 150, 184, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  _mix(c1, c2, p) {
+    const p1 = parseInt(c1.slice(1), 16), p2 = parseInt(c2.slice(1), 16);
+    const r = Math.round(((p1 >> 16) & 255) * (1 - p) + ((p2 >> 16) & 255) * p);
+    const g = Math.round(((p1 >> 8) & 255) * (1 - p) + ((p2 >> 8) & 255) * p);
+    const b = Math.round((p1 & 255) * (1 - p) + (p2 & 255) * p);
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
   _isOver(x, y, w, h) {
@@ -410,6 +882,7 @@ export class UIManager {
   }
 
   _roundRect(ctx, x, y, w, h, r, fill) {
+    r = Math.min(r, w / 2, h / 2);
     ctx.beginPath();
     ctx.moveTo(x + r, y);
     ctx.lineTo(x + w - r, y);
@@ -425,31 +898,14 @@ export class UIManager {
     else ctx.stroke();
   }
 
-  _drawStars(ctx) {
-    for (let i = 0; i < 200; i++) {
-      const sx = (i * 7919 + 123) % this.w;
-      const sy = (i * 6271 + 456) % this.h;
-      const sr = 0.5 + ((i * 3571) % 100) / 100 * 1.5;
-      const sa = 0.3 + ((i * 4813) % 100) / 100 * 0.7;
-      ctx.fillStyle = `rgba(255, 255, 255, ${sa})`;
-      ctx.beginPath();
-      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
   // ========================
   // 状态切换
   // ========================
   goTo(screen) {
     this.screen = screen;
-    this._mx = -1; this._my = -1;
-  }
-
-  _drawLogo(ctx) {
-    if (!this._logoImage) return;
-    const lw = 768, lh = this._logoImage.height * (768 / this._logoImage.width);
-    const lx = this.w / 2 - lw / 2, ly = this.h * 0.10;
-    ctx.drawImage(this._logoImage, lx, ly, lw, lh);
+    this._mx = -1;
+    this._my = -1;
+    this._hoverAnim = {};
+    this._screenEnterAt = performance.now();
   }
 }
