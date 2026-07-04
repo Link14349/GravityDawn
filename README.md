@@ -41,26 +41,53 @@ npm install
 ## 启动开发服务器
 
 ```bash
-# 启动游戏（含关卡设计器）
+# 默认 8080 端口
 npm run dev
+
+# 指定端口（服务器部署推荐）
+PORT=3000 npm run serve
 ```
 
-浏览器自动打开 `http://localhost:8080`。
-
-- 游戏主页面：`http://localhost:8080/`
-- 关卡设计器：`http://localhost:8080/tools/design.html`
+- 游戏主页面：`http://localhost:<端口>/`
+- 关卡设计器：`http://localhost:<端口>/tools/design.html`
 
 ## 服务器部署
 
-```bash
-# 构建生产版本
-npm run build
+### 快速启动
 
-# dist/ 目录即为静态文件，部署到任意 HTTP 服务器即可
-# 例如使用 nginx：
-#   server { root /path/to/dist; }
-# 或使用 Python：
-#   cd dist && python3 -m http.server 8080
+```bash
+# 前台运行（默认 8080 端口）
+./deploy.sh
+
+# 指定端口
+./deploy.sh 3000
+
+# 后台长期运行
+nohup ./deploy.sh 3000 > gravity.log 2>&1 &
+
+# 停止服务
+./deploy.sh stop
+```
+
+### systemd 服务（推荐）
+
+```bash
+# 编辑服务文件，修改路径
+sudo vi gravity-shooter.service
+# 将 /path/to/gravity-shooter 替换为实际路径
+
+# 安装并启动
+sudo cp gravity-shooter.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now gravity-shooter
+sudo systemctl status gravity-shooter
+```
+
+### 开发模式
+
+```bash
+# 热更新，监听 0.0.0.0
+npm run serve
 ```
 
 ## 项目结构

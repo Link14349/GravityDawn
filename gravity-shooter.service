@@ -1,0 +1,14 @@
+[Unit]
+Description=Gravity Dawn - 引力破晓游戏服务
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/path/to/gravity-shooter
+ExecStart=/bin/bash /path/to/gravity-shooter/deploy.sh 8080
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

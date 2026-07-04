@@ -33,7 +33,7 @@
       {
         "bg": "bridge",
         "left": "commander",
-        "right": "peach",
+        "right": "peach:standing",
         "dialogue": {
           "speaker": "指挥官",
           "text": "桃子，给学员演示一下。"

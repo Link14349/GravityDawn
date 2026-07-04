@@ -29,7 +29,7 @@
       {
         "bg": "bridge",
         "left": null,
-        "right": "peach",
+        "right": "peach:confident",
         "dialogue": {
           "speaker": "桃子",
           "text": "恒星上方有个六边形要塞，行星上还有一座城堡。用爆炸弹清理它们！"

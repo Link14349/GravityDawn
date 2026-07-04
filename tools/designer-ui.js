@@ -219,6 +219,7 @@ export class EditModeUI {
 
     const actBtns = [
       { id: 'open', label: '打开', primary: false },
+      { id: 'save', label: '保存', primary: false },
       { id: 'rename', label: '改名', primary: false },
       { id: 'export', label: '导出', primary: false },
       { id: 'test', label: '▶ 测试', primary: true },
@@ -648,6 +649,7 @@ export class EditModeUI {
         if (ab.id === 'test' && this.cb.onTest) this.cb.onTest();
         if (ab.id === 'export' && this.cb.onExport) this.cb.onExport();
         if (ab.id === 'open' && this.cb.onOpen) this.cb.onOpen();
+        if (ab.id === 'save' && this.cb.onSave) this.cb.onSave();
         if (ab.id === 'rename') {
           const n = prompt('关卡名称:', this.dd.data.name || '新关卡');
           if (n && n.trim()) this.dd.data.name = n.trim();

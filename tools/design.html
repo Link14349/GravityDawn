@@ -107,6 +107,7 @@
       onImport: showImportDialog,
       onNew: doNew,
       onOpen: doOpen,
+      onSave: doSave,
     });
 
     // ---- 测试模式运行时 ----
@@ -458,6 +459,60 @@
         editor.camY = dd.data.camera.y;
         editor.zoom = dd.data.camera.zoom;
       } catch (e) { alert('打开失败: ' + e.message); }
+    }
+
+    // ---- 保存 ----
+    async function doSave() {
+      try {
+        const idxResp = await fetch('../data/levels/index.json');
+        const chDirs = await idxResp.json();
+        const chNames = [];
+        for (const d of chDirs) {
+          const r = await fetch(`../data/levels/${d}/index.json`);
+          const c = await r.json();
+          chNames.push(c.name);
+        }
+        let chPrompt = '选择保存到哪个章节:\n';
+        chNames.forEach((n, i) => chPrompt += `  ${i}: ${n}\n`);
+        const chIdx = parseInt(prompt(chPrompt, '0'));
+        if (isNaN(chIdx) || chIdx < 0 || chIdx >= chDirs.length) return;
+
+        const chR = await fetch(`../data/levels/${chDirs[chIdx]}/index.json`);
+        const chData = await chR.json();
+        const lvFiles = chData.levels;
+        const lvNames = [];
+        for (const f of lvFiles) {
+          const r = await fetch(`../data/levels/${chDirs[chIdx]}/${f}.json`);
+          const l = await r.json();
+          lvNames.push(l.name || f);
+        }
+        let lvPrompt = `选择关卡 (${chNames[chIdx]}):\n`;
+        lvNames.forEach((n, i) => lvPrompt += `  ${i}: ${n} (覆盖)\n`);
+        lvPrompt += `  ${lvFiles.length}: [保存为新关卡]\n`;
+        const lvIdx = parseInt(prompt(lvPrompt, String(lvFiles.length)));
+        if (isNaN(lvIdx) || lvIdx < 0 || lvIdx > lvFiles.length) return;
+
+        const isNew = lvIdx >= lvFiles.length;
+        const levelFile = isNew ? null : lvFiles[lvIdx];
+        const levelData = dd.exportLevel();
+
+        const resp = await fetch('/api/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chapter: chDirs[chIdx],
+            level: levelFile,
+            levelData,
+            isNew,
+          }),
+        });
+        const result = await resp.json();
+        if (result.ok) {
+          alert(`✅ 已保存到 ${chDirs[chIdx]}/${result.level}.json`);
+        } else {
+          alert('❌ 保存失败: ' + (result.error || '未知错误'));
+        }
+      } catch (e) { alert('保存失败: ' + e.message); }
     }
 
     // ---- 导出 ----
