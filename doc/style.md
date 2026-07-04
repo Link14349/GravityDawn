@@ -74,7 +74,8 @@ HUD:      顶部渐隐遮罩(非实心黑条) — 退出(左) + 章节/关卡名
 ```
 
 **游戏内浮层接口**（main.js 调用）：
-- `ui.drawTutorialHint(text, alpha)` — 教程提示胶囊（顶部居中，随 alpha 淡出）
+- `ui.drawTutorialHint({text, alpha, slide, progress})` — 教程提示条：「教程」徽章 + 文本 + 剩余时间进度条，
+  滑入滑出动画；空格暂停时自动下移避开暂停胶囊（入参由 TutorialManager.current() 提供）
 - `ui.drawSettleCountdown(remaining, total)` — 结算沉淀倒计时卡片（底部居中，金色进度条）
 
 ---

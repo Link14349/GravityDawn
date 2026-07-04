@@ -721,17 +721,68 @@ export class UIManager {
   // ========================
   // 游戏内浮层（供 main.js 调用）
   // ========================
-  /** 教程提示条 */
-  drawTutorialHint(text, alpha = 1) {
+  /**
+   * 教程提示条 — "教程"徽章 + 文本 + 剩余时间进度条
+   * @param {{text: string, alpha?: number, slide?: number, progress?: number}|string} hint
+   *   alpha 淡入淡出透明度；slide 入场下滑量 0..1；progress 已展示时长占比 0..1
+   */
+  drawTutorialHint(hint) {
+    const { text, alpha = 1, slide = 0, progress = 0 } = typeof hint === 'string' ? { text: hint } : hint;
     const ctx = this.ctx;
-    this._pill(ctx, text, this.w / 2, 96, {
-      bg: `rgba(6, 10, 26, ${(0.85 * alpha).toFixed(3)})`,
-      border: `rgba(79, 227, 212, ${(0.4 * alpha).toFixed(3)})`,
-      color: `rgba(233, 237, 247, ${alpha.toFixed(3)})`,
-      size: 14,
-      padX: 26,
-      height: 40,
-    });
+    // 空格暂停时下移，避开暂停指示胶囊（平滑过渡）
+    const shiftTarget = this._ctrl && this._ctrl.isSpacePaused() ? 46 : 0;
+    this._hintShift = (this._hintShift ?? 0) + (shiftTarget - (this._hintShift ?? 0)) * 0.18;
+    const cy = 100 + this._hintShift - slide * 16;
+    const h = 42, padX = 16, gap = 12;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    // 尺寸测量
+    ctx.font = font('500', 14);
+    const textW = ctx.measureText(text).width;
+    ctx.font = font('bold', 11);
+    const badgeW = ctx.measureText('教程').width + 18;
+    const w = padX + badgeW + gap + textW + padX + 6;
+    const x = this.w / 2 - w / 2, y = cy - h / 2;
+
+    // 底板
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = 'rgba(6, 10, 26, 0.88)';
+    this._roundRect(ctx, x, y, w, h, h / 2, true);
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(79, 227, 212, 0.35)';
+    ctx.lineWidth = 1;
+    this._roundRect(ctx, x, y, w, h, h / 2, false);
+
+    // "教程" 徽章
+    const bg = ctx.createLinearGradient(x + padX, 0, x + padX + badgeW, 0);
+    bg.addColorStop(0, C.accent);
+    bg.addColorStop(1, '#3bbfb2');
+    ctx.fillStyle = bg;
+    this._roundRect(ctx, x + padX, cy - 11, badgeW, 22, 11, true);
+    ctx.fillStyle = C.btnText;
+    ctx.font = font('bold', 11);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('教程', x + padX + badgeW / 2, cy + 1);
+
+    // 提示文本
+    ctx.fillStyle = C.text;
+    ctx.font = font('500', 14);
+    ctx.textAlign = 'left';
+    ctx.fillText(text, x + padX + badgeW + gap, cy + 1);
+    ctx.textBaseline = 'alphabetic';
+
+    // 剩余时间进度条（贴底内侧）
+    const bw = w - padX * 2;
+    const pw = bw * (1 - clamp01(progress));
+    if (pw > 1) {
+      ctx.fillStyle = C.accentDim;
+      this._roundRect(ctx, x + padX, y + h - 6, pw, 2.5, 1.25, true);
+    }
+    ctx.restore();
   }
 
   /** 结算沉淀倒计时 */

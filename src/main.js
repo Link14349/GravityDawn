@@ -9,6 +9,7 @@ import { Bullet } from './bullet.js';
 import { Camera } from './camera.js';
 import { UIManager, Screen } from './ui.js';
 import { CutsceneManager } from './cutscene.js';
+import { TutorialManager } from './tutorial.js';
 import { saveLevel, getAllBest } from './storage.js';
 
 // ============================================================
@@ -65,19 +66,18 @@ export function initGame() {
   ui.gameData.currentChapter = 0;
   ui.gameData.currentLevel = 0;
 
-  // 教程提示系统
-  let tutorialHint = null;
-  let tutorialHintTimer = 0;
-  const tutorialShown = {}; // 记录已显示的提示
-
-  function showTutorial(id, msg, duration = 5) {
-    if (tutorialShown[id]) return;
-    // 只有教程章(ch0)才显示
-    if (currentChapter !== 0) return;
-    tutorialShown[id] = true;
-    tutorialHint = msg;
-    tutorialHintTimer = duration;
-  }
+  // 教程提示系统（队列化，会话内去重）
+  const tut = new TutorialManager();
+  // 悬停某类型子弹时的教学文案
+  const TYPE_HINTS = {
+    normal: '普通弹 — 均衡的爆炸伤害，适合清理集中的结构',
+    kinetic: '动能弹 — 无爆炸，靠高 HP 和动能硬穿透多层目标',
+    explosive: '爆炸弹 — 半径 200 大范围爆炸，飞行途中右键可提前引爆',
+    agile: '机动弹 — Δv 高达 1000、可点火 10 次，适合复杂轨道机动',
+    cluster: '分裂弹 — 撞击后分裂出 3 颗小子弹',
+    gravity: '引力弹 — 撞击点生成 3 秒临时引力阱，可弯折其他子弹的轨道',
+    incendiary: '燃烧弹 — 灼烧弹簧结构，持续降低其断裂阈值',
+  };
 
   // 预加载开始界面图片
   ['img/startup-bg.png', 'img/logo.png'].forEach((src, idx) => {
@@ -143,16 +143,12 @@ export function initGame() {
   }
 
   function _setupLevel(chapterIdx) {
-    // 教程章初始化提示
+    // 教程章启用提示；开场基础操作按队列依次展示（会话内只出现一次）
+    tut.reset(chapterIdx === 0);
     if (chapterIdx === 0) {
-      for (const k of Object.keys(tutorialShown)) delete tutorialShown[k];
-      tutorialHint = '🎓 欢迎来到教程！使用鼠标拖拽空白区域来平移镜头';
-      tutorialHintTimer = 5;
-      setTimeout(() => showTutorial('zoom', '🔍 滚动鼠标滚轮来缩放镜头', 4), 6000);
-    } else {
-      // 非教程章清除残留提示
-      tutorialHint = null;
-      tutorialHintTimer = 0;
+      tut.push('welcome', '欢迎来到教程！拖拽空白区域可以平移镜头', 5);
+      tut.push('zoom', '滚动鼠标滚轮缩放镜头，找到你的子弹和目标', 4);
+      tut.push('aim', '将鼠标悬停到子弹上 → 时间暂停，按住向后拖拽瞄准，松开发射', 6);
     }
   }
 
@@ -187,7 +183,7 @@ export function initGame() {
     // 离开关卡时销毁运行时（播片不算离开）
     if (ui.screen === Screen.GAME_HUD && screen !== Screen.GAME_HUD && screen !== Screen.CUTSCENE) {
       ctrl = null; buildings = null; gameActive = false; tempGravityWells = [];
-      tutorialHint = null; tutorialHintTimer = 0;
+      tut.reset(false);
     }
     _origGoTo(screen);
   };
@@ -387,50 +383,31 @@ export function initGame() {
 
     // ---- 教程提示触发 ----
     if (currentChapter === 0) {
-      // 悬停子弹
-      if (ctrl.getHoveredBullet()) {
-        showTutorial('hover', '💡 悬停子弹 → 时间暂停。按住并向后拖拽 → 瞄准弹弓，松开 → 发射！', 6);
+      // 悬停未发射子弹 → 按类型教学（发射前讲清特性，而非命中后）
+      const hb = ctrl.getHoveredBullet();
+      if (hb && !hb.launched && TYPE_HINTS[hb.type]) {
+        tut.push(`type:${hb.type}`, TYPE_HINTS[hb.type], 6);
       }
-      // 首次发射
-      const anyLaunched = bullets.some(b => b.launched);
-      if (anyLaunched) {
-        showTutorial('launch', '🚀 发射成功！可以再次悬停+拖拽进行中途修正（剩余点火次数>0时）', 5);
+      // 首次发射 → 提示中途修正
+      if (bullets.some(b => b.launched)) {
+        tut.push('launch', '发射成功！剩余点火次数 > 0 时，可再次悬停子弹修正轨道', 6);
       }
-      // 空格暂停
+      // 特殊弹在飞行中 → 提示右键可手动触发（在能用的时候提示，而非用过之后）
+      if (bullets.some(b => b.launched && b.alive && b.onImpact)) {
+        tut.push('rightclick', '特殊弹在飞行中，随时右键点击它手动触发效果', 5);
+      }
+      // 首次空格暂停
       if (ctrl.isSpacePaused()) {
-        showTutorial('space', '⏸ 空格键可以随时暂停/恢复游戏，暂停时仍可查看场景', 4);
+        tut.push('space', '空格键随时暂停/恢复，暂停时仍可拖动镜头观察战场', 4);
       }
-      // 普通弹命中
-      const normalHit = bullets.some(b => b.type === 'normal' && b.launched && (b._trail?.length || 0) > 0);
-      if (normalHit) {
-        showTutorial('normal', '🔴 普通弹 — 均衡的爆炸伤害，适合清理集中的结构', 4);
-      }
-      // 爆炸弹命中
-      const explosiveHit = bullets.some(b => b.type === 'explosive' && b.launched && (b._trail?.length || 0) > 0);
-      if (explosiveHit) {
-        showTutorial('explosive', '🔵 爆炸弹 — 大范围爆炸（半径200），右键可提前手动引爆！', 5);
-      }
-      // 动能弹命中
-      const kineticHit = bullets.some(b => b.type === 'kinetic' && b.launched && (b._trail?.length || 0) > 0);
-      if (kineticHit) {
-        showTutorial('kinetic', '⚫ 动能弹 — 无爆炸，靠HP(300)和动能穿透多个目标', 5);
-      }
-      // 右键触发
-      if (ctrl.triggeredBullets.length > 0) {
-        showTutorial('rightclick', '🖱 右键点击已发射的特殊弹（爆炸弹/引力弹等）可以手动触发效果', 5);
-      }
-      // 拆除重要目标
-      const anyImportantDead = buildings.some(bld => bld.points.some(p => p.important && !p.alive));
-      if (anyImportantDead) {
-        showTutorial('important', '🎯 摧毁了重要目标（金色边框）！摧毁所有重要目标即可通关', 5);
+      // 首次摧毁重要目标
+      if (buildings.some(bld => bld.points.some(p => p.important && !p.alive))) {
+        tut.push('important', '摧毁了重要目标（金色边框）！摧毁全部重要目标即可通关', 5);
       }
     }
 
-    // 教程提示计时
-    if (tutorialHintTimer > 0) {
-      tutorialHintTimer -= 1 / 60;
-      if (tutorialHintTimer <= 0) tutorialHint = null;
-    }
+    // 教程提示推进（暂停/瞄准时冻结倒计时，读完为止）
+    tut.update(ctrl.shouldPause());
 
     // 渲染
     r.clear();
@@ -466,10 +443,8 @@ export function initGame() {
       ui.drawSettleCountdown(SETTLE_DURATION - settleTimer, SETTLE_DURATION);
     }
     // 教程提示
-    if (tutorialHint) {
-      const alpha = Math.min(1, tutorialHintTimer / 1.5, tutorialHintTimer);
-      ui.drawTutorialHint(tutorialHint, alpha);
-    }
+    const hint = tut.current();
+    if (hint) ui.drawTutorialHint(hint);
     ui.render();
     requestAnimationFrame(loop);
   }

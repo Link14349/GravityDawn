@@ -29,6 +29,7 @@ gravity-shooter/
     renderer.js        — 渲染器 (星体, 子弹, 建筑, 爆炸, 瞄准)
     game-controller.js — 输入控制 (悬停暂停, 拖拽瞄准, 状态机)
     ui.js               — UI管理器 (开始/选关/HUD/结算)
+    tutorial.js        — 教程提示系统 (队列化、会话去重)
     level.js            — 关卡系统 (数据格式 + 加载器 + 通关判定)
     main.js            — 入口
   test/
@@ -355,6 +356,24 @@ Canvas 绘制的界面系统，四个屏幕状态：`START → LEVEL_SELECT → 
 | RESULT | 星级 + 任务完成/失败 + 分数面板 + 操作按钮 |
 
 按钮通过鼠标坐标碰撞检测实现点击交互。
+
+---
+
+## 教程提示系统 (tutorial.js)
+
+### TutorialManager 类
+
+教程章（ch0）的队列化提示管理，由 main.js 在游戏循环中驱动：
+
+| 方法 | 说明 |
+|------|------|
+| `reset(enabled)` | 进关时调用；enabled=false 清空队列并禁用（已展示记录保留） |
+| `push(id, text, duration)` | 触发提示；同 id 一个会话只展示一次，自动排队不覆盖 |
+| `update(paused)` | 每帧推进；真实时钟计时；paused 时冻结倒计时（入场动画/出队照常） |
+| `current()` | 当前提示展示状态 `{text, alpha, slide, progress}`，交给 `UIManager.drawTutorialHint` 绘制 |
+
+触发点（main.js）：开场基础操作按队列依次展示；悬停某类型子弹 → 该类型教学；
+首次发射 → 中途修正提示；特殊弹飞行中 → 右键触发提示；首次空格暂停、首次摧毁重要目标。
 
 ---
 
