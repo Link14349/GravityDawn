@@ -205,37 +205,37 @@
         {
           "a": 0,
           "b": 1,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 2,
           "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         }
       ]
     }

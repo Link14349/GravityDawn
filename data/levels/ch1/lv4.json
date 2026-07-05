@@ -20,21 +20,32 @@
     },
     {
       "type": "circular",
-      "radius": 130,
-      "period": 12.7,
+      "radius": 170,
+      "period": 19,
       "parent": 1
     },
     {
       "type": "fixed",
       "x": 0,
-      "y": -62,
+      "y": -58,
       "parent": 2
     },
     {
       "type": "fixed",
       "x": 0,
-      "y": -116,
+      "y": -150,
       "parent": 1
+    },
+    {
+      "type": "fixed",
+      "x": 660,
+      "y": -260
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": -58,
+      "parent": 5
     }
   ],
   "stars": [
@@ -57,12 +68,20 @@
       "orbit": 1
     },
     {
-      "mass": 400,
-      "radius": 18,
-      "collisionRadius": 15,
+      "mass": 800,
+      "radius": 20,
+      "collisionRadius": 17,
       "color": "#ccccdd",
       "label": "卫星",
       "orbit": 2
+    },
+    {
+      "mass": 300,
+      "radius": 14,
+      "collisionRadius": 12,
+      "color": "#997755",
+      "label": "中继站",
+      "orbit": 5
     }
   ],
   "bullets": [
@@ -89,14 +108,6 @@
         "altitude": 175,
         "phase": 4.189
       }
-    },
-    {
-      "type": "explosive",
-      "orbitAround": {
-        "bodyIndex": 0,
-        "altitude": 220,
-        "phase": 1.047
-      }
     }
   ],
   "buildings": [
@@ -114,8 +125,8 @@
           "explosionImpulse": 1800
         },
         {
-          "x": -20,
-          "y": 22,
+          "x": -18,
+          "y": 0,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -124,18 +135,8 @@
           "explosionImpulse": 500
         },
         {
-          "x": 20,
-          "y": 22,
-          "mass": 8,
-          "radius": 5,
-          "score": 20,
-          "color": "#cccccc",
-          "explosionRadius": 10,
-          "explosionImpulse": 500
-        },
-        {
-          "x": 0,
-          "y": 38,
+          "x": 18,
+          "y": 0,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -145,7 +146,17 @@
         },
         {
           "x": 0,
-          "y": 16,
+          "y": -18,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 18,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -156,46 +167,60 @@
       ],
       "springs": [
         {
+          "a": 1,
+          "b": 3,
+          "stiffness": 1100,
+          "damping": 60,
+          "breakTension": 5850
+        },
+        {
+          "a": 3,
+          "b": 2,
+          "stiffness": 1100,
+          "damping": 60,
+          "breakTension": 5850
+        },
+        {
+          "a": 2,
+          "b": 4,
+          "stiffness": 1100,
+          "damping": 60,
+          "breakTension": 5850
+        },
+        {
+          "a": 4,
+          "b": 1,
+          "stiffness": 1100,
+          "damping": 60,
+          "breakTension": 5850
+        },
+        {
           "a": 0,
           "b": 1,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1100,
+          "damping": 60,
+          "breakTension": 5850
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1100,
+          "damping": 60,
+          "breakTension": 5850
         },
         {
-          "a": 1,
+          "a": 0,
           "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1100,
+          "damping": 60,
+          "breakTension": 5850
         },
         {
-          "a": 2,
-          "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
-        },
-        {
-          "a": 1,
+          "a": 0,
           "b": 4,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
-        },
-        {
-          "a": 2,
-          "b": 4,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1100,
+          "damping": 60,
+          "breakTension": 5850
         }
       ]
     },
@@ -207,14 +232,14 @@
           "score": 300,
           "important": true,
           "isCore": true,
-          "orbit": 4,
+          "orbit": 6,
           "color": "#ffdd44",
           "explosionRadius": 40,
           "explosionImpulse": 1800
         },
         {
-          "x": -24,
-          "y": 28,
+          "x": -20,
+          "y": 20,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -223,8 +248,8 @@
           "explosionImpulse": 500
         },
         {
-          "x": 24,
-          "y": 28,
+          "x": 20,
+          "y": 20,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -234,64 +259,57 @@
         },
         {
           "x": 0,
-          "y": 46,
-          "mass": 8,
-          "radius": 5,
-          "score": 20,
-          "color": "#cccccc",
+          "y": 32,
+          "mass": 14,
+          "radius": 6,
+          "score": 40,
+          "color": "#8899aa",
           "explosionRadius": 10,
           "explosionImpulse": 500
-        },
-        {
-          "x": 30,
-          "y": 45,
-          "isEnemy": true,
-          "hp": 150,
-          "mass": 12,
-          "radius": 7,
-          "renderRadius": 8,
-          "score": 200,
-          "important": true,
-          "color": "#44ff44",
-          "explosionRadius": 30,
-          "explosionImpulse": 2000
         }
       ],
       "springs": [
         {
           "a": 0,
           "b": 1,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
-        },
-        {
-          "a": 1,
-          "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
-        },
-        {
-          "a": 2,
-          "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         }
       ]
     }
@@ -299,6 +317,6 @@
   "winCondition": {
     "destructionThreshold": 0.25,
     "importantTargetsAll": true,
-    "minScore": 400
+    "minScore": 450
   }
 }

@@ -22,7 +22,7 @@
     {
       "type": "fixed",
       "x": 0,
-      "y": -42,
+      "y": -60,
       "parent": 1
     },
     {
@@ -33,7 +33,7 @@
     {
       "type": "fixed",
       "x": 0,
-      "y": -104,
+      "y": -122,
       "parent": 3
     }
   ],
@@ -89,14 +89,6 @@
         "altitude": 180,
         "phase": 4.189
       }
-    },
-    {
-      "type": "normal",
-      "orbitAround": {
-        "bodyIndex": 0,
-        "altitude": 225,
-        "phase": 1.047
-      }
     }
   ],
   "buildings": [
@@ -148,37 +140,37 @@
         {
           "a": 0,
           "b": 1,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 2,
           "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         }
       ]
     },
@@ -254,44 +246,51 @@
         {
           "a": 0,
           "b": 1,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 2,
           "b": 4,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 3,
           "b": 4,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
+        },
+        {
+          "a": 1,
+          "b": 4,
+          "stiffness": 1000,
+          "damping": 60.0,
+          "breakTension": 5200
         }
       ]
     }
@@ -299,6 +298,6 @@
   "winCondition": {
     "destructionThreshold": 0.25,
     "importantTargetsAll": true,
-    "minScore": 400
+    "minScore": 500
   }
 }

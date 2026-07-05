@@ -20,7 +20,7 @@
     {
       "type": "fixed",
       "x": 0,
-      "y": -120,
+      "y": -156,
       "parent": 1
     }
   ],
@@ -201,93 +201,100 @@
         {
           "a": 0,
           "b": 4,
-          "stiffness": 4500,
-          "damping": 20,
-          "breakTension": 8000
+          "stiffness": 2250,
+          "damping": 60,
+          "breakTension": 10400
         },
         {
           "a": 0,
           "b": 5,
-          "stiffness": 4500,
-          "damping": 20,
-          "breakTension": 8000
+          "stiffness": 2250,
+          "damping": 60,
+          "breakTension": 10400
         },
         {
           "a": 0,
           "b": 6,
-          "stiffness": 4500,
-          "damping": 20,
-          "breakTension": 8000
+          "stiffness": 2250,
+          "damping": 60,
+          "breakTension": 10400
         },
         {
           "a": 4,
           "b": 1,
-          "stiffness": 3500,
-          "damping": 15,
-          "breakTension": 6000
+          "stiffness": 1750,
+          "damping": 60,
+          "breakTension": 7800
         },
         {
           "a": 5,
           "b": 2,
-          "stiffness": 3500,
-          "damping": 15,
-          "breakTension": 6000
+          "stiffness": 1750,
+          "damping": 60,
+          "breakTension": 7800
         },
         {
           "a": 6,
           "b": 3,
-          "stiffness": 3500,
-          "damping": 15,
-          "breakTension": 6000
+          "stiffness": 1750,
+          "damping": 60,
+          "breakTension": 7800
         },
         {
           "a": 1,
           "b": 7,
-          "stiffness": 2800,
-          "damping": 15,
-          "breakTension": 4500
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 5850
         },
         {
           "a": 2,
           "b": 7,
-          "stiffness": 3200,
-          "damping": 15,
-          "breakTension": 5500
+          "stiffness": 1600,
+          "damping": 60,
+          "breakTension": 7150
         },
         {
           "a": 3,
           "b": 7,
-          "stiffness": 2800,
-          "damping": 15,
-          "breakTension": 4500
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 5850
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 1800,
-          "damping": 10,
-          "breakTension": 3000
+          "stiffness": 900,
+          "damping": 60,
+          "breakTension": 3900
         },
         {
           "a": 2,
           "b": 3,
-          "stiffness": 1800,
-          "damping": 10,
-          "breakTension": 3000
+          "stiffness": 900,
+          "damping": 60,
+          "breakTension": 3900
         },
         {
           "a": 4,
           "b": 5,
-          "stiffness": 1800,
-          "damping": 10,
-          "breakTension": 3000
+          "stiffness": 900,
+          "damping": 60,
+          "breakTension": 3900
         },
         {
           "a": 5,
           "b": 6,
-          "stiffness": 1800,
-          "damping": 10,
-          "breakTension": 3000
+          "stiffness": 900,
+          "damping": 60,
+          "breakTension": 3900
+        },
+        {
+          "a": 4,
+          "b": 7,
+          "stiffness": 1600,
+          "damping": 60,
+          "breakTension": 7150
         }
       ]
     }

@@ -167,13 +167,16 @@ export class Building {
     const explosions = [];
 
     for (let s = 0; s < subSteps; s++) {
-      // 1. 核心点更新
+      // 1. 核心点更新（位置+速度都要同步，弹簧阻尼依赖核心的真实速度）
       for (const p of this.points) {
         if (!p.alive || !p.isCore || !p._orbit) continue;
         p._orbitTime = (p._orbitTime || 0) + subDt;
         const pos = p._orbit.getWorldPosition(p._orbitTime, p._orbits);
         p.x = pos.x;
         p.y = pos.y;
+        const vel = p._orbit.getWorldVelocity(p._orbitTime, p._orbits);
+        p.vx = vel.vx;
+        p.vy = vel.vy;
       }
 
       // 2. 重力

@@ -3,15 +3,60 @@
   "gravity": 300,
   "cutscene": {
     "assets": {
-      "backgrounds": { "bridge": "bridge" },
-      "characters": { "commander": "commander", "peach": "peach" }
+      "backgrounds": {
+        "bridge": "bridge"
+      },
+      "characters": {
+        "commander": "commander",
+        "peach": "peach"
+      }
     },
     "scenes": [
-      { "bg": "bridge", "left": "commander", "right": null, "dialogue": { "speaker": "指挥官", "text": "接下来是机动弹的进阶课程——霍曼转移。" } },
-      { "bg": "bridge", "left": "commander", "right": "peach:standing", "dialogue": { "speaker": "指挥官", "text": "机动弹有高达1000的ΔV和10次点火，是最灵活的弹药。" } },
-      { "bg": "bridge", "left": null, "right": "peach", "dialogue": { "speaker": "桃子", "text": "利用多次点火，在行星之间进行轨道转移——这就是霍曼转移的精髓。" } },
-      { "bg": "bridge", "left": "commander", "right": "peach:thinking", "dialogue": { "speaker": "指挥官", "text": "目标建筑正在环绕行星运动。找准发射窗口，用机动弹追上它。" } },
-      { "bg": "bridge", "left": null, "right": "peach:confident", "dialogue": { "speaker": "桃子", "text": "记住：先加速进入椭圆轨道，到达目标后再减速匹配——分两步走！" } }
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": null,
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "接下来是机动弹的进阶课程——霍曼转移。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": "peach:standing",
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "机动弹有高达1000的ΔV和10次点火，是最灵活的弹药。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": null,
+        "right": "peach",
+        "dialogue": {
+          "speaker": "桃子",
+          "text": "利用多次点火，在行星之间进行轨道转移——这就是霍曼转移的精髓。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": "commander",
+        "right": "peach:thinking",
+        "dialogue": {
+          "speaker": "指挥官",
+          "text": "目标建筑正在环绕行星运动。找准发射窗口，用机动弹追上它。"
+        }
+      },
+      {
+        "bg": "bridge",
+        "left": null,
+        "right": "peach:confident",
+        "dialogue": {
+          "speaker": "桃子",
+          "text": "记住：先加速进入椭圆轨道，到达目标后再减速匹配——分两步走！"
+        }
+      }
     ]
   },
   "camera": {
@@ -154,79 +199,79 @@
         {
           "a": 1,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 0,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 0,
           "b": 4,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 0,
           "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 3,
           "b": 4,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 1,
           "b": 6,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 6,
           "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 2,
           "b": 5,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 0,
           "b": 5,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         },
         {
           "a": 6,
           "b": 0,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
+          "stiffness": 1000,
+          "damping": 60,
+          "breakTension": 5200
         }
       ]
     }
