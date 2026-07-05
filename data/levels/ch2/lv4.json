@@ -401,13 +401,6 @@
           "breakTension": 4000
         },
         {
-          "a": 3,
-          "b": 3,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
-        },
-        {
           "a": 1,
           "b": 3,
           "stiffness": 2000,
@@ -521,13 +514,6 @@
         },
         {
           "a": 10,
-          "b": 9,
-          "stiffness": 2000,
-          "damping": 15,
-          "breakTension": 4000
-        },
-        {
-          "a": 9,
           "b": 9,
           "stiffness": 2000,
           "damping": 15,

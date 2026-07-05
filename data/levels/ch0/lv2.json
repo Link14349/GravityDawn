@@ -474,48 +474,6 @@
           "stiffness": 2500,
           "damping": 15,
           "breakTension": 4500
-        },
-        {
-          "a": 7,
-          "b": 1,
-          "stiffness": 2000,
-          "damping": 12,
-          "breakTension": 3500
-        },
-        {
-          "a": 8,
-          "b": 2,
-          "stiffness": 2000,
-          "damping": 12,
-          "breakTension": 3500
-        },
-        {
-          "a": 9,
-          "b": 3,
-          "stiffness": 2000,
-          "damping": 12,
-          "breakTension": 3500
-        },
-        {
-          "a": 10,
-          "b": 4,
-          "stiffness": 2000,
-          "damping": 12,
-          "breakTension": 3500
-        },
-        {
-          "a": 11,
-          "b": 5,
-          "stiffness": 2000,
-          "damping": 12,
-          "breakTension": 3500
-        },
-        {
-          "a": 12,
-          "b": 6,
-          "stiffness": 2000,
-          "damping": 12,
-          "breakTension": 3500
         }
       ]
     }
