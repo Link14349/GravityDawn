@@ -17,7 +17,7 @@ export const BULLET_TYPES = {
     name: '爆炸弹',
     payloadMass: 10, fuelMass: 18, deltaV: 300, ignitionCount: 2,
     explosionRadius: 200, explosionImpulse: 4000,
-    color: '#000000', renderRadius: 14,
+    color: '#ff8fb4', renderRadius: 14,
     onImpact: 'explode',
   },
   kinetic: {
