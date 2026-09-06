@@ -8,6 +8,9 @@ export const G = 2000;
 // 物理模拟时间步长（秒/帧），假设 60fps
 export const DT = 1 / 60;
 
+// 时间滑动条的离散倍率，按档位顺序排列。
+export const TIME_SCALES = Object.freeze([0.5, 1, 1.5, 2, 4, 5, 10, 20]);
+
 // 子步划分（每帧内细分步数，提高积分精度）
 export const SUB_STEPS = 4;
 

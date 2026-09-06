@@ -73,6 +73,7 @@ export async function initGame() {
   let currentChapter = 0, currentLevel = 0;
   let tempGravityWells = [];
   let simulation = null;
+  let simulationStepRemainder = 0;
   let cutsceneMgr = null; // 播片管理器
 
   // 按原 1200 × 800 画面等比缩放，多出的窗口区域用于扩展视野。
@@ -107,6 +108,7 @@ export async function initGame() {
     cam.enabled = true;
     cam._shouldBlockPan = () => ctrl && ctrl.getHoveredBullet() !== null;
     physicsTime = 0;
+    simulationStepRemainder = 0;
     explosions = simulation.explosions;
     tempGravityWells = simulation.tempGravityWells;
     settling = false; settleTimer = 0; gameActive = false;
@@ -210,7 +212,10 @@ export async function initGame() {
 
     if (!gameActive) { gameActive = true; }
     let frameHadEvent = false;
-    const simulationSteps = ctrl.shouldPause() ? 0 : frameSteps * ctrl.timeScale;
+    // 小数倍率保留不足一步的余量，避免 0.5× / 1.5× 被循环向上取整。
+    simulationStepRemainder = ctrl.shouldPause() ? 0 : simulationStepRemainder + frameSteps * ctrl.timeScale;
+    const simulationSteps = Math.floor(simulationStepRemainder);
+    simulationStepRemainder -= simulationSteps;
 
     if (simulationSteps > 0) {
       // 加速只增加固定步进次数，不放大物理 dt，保持碰撞与轨迹精度。

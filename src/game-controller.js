@@ -7,6 +7,8 @@
  *   松开鼠标 → 发射（应用 Delta-V）
  */
 
+import { TIME_SCALES } from './constants.js';
+
 // 游戏状态
 export const GameState = Object.freeze({
   PLAYING: 'playing',     // 正常运行
@@ -334,9 +336,9 @@ export class GameController {
     return this.paused || this._spacePaused;
   }
 
-  /** 每次增加 1 倍模拟速度，10 倍后回到正常速度。 */
-  cycleTimeScale() {
-    this.timeScale = this.timeScale >= 10 ? 1 : this.timeScale + 1;
+  /** 设置时间倍率；只接受时间滑动条支持的档位。 */
+  setTimeScale(value) {
+    if (TIME_SCALES.includes(value)) this.timeScale = value;
     return this.timeScale;
   }
 

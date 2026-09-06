@@ -292,7 +292,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | `getBurnPreview()` | 当前拖拽实际可用的 Δv、点火后燃料比例和爆炸半径，不修改弹体 |
 | `getDragVector()` | 拖拽 ΔV 矢量 |
 | `getHoveredBullet()` | 当前 Canvas 内悬停的子弹 |
-| `cycleTimeScale()` | 将 `timeScale` 从默认 1 逐次加到 10，再回到 1，返回新倍率；重建控制器时恢复 1 |
+| `setTimeScale(value)` | 将 `timeScale` 设置为 `TIME_SCALES` 中的倍率并返回当前倍率；不支持的值保持原倍率，重建控制器时恢复 1 |
 | `destroy()` | 中止全部事件监听，重试/离关后不再响应输入 |
 
 ---
@@ -303,6 +303,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 |------|-----|------|
 | G | 2000 | 万有引力常量（游戏尺度） |
 | DT | 1/60 | 物理帧步长 |
+| TIME_SCALES | `[0.5, 1, 1.5, 2, 4, 5, 10, 20]` | 冻结的时间倍率档位数组，控制器与 UI 共用 |
 | SUB_STEPS | 4 | 每帧子步数 |
 | MIN_DISTANCE | 5 | 最小引力距离 |
 | PREDICTION_STEPS | 300 | 轨迹预测步数 |
@@ -369,7 +370,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 `#game-shell` 固定占据 `100dvh`，`html/body` 与 `#interface` 不滚动。菜单使用纵向 flex 布局，主内容以 `min-height: 0` 填充页眉、页脚之间的剩余空间。首页按窗口宽高压缩间距和次要展示，不产生滚动；选关的 `.sector-sidebar nav` 与 `.mission-grid` 分别内部滚动。切换章节保留章节列表的滚动位置与选中按钮焦点，新章节的关卡列表从顶部展示。结算、简报正文与手册只在各自受限内容区滚动，禁止滚动传递到外层；`goTo()` 不再调用 `window.scrollTo()`。
 
 - `_onReplay()` restarts without briefing; `_onFocus()` restores the level camera.
-- HUD 的「时间加速」按钮调用控制器 `cycleTimeScale()`，显示当前 `timeScale`（1×–10×）；悬停按钮可查看循环切换说明。暂停期间可切换倍率，恢复时生效；重试和进入新关卡恢复 1×。
+- HUD 的「时间加速」使用原生 range 滑动条，整数索引 0–7 对应 `TIME_SCALES` 的 0.5×、1×、1.5×、2×、4×、5×、10×、20×。`input` 事件调用控制器 `setTimeScale(value)`，实时更新倍率、滑块位置和 `aria-valuetext`；支持拖动、点击轨道和方向键逐档调整。刻度来自同一数组，悬停可查看全部档位。控件接收指针事件，避免触发后方 Canvas 操作。暂停期间可切换倍率，恢复时生效；重试和进入新关卡恢复 1×。
 - `drawTutorialHint(hint|null)` updates / hides contextual guidance.
 - `drawSettleCountdown(remaining)` updates the result countdown.
 - `.flight-interface` 继承菜单的浅色 CSS 变量，Canvas 外侧及 HUD、暂停、引导和遥测面板使用相同纸色。共享 `_header()` 的首页按钮使用 `gravityDawnMark` 图片，保持原有点击返回首页和无障碍标签。
@@ -435,7 +436,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 
 `new FlightSimulation(LevelManager.load(levelData))` 持有星体、建筑、弹体、物理引擎、爆炸、临时引力源与 `physicsTime`。`step(controller?)` 以固定 1/60 秒执行一次生产物理步进，返回本帧是否发生碰撞/爆炸事件；可选 controller 提供右键触发队列。`getPerformance()` 返回原始弹体的已发射数 `shotsUsed` 和累计消耗 `deltaVSpent`，分裂出的子弹不重复计入经济性评价。
 
-main.js 通过真实时间累积器得到基础步数（每帧最多补 6 步），再乘以控制器 `timeScale`（1–10）调用固定步进，单步始终为 1/60 秒，10× 时每帧最多 60 步。星体、弹体、建筑、特殊效果和物理时钟同步加速，结算缓冲也按实际模拟步数计时。悬停/瞄准及空格暂停时步数为 0，不累计待补的模拟步数；恢复后按所选倍率继续。UI、教学提示和播片仍使用真实时间。相同模拟也由关卡验证脚本调用，避免测试另写一套物理。
+main.js 通过真实时间累积器得到基础步数（每帧最多补 6 步），再乘以控制器 `timeScale`（0.5–20）累加到 `simulationStepRemainder`。每帧只执行向下取整后的完整步数，保留不足一步的余量供下一帧使用，确保 0.5× 和 1.5× 不被向上取整；切换倍率保留已有余量。单步始终为 1/60 秒，20× 时每帧最多 120 步。星体、弹体、建筑、特殊效果和物理时钟同步变速，结算缓冲也按实际模拟步数计时。悬停/瞄准及空格暂停时步数为 0，并清空模拟步进余量；恢复后按所选倍率继续，重试和进入新关也清空余量。UI、教学提示和播片仍使用真实时间。相同模拟也由关卡验证脚本调用，避免测试另写一套物理。
 
 `Building.checkCollisionAt(x,y,r,time=null)` 使用各锚点的未来位置。建筑级 `frameOrbit` 把尚未脱离的自由构件快照平移到未来参考位置，不预测碎片的后续变形。`Building.time` 随 `step` 累加，用于计算快照与预测时刻之差。瞄准使用燃料能实现的 Δv 上限；建筑爆心为弹体中心；星体检测包含弹体半径。`GameController` 接收可选 `predictionSteps`，默认 800，新堡垒战役使用 1800，对应 30 秒飞行窗口。
 
