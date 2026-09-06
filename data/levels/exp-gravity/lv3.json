@@ -1,40 +1,72 @@
 {
-  "id": "fortress-gravity-03",
-  "name": "双岸哨塔",
-  "skill": "不同释放相位",
-  "difficulty": 9,
+  "id": "dawn-gravity-03",
+  "name": "双月哨站",
+  "skill": "同轨双目标",
+  "difficulty": 7,
   "gravity": 200,
   "flightTimeout": 30,
   "camera": {
-    "x": 0,
+    "x": 5,
     "y": 0,
-    "zoom": 0.95
+    "zoom": 0.49
   },
   "orbits": [
     {
       "type": "fixed",
-      "x": -80,
+      "x": 0,
       "y": 0
     },
     {
-      "type": "fixed",
-      "x": 130,
-      "y": -180
+      "type": "circular",
+      "parent": 0,
+      "radius": 350,
+      "period": 76,
+      "phase": 0
+    },
+    {
+      "type": "circular",
+      "parent": 0,
+      "radius": 350,
+      "period": 76,
+      "phase": 3.141592653589793
     },
     {
       "type": "fixed",
-      "x": 230,
-      "y": 155
+      "x": 0,
+      "y": -115,
+      "phase": 0,
+      "parent": 1
+    },
+    {
+      "type": "fixed",
+      "x": 0,
+      "y": 115,
+      "phase": 0,
+      "parent": 2
     }
   ],
   "stars": [],
   "planets": [
     {
+      "mass": 3000,
+      "radius": 46,
+      "label": "引力主星",
       "orbit": 0,
-      "mass": 4600,
-      "radius": 65,
-      "collisionRadius": 65,
-      "label": "引力主星"
+      "collisionRadius": 46
+    },
+    {
+      "mass": 650,
+      "radius": 30,
+      "label": "青月",
+      "orbit": 1,
+      "collisionRadius": 30
+    },
+    {
+      "mass": 650,
+      "radius": 30,
+      "label": "白月",
+      "orbit": 2,
+      "collisionRadius": 30
     }
   ],
   "bullets": [
@@ -42,16 +74,16 @@
       "type": "explosive",
       "orbitAround": {
         "bodyIndex": 0,
-        "altitude": 105,
-        "phase": 2.4
+        "altitude": 64,
+        "phase": 1.6
       }
     },
     {
       "type": "explosive",
       "orbitAround": {
         "bodyIndex": 0,
-        "altitude": 105,
-        "phase": 3.8
+        "altitude": 64,
+        "phase": 4.5
       }
     }
   ],
@@ -616,7 +648,7 @@
         "damping": 65,
         "breakTension": 6500
       },
-      "orbit": 1
+      "orbit": 3
     },
     {
       "name": "02 / 双壳前哨",
@@ -1178,14 +1210,14 @@
         "damping": 65,
         "breakTension": 6500
       },
-      "orbit": 2
+      "orbit": 4
     }
   ],
   "objective": "摧毁全部 4 个内部控制单元，得分达到 800 分。",
   "guidance": {
-    "title": "不同释放相位",
-    "text": "两枚弹体位于泊车轨道的不同位置；两座哨塔分居行星两侧。分别寻找顺势的航线。",
-    "hint": "不要照搬第一枚的拖拽方向。先检查第二枚本身的速度与当前相位。"
+    "title": "同轨双目标",
+    "text": "两颗月亮沿同一轨道保持对望，各自带着一座哨站。目标位置与三源引力同时变化。",
+    "hint": "两枚弹体分别选择顺势的哨站；不要把第一发的方向复制给第二发。"
   },
   "winCondition": {
     "importantTargetsAll": true,

@@ -2,11 +2,16 @@
   {
     "id": "fortress-calibration-01",
     "name": "双壳校准",
-    "fingerprint": "d7afdb9b6c7b7fdbcdc8ebe246ad22b11f0899b85c18479563daea3565cd21f6",
+    "fingerprint": "c98af6b12df3c4d10e806232ba9396a380d6c8d95f03d52b1f853a0ecf6a5f4b",
     "points": 42,
     "springs": 80,
     "targets": 2,
-    "idleSeconds": 30,
+    "gravitySources": 0,
+    "movingBodies": 0,
+    "surfaceBuildings": 0,
+    "idleSeconds": 60,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0,
     "passed": true,
     "stars": 3,
     "shots": 1,
@@ -28,177 +33,18 @@
     ]
   },
   {
-    "id": "fortress-calibration-02",
-    "name": "错位双舱",
-    "fingerprint": "d34ea348492ab4c6269e6e3a39c395ff1fefe7d8143162e0af4d7d39b86df699",
-    "points": 56,
-    "springs": 105,
-    "targets": 2,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 1,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": [
-      {
-        "startFrame": 0,
-        "remaining": 2,
-        "shots": 1,
-        "actions": [
-          {
-            "frame": 0,
-            "bullet": 0,
-            "dvx": 285.31695488854604,
-            "dvy": 92.70509831248422
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "fortress-calibration-03",
-    "name": "棱堡斜面",
-    "fingerprint": "9463f1f517e613459f44d0b6e88472c043684ca8179b18d360edfa1c9696a7d8",
-    "points": 62,
-    "springs": 114,
-    "targets": 2,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 1,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": [
-      {
-        "startFrame": 0,
-        "remaining": 2,
-        "shots": 1,
-        "actions": [
-          {
-            "frame": 0,
-            "bullet": 0,
-            "dvx": 288.3785087814956,
-            "dvy": -82.69120674509993
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "fortress-calibration-04",
-    "name": "双塔连桥",
-    "fingerprint": "28960841d69e7249ddeaf5dba01b50473b2078d27caa5c0f03684f2e25a7612a",
-    "points": 66,
-    "springs": 128,
-    "targets": 2,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 2,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": [
-      {
-        "startFrame": 0,
-        "remaining": 2,
-        "shots": 2,
-        "actions": [
-          {
-            "frame": 0,
-            "bullet": 0,
-            "dvx": 239.59065301418784,
-            "dvy": 180.54450694561447
-          },
-          {
-            "frame": 186,
-            "bullet": 1,
-            "dvx": 267.3019572565104,
-            "dvy": 136.19714992186402
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "fortress-calibration-05",
-    "name": "机库群",
-    "fingerprint": "69e2b12c9c93e01e9f7fad674bf445d4b01be00857c9a1a998205c127b2d93ad",
-    "points": 98,
-    "springs": 185,
-    "targets": 4,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 2,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": [
-      {
-        "startFrame": 0,
-        "remaining": 4,
-        "shots": 2,
-        "actions": [
-          {
-            "frame": 0,
-            "bullet": 0,
-            "dvx": 276.151456035732,
-            "dvy": -117.21933854678241
-          },
-          {
-            "frame": 193,
-            "bullet": 1,
-            "dvx": 276.151456035732,
-            "dvy": -117.21933854678241
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "fortress-calibration-06",
-    "name": "校准站围攻",
-    "fingerprint": "ee9aa7723ba723b4dbf227a63e86a170f762618e7e0b1f16fb1a978604b7ff3b",
-    "points": 146,
-    "springs": 274,
-    "targets": 6,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": [
-      {
-        "startFrame": 0,
-        "remaining": 6,
-        "shots": 3,
-        "actions": [
-          {
-            "frame": 0,
-            "bullet": 0,
-            "dvx": 286.8914267889106,
-            "dvy": 87.71151141682103
-          },
-          {
-            "frame": 206,
-            "bullet": 2,
-            "dvx": 289.7777478867205,
-            "dvy": 77.64571353075623
-          },
-          {
-            "frame": 413,
-            "bullet": 1,
-            "dvx": 278.15515637003625,
-            "dvy": 112.3819780247736
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "fortress-gravity-01",
+    "id": "dawn-calibration-02",
     "name": "近地点轰炸",
-    "fingerprint": "32ce875af4d3ebee63ba6c26b8aada18367ee7bd98b9fba37e97405bbcec8fc8",
+    "fingerprint": "42611038c4cef9d4f0302ed40853f9b6f15a953db4368ffee4231122d3c4c408",
     "points": 42,
     "springs": 80,
     "targets": 2,
-    "idleSeconds": 30,
+    "gravitySources": 1,
+    "movingBodies": 0,
+    "surfaceBuildings": 0,
+    "idleSeconds": 60,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.08911318718344864,
     "passed": true,
     "stars": 3,
     "shots": 1,
@@ -252,13 +98,162 @@
     ]
   },
   {
-    "id": "fortress-gravity-02",
-    "name": "行星背面",
-    "fingerprint": "b71c290ded42ef03fe01b33ee9e043b6a4fef9e593d9ef9be7e4620321165e0b",
+    "id": "dawn-calibration-03",
+    "name": "引力棱堡",
+    "fingerprint": "0feefe132d47291b993fc6ef47b5af12f782116896799c2ebb821252ac4c88f7",
     "points": 62,
     "springs": 114,
     "targets": 2,
-    "idleSeconds": 30,
+    "gravitySources": 1,
+    "movingBodies": 0,
+    "surfaceBuildings": 0,
+    "idleSeconds": 60,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.12729790062787372,
+    "passed": true,
+    "stars": 3,
+    "shots": 1,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": [
+      {
+        "startFrame": 0,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 0,
+            "bullet": 0,
+            "dvx": 293.44428022014165,
+            "dvy": -62.373507245327964
+          }
+        ]
+      },
+      {
+        "startFrame": 180,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 180,
+            "bullet": 0,
+            "dvx": 294.4881550342992,
+            "dvy": -57.2426986129634
+          }
+        ]
+      },
+      {
+        "startFrame": 360,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 360,
+            "bullet": 0,
+            "dvx": 212.1320343559642,
+            "dvy": -212.1320343559643
+          }
+        ]
+      },
+      {
+        "startFrame": 540,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 540,
+            "bullet": 0,
+            "dvx": 196.8177086971521,
+            "dvy": -226.41287406683165
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dawn-calibration-04",
+    "name": "月面桁架",
+    "fingerprint": "ae79fa8abba5741c457cb8e64a96f1bbb5b07730cd4517c3a338621bd0b23833",
+    "points": 13,
+    "springs": 18,
+    "targets": 2,
+    "gravitySources": 1,
+    "movingBodies": 0,
+    "surfaceBuildings": 1,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 2.704921627283916,
+    "peakTensionRatio": 0.06906610950335729,
+    "passed": true,
+    "stars": 3,
+    "shots": 1,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": [
+      {
+        "startFrame": 0,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 0,
+            "bullet": 0,
+            "dvx": 297.76384549239657,
+            "dvy": -36.56080302154444
+          }
+        ]
+      },
+      {
+        "startFrame": 180,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 180,
+            "bullet": 0,
+            "dvx": 248.71127176651243,
+            "dvy": -167.7578710412242
+          }
+        ]
+      },
+      {
+        "startFrame": 360,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 360,
+            "bullet": 0,
+            "dvx": 176.33557568774188,
+            "dvy": -242.70509831248427
+          }
+        ]
+      },
+      {
+        "startFrame": 540,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 540,
+            "bullet": 0,
+            "dvx": 82.69120674509982,
+            "dvy": -288.3785087814956
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dawn-gravity-01",
+    "name": "行星背面",
+    "fingerprint": "1af81f5fa3e9e0e91274c81851ba795147af3c33be973f5efa1051d92f0f827d",
+    "points": 62,
+    "springs": 114,
+    "targets": 2,
+    "gravitySources": 1,
+    "movingBodies": 0,
+    "surfaceBuildings": 0,
+    "idleSeconds": 60,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.21126755242285356,
     "passed": true,
     "stars": 3,
     "shots": 1,
@@ -312,104 +307,108 @@
     ]
   },
   {
-    "id": "fortress-gravity-03",
-    "name": "双岸哨塔",
-    "fingerprint": "cbe3474d8f9876f806c3b5361f1006ea6d805fb8ea7c3630b390443ea6dd9aed",
-    "points": 84,
-    "springs": 160,
-    "targets": 4,
-    "idleSeconds": 30,
+    "id": "dawn-gravity-02",
+    "name": "游月弯道",
+    "fingerprint": "2ae7dc3a432c8d44be130a2b26c2334ed7cf69988f4392b617439c9647bb8550",
+    "points": 56,
+    "springs": 105,
+    "targets": 2,
+    "gravitySources": 2,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.3315384828261207,
     "passed": true,
     "stars": 3,
-    "shots": 2,
+    "shots": 1,
     "fullThrustReplacementPassed": false,
     "maxThrustSweeps": [
       {
         "startFrame": 0,
-        "remaining": 4,
+        "remaining": 2,
         "shots": 2,
         "actions": [
           {
             "frame": 0,
             "bullet": 0,
-            "dvx": 283.65557267979494,
-            "dvy": -97.67044633714725
+            "dvx": 251.60117038362722,
+            "dvy": -163.3917105045081
           },
           {
-            "frame": 189,
+            "frame": 242,
             "bullet": 1,
-            "dvx": 294.4881550342992,
-            "dvy": 57.242698612963444
+            "dvx": 236.40322608201646,
+            "dvy": -184.69844259769766
           }
         ]
       },
       {
         "startFrame": 180,
-        "remaining": 4,
+        "remaining": 2,
         "shots": 2,
         "actions": [
           {
             "frame": 180,
             "bullet": 0,
-            "dvx": 295.4423259036624,
-            "dvy": 52.0944533000791
+            "dvx": 229.81333293569332,
+            "dvy": -192.83628290596187
           },
           {
-            "frame": 370,
+            "frame": 393,
             "bullet": 1,
-            "dvx": 140.84146883576713,
-            "dvy": -264.8842778576781
+            "dvx": 299.2692150779473,
+            "dvy": -20.926942123237428
           }
         ]
       },
       {
         "startFrame": 360,
-        "remaining": 4,
+        "remaining": 2,
         "shots": 2,
         "actions": [
           {
             "frame": 360,
             "bullet": 0,
-            "dvx": 293.4442802201417,
-            "dvy": 62.373507245327794
+            "dvx": 233.14378843709116,
+            "dvy": -188.79611731495135
           },
           {
-            "frame": 513,
+            "frame": 531,
             "bullet": 1,
-            "dvx": 291.08871788279896,
-            "dvy": 72.57656867990032
+            "dvx": 294.4881550342992,
+            "dvy": -57.2426986129634
           }
         ]
       },
       {
         "startFrame": 540,
-        "remaining": 4,
-        "shots": 2,
+        "remaining": 2,
+        "shots": 1,
         "actions": [
           {
             "frame": 540,
             "bullet": 0,
-            "dvx": 87.71151141682101,
-            "dvy": -286.8914267889106
-          },
-          {
-            "frame": 677,
-            "bullet": 1,
-            "dvx": 283.65557267979494,
-            "dvy": -97.67044633714725
+            "dvx": 297.0804206224711,
+            "dvy": -41.751930288019764
           }
         ]
       }
     ]
   },
   {
-    "id": "fortress-gravity-04",
-    "name": "月面机库",
-    "fingerprint": "69263b7fcdbccae978441b66b37a7fb9eb5a4ba7bb91668a77ac5234a49e5a8b",
-    "points": 57,
-    "springs": 105,
-    "targets": 3,
-    "idleSeconds": 30,
+    "id": "dawn-gravity-03",
+    "name": "双月哨站",
+    "fingerprint": "da62282d90814f002bf766349772768f464c73c5e45de1d60277f33422618296",
+    "points": 84,
+    "springs": 160,
+    "targets": 4,
+    "gravitySources": 3,
+    "movingBodies": 2,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.6043777108271289,
     "passed": true,
     "stars": 3,
     "shots": 2,
@@ -417,90 +416,390 @@
     "maxThrustSweeps": [
       {
         "startFrame": 0,
-        "remaining": 3,
+        "remaining": 4,
         "shots": 2,
         "actions": [
           {
             "frame": 0,
             "bullet": 0,
-            "dvx": 267.3019572565103,
-            "dvy": -136.19714992186408
+            "dvx": -257.15019021063364,
+            "dvy": 154.51142247301632
           },
           {
-            "frame": 202,
+            "frame": 181,
             "bullet": 1,
-            "dvx": 196.8177086971521,
-            "dvy": -226.41287406683165
+            "dvx": 264.8842778576781,
+            "dvy": -140.84146883576724
           }
         ]
       },
       {
         "startFrame": 180,
-        "remaining": 3,
+        "remaining": 4,
         "shots": 2,
         "actions": [
           {
             "frame": 180,
-            "bullet": 1,
-            "dvx": 192.83628290596178,
-            "dvy": -229.81333293569344
+            "bullet": 0,
+            "dvx": -295.4423259036624,
+            "dvy": 52.09445330007908
           },
           {
-            "frame": 347,
-            "bullet": 0,
-            "dvx": 188.79611731495126,
-            "dvy": -233.14378843709125
+            "frame": 349,
+            "bullet": 1,
+            "dvx": -122.02099292274004,
+            "dvy": 274.0636372927803
           }
         ]
       },
       {
         "startFrame": 360,
-        "remaining": 3,
+        "remaining": 4,
         "shots": 2,
         "actions": [
           {
             "frame": 360,
             "bullet": 0,
-            "dvx": 188.79611731495126,
-            "dvy": -233.14378843709125
+            "dvx": 122.02099292274016,
+            "dvy": -274.06363729278024
           },
           {
-            "frame": 531,
+            "frame": 538,
             "bullet": 1,
-            "dvx": 293.44428022014165,
-            "dvy": -62.373507245327964
+            "dvx": -242.7050983124842,
+            "dvy": 176.33557568774197
           }
         ]
       },
       {
         "startFrame": 540,
-        "remaining": 3,
+        "remaining": 4,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 540,
+            "bullet": 1,
+            "dvx": -215.8019401015954,
+            "dvy": 208.39751113769915
+          },
+          {
+            "frame": 715,
+            "bullet": 0,
+            "dvx": -31.358538980296,
+            "dvy": 298.35656861048204
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dawn-gravity-04",
+    "name": "两岸地表站",
+    "fingerprint": "b5a8b94ffb5b4339223d58bb932c8355df9aaeed21ce29ded328f9d9e87407f7",
+    "points": 26,
+    "springs": 36,
+    "targets": 4,
+    "gravitySources": 2,
+    "movingBodies": 0,
+    "surfaceBuildings": 2,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 2.7467719581566743,
+    "peakTensionRatio": 0.07507660281483908,
+    "passed": true,
+    "stars": 3,
+    "shots": 2,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": [
+      {
+        "startFrame": 0,
+        "remaining": 4,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 0,
+            "bullet": 0,
+            "dvx": -102.60604299770061,
+            "dvy": 281.9077862357725
+          },
+          {
+            "frame": 154,
+            "bullet": 1,
+            "dvx": 180.5445069456144,
+            "dvy": -239.59065301418792
+          }
+        ]
+      },
+      {
+        "startFrame": 180,
+        "remaining": 4,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 180,
+            "bullet": 0,
+            "dvx": 67.48531630315948,
+            "dvy": 292.3110194355706
+          },
+          {
+            "frame": 319,
+            "bullet": 1,
+            "dvx": 92.70509831248417,
+            "dvy": -285.3169548885461
+          }
+        ]
+      },
+      {
+        "startFrame": 360,
+        "remaining": 4,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 360,
+            "bullet": 0,
+            "dvx": 289.7777478867205,
+            "dvy": 77.64571353075623
+          },
+          {
+            "frame": 490,
+            "bullet": 1,
+            "dvx": -67.48531630315958,
+            "dvy": -292.31101943557053
+          }
+        ]
+      },
+      {
+        "startFrame": 540,
+        "remaining": 4,
         "shots": 2,
         "actions": [
           {
             "frame": 540,
             "bullet": 0,
-            "dvx": 299.8172481057287,
-            "dvy": 10.469849010750291
+            "dvx": 245.74561328669748,
+            "dvy": -172.07293090531394
           },
           {
-            "frame": 678,
+            "frame": 673,
+            "bullet": 1,
+            "dvx": -292.3110194355706,
+            "dvy": -67.4853163031595
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dawn-interception-01",
+    "name": "行星追逐",
+    "fingerprint": "ce3f96423fda9a18585b7d21ac474f91aa8043792906c93ef84b5b7fd9996c5c",
+    "points": 56,
+    "springs": 105,
+    "targets": 2,
+    "gravitySources": 2,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.6206096083480585,
+    "passed": true,
+    "stars": 3,
+    "shots": 1,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": [
+      {
+        "startFrame": 0,
+        "remaining": 2,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 0,
+            "bullet": 0,
+            "dvx": 236.40322608201646,
+            "dvy": -184.69844259769766
+          },
+          {
+            "frame": 239,
             "bullet": 1,
             "dvx": 226.41287406683156,
             "dvy": -196.81770869715223
           }
         ]
+      },
+      {
+        "startFrame": 180,
+        "remaining": 2,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 180,
+            "bullet": 0,
+            "dvx": 145.44288607390095,
+            "dvy": -262.38591214181884
+          },
+          {
+            "frame": 388,
+            "bullet": 1,
+            "dvx": 176.33557568774188,
+            "dvy": -242.70509831248427
+          }
+        ]
+      },
+      {
+        "startFrame": 360,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 360,
+            "bullet": 0,
+            "dvx": 180.5445069456144,
+            "dvy": -239.59065301418792
+          }
+        ]
+      },
+      {
+        "startFrame": 540,
+        "remaining": 2,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 540,
+            "bullet": 0,
+            "dvx": 117.21933854678205,
+            "dvy": -276.15145603573217
+          },
+          {
+            "frame": 795,
+            "bullet": 1,
+            "dvx": 57.242698612963274,
+            "dvy": -294.4881550342992
+          }
+        ]
       }
     ]
   },
   {
-    "id": "fortress-gravity-05",
-    "name": "双星弯道",
-    "fingerprint": "bdf7662537a1e94646d08cb4c5cbf8eb7bd1989a8c63ac1954d4597a210a600c",
-    "points": 104,
-    "springs": 194,
+    "id": "dawn-interception-02",
+    "name": "陨星快车",
+    "fingerprint": "a9c16be33e6e857b31e962ab2c9c9068e05639464afb3f1764dc90285063a0e1",
+    "points": 22,
+    "springs": 40,
+    "targets": 2,
+    "gravitySources": 2,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.3396595097471385,
+    "passed": true,
+    "stars": 3,
+    "shots": 1,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": [
+      {
+        "startFrame": 0,
+        "remaining": 2,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 0,
+            "bullet": 0,
+            "dvx": 264.8842778576781,
+            "dvy": -140.84146883576724
+          },
+          {
+            "frame": 225,
+            "bullet": 1,
+            "dvx": 251.60117038362722,
+            "dvy": -163.3917105045081
+          }
+        ]
+      },
+      {
+        "startFrame": 180,
+        "remaining": 2,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 180,
+            "bullet": 0,
+            "dvx": 188.79611731495126,
+            "dvy": -233.14378843709125
+          },
+          {
+            "frame": 370,
+            "bullet": 1,
+            "dvx": 248.71127176651243,
+            "dvy": -167.7578710412242
+          }
+        ]
+      },
+      {
+        "startFrame": 360,
+        "remaining": 2,
+        "shots": 2,
+        "actions": [
+          {
+            "frame": 360,
+            "bullet": 0,
+            "dvx": 188.79611731495126,
+            "dvy": -233.14378843709125
+          },
+          {
+            "frame": 519,
+            "bullet": 1,
+            "dvx": 26.146722824297367,
+            "dvy": -298.85840942752367
+          }
+        ]
+      },
+      {
+        "startFrame": 540,
+        "remaining": 2,
+        "shots": 1,
+        "actions": [
+          {
+            "frame": 540,
+            "bullet": 1,
+            "dvx": -36.56080302154415,
+            "dvy": -297.7638454923966
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dawn-interception-03",
+    "name": "月中之月",
+    "fingerprint": "792a42303b90018f49cead93510acb829780a944ac24cdb455640f3b1506864f",
+    "points": 22,
+    "springs": 40,
+    "targets": 2,
+    "gravitySources": 3,
+    "movingBodies": 2,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.3486153238856573,
+    "passed": true,
+    "stars": 3,
+    "shots": 1,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": []
+  },
+  {
+    "id": "dawn-interception-04",
+    "name": "错向护航",
+    "fingerprint": "703f7ebc34bdf53e1278d026efb701875654a2b82e082798238f5acdb7752297",
+    "points": 84,
+    "springs": 154,
     "targets": 4,
-    "idleSeconds": 30,
+    "gravitySources": 2,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.3452170202553204,
     "passed": true,
     "stars": 3,
     "shots": 2,
@@ -508,139 +807,37 @@
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-gravity-06",
-    "name": "环月防御带",
-    "fingerprint": "dbc316379dbbfcd747ce2900d64fa84810f4735f79fb538d32556efebadc72cc",
-    "points": 150,
-    "springs": 288,
-    "targets": 6,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-interception-01",
-    "name": "巡航前哨",
-    "fingerprint": "87308c83886044d91bd4026a1ddeecd8a39863def9d9efef7f3f92737eb879dd",
-    "points": 42,
-    "springs": 80,
-    "targets": 2,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 1,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-interception-02",
-    "name": "长轴换向",
-    "fingerprint": "b55b7a0e6b87fae6e5a0764bc40527f527c53aa1e64f33cad72817dadaa8310e",
-    "points": 56,
-    "springs": 105,
-    "targets": 2,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 1,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-interception-03",
-    "name": "双舰错航",
-    "fingerprint": "bcd89bc0d8f2c1b08cfcf4e2d784f2474b4a917d7fdc364913e917c8d76acc9b",
-    "points": 104,
-    "springs": 194,
-    "targets": 4,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 2,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-interception-04",
-    "name": "环行机库",
-    "fingerprint": "5bb3fb5b5193b67401de4a7afcb5d97b979a84d68d064dd31d1d5bd00182e908",
-    "points": 56,
-    "springs": 105,
-    "targets": 2,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 1,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-interception-05",
-    "name": "交错护航",
-    "fingerprint": "8bd91ee42fd4dc3f1fc9ffdc628827228c5bb723eaea1cb5f189feaeaa71173f",
-    "points": 146,
-    "springs": 274,
-    "targets": 6,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-interception-06",
-    "name": "移动船坞",
-    "fingerprint": "5dac25b5b80301add077fb2fffe85ba786d247c12a41d15d666e8dc6a7852510",
-    "points": 102,
-    "springs": 193,
-    "targets": 4,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-payloads-01",
-    "name": "穿甲通道",
-    "fingerprint": "040ab660a79960e20ed33d4e3359227ea925727f9f863e5da926dac1911358f8",
+    "id": "dawn-payloads-01",
+    "name": "穿甲内环",
+    "fingerprint": "4b797d8af54acb52a54bc7f56f7375f911dbb38a8b01756f936db1c88b6d6eb8",
     "points": 108,
     "springs": 212,
     "targets": 2,
-    "idleSeconds": 30,
+    "gravitySources": 1,
+    "movingBodies": 0,
+    "surfaceBuildings": 0,
+    "idleSeconds": 60,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.15867486888858437,
     "passed": true,
     "stars": 3,
-    "shots": 2,
+    "shots": 1,
     "fullThrustReplacementPassed": false,
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-payloads-02",
-    "name": "纵列机库",
-    "fingerprint": "659c0c091aaf8d2e492577a149e6906cdb845869fb6b68fc42ca0773316e683b",
-    "points": 98,
-    "springs": 185,
-    "targets": 4,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-payloads-03",
+    "id": "dawn-payloads-02",
     "name": "三叉天线阵",
-    "fingerprint": "36bf13f1862f43f86e4bebb1e982a205eb398666fc9f46115a19237c3a0f96f0",
+    "fingerprint": "81159fa756dea4f1bbde5db84d9ef5b088b23840f2ce7734e5c87ea9cd72a270",
     "points": 59,
     "springs": 112,
     "targets": 3,
-    "idleSeconds": 30,
+    "gravitySources": 1,
+    "movingBodies": 0,
+    "surfaceBuildings": 0,
+    "idleSeconds": 60,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.1934756712638021,
     "passed": true,
     "stars": 2,
     "shots": 3,
@@ -648,13 +845,18 @@
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-payloads-04",
+    "id": "dawn-payloads-03",
     "name": "熔断堡垒",
-    "fingerprint": "390f8e5051d229ea6589399eb84b9b7fe094183b5b83ad8db767e5fc84b955f2",
+    "fingerprint": "f5dbed39b8c85b18aeeb5f2e8174a4773a030a78c5682b439950aadf1eccb391",
     "points": 116,
     "springs": 228,
     "targets": 2,
-    "idleSeconds": 30,
+    "gravitySources": 1,
+    "movingBodies": 0,
+    "surfaceBuildings": 0,
+    "idleSeconds": 60,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.8079131664649274,
     "passed": true,
     "stars": 3,
     "shots": 2,
@@ -662,41 +864,18 @@
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-payloads-05",
+    "id": "dawn-payloads-04",
     "name": "引力拆解",
-    "fingerprint": "ca923d0366f9b2ae0fbc446c7f0c9fe52240752b914c5a508eaadfd20ea5d6cc",
+    "fingerprint": "8eab9c324612359dcdd7f237413bd0b13144585589d70b0239effa8c295d4274",
     "points": 64,
     "springs": 121,
     "targets": 2,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 2,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-payloads-06",
-    "name": "装甲旗舰",
-    "fingerprint": "248a5346f57b910fd1361f747717804dc1d798597b698418800137952837f0a2",
-    "points": 109,
-    "springs": 206,
-    "targets": 3,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-transfer-01",
-    "name": "前堡与内环",
-    "fingerprint": "01014fb8f02281ef02b72421346a985b2279495ec8127d516c1d74107ac7dbbd",
-    "points": 150,
-    "springs": 292,
-    "targets": 4,
-    "idleSeconds": 30,
+    "gravitySources": 2,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.28022780093301336,
     "passed": true,
     "stars": 3,
     "shots": 2,
@@ -704,13 +883,18 @@
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-transfer-02",
-    "name": "两星之间",
-    "fingerprint": "81330b0db8c215ee2b4b46464f9ce10de00c8fd454ee3b9f76cc498e21459a50",
+    "id": "dawn-transfer-01",
+    "name": "三星分流",
+    "fingerprint": "39c377b914628fdfaf5d04cbb250b22d1c5a27cda8179247fb97547529b5868d",
     "points": 118,
     "springs": 219,
     "targets": 4,
-    "idleSeconds": 30,
+    "gravitySources": 3,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.29778298307780543,
     "passed": true,
     "stars": 3,
     "shots": 2,
@@ -718,41 +902,18 @@
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-transfer-03",
-    "name": "三角封锁",
-    "fingerprint": "6ebfad827f6ee9c3ada6cc4c0ce63aa70d245db3fb477d8b80ce57f6f6ff2168",
-    "points": 160,
-    "springs": 299,
-    "targets": 6,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-transfer-04",
-    "name": "移动内堡",
-    "fingerprint": "c3798dc3822b6403fa06a9762145aae9ee61091146b84234c26be8bb23e39abf",
-    "points": 170,
-    "springs": 326,
-    "targets": 4,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-transfer-05",
-    "name": "十字船坞",
-    "fingerprint": "9669f2f7d45cb059a8ff3d7d327d83f408767bd83643260679ae771ee5df939a",
+    "id": "dawn-transfer-02",
+    "name": "迁徙船坞",
+    "fingerprint": "f1bc3bf9048fed4c52681c42693abf32425c7c87d03ff6a8941b65c69acdccf3",
     "points": 115,
     "springs": 217,
     "targets": 5,
-    "idleSeconds": 30,
+    "gravitySources": 2,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.2601692629885749,
     "passed": true,
     "stars": 3,
     "shots": 3,
@@ -760,41 +921,18 @@
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-transfer-06",
-    "name": "纵深防御网",
-    "fingerprint": "3f9fc3103e87f97c009bb4dd4b0f39e9b7986b36c42e63b9d1a3b03afdfd3a1e",
-    "points": 224,
-    "springs": 436,
-    "targets": 6,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 4,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-expedition-01",
-    "name": "边境棱堡群",
-    "fingerprint": "e39be1ab3d4791800bb197fbd4536aee8969e5080cf8d154fe54b7bcd0a1bb5a",
-    "points": 160,
-    "springs": 299,
-    "targets": 6,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-expedition-02",
-    "name": "双星军港",
-    "fingerprint": "40a7c9ce19622478ae0b7ddd88ffd3f8b2ca235c40fc391b1c4f1daaa384236c",
+    "id": "dawn-transfer-03",
+    "name": "双星乱流",
+    "fingerprint": "3dd6972c1d02ba346c8bb13536de1a1de176865bca380f50f1515430c93ea6c1",
     "points": 164,
     "springs": 317,
     "targets": 4,
-    "idleSeconds": 30,
+    "gravitySources": 3,
+    "movingBodies": 2,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.360051353931094,
     "passed": true,
     "stars": 3,
     "shots": 2,
@@ -802,41 +940,18 @@
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-expedition-03",
-    "name": "三舰会合",
-    "fingerprint": "4978f9dd7b3c399b3c91fd66bf723d7ef76f2184c3aa17db9dc3a4b04b706023",
-    "points": 144,
-    "springs": 273,
+    "id": "dawn-transfer-04",
+    "name": "四源封锁",
+    "fingerprint": "fcd825568e27a40b508b209e5b2eb1797c0cb6b26562558d62ab96d206b8509f",
+    "points": 224,
+    "springs": 436,
     "targets": 6,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-expedition-04",
-    "name": "环形主堡",
-    "fingerprint": "de780b496aedeeba5db0735715c9b893daa4f77a87be9929237f6aa7a5caedcf",
-    "points": 216,
-    "springs": 420,
-    "targets": 6,
-    "idleSeconds": 30,
-    "passed": true,
-    "stars": 3,
-    "shots": 3,
-    "fullThrustReplacementPassed": false,
-    "maxThrustSweeps": []
-  },
-  {
-    "id": "fortress-expedition-05",
-    "name": "最后的船坞",
-    "fingerprint": "87af5fb5010433280ee918ffb7f77b821ff16a0713089bcce3520d0ab053e6ee",
-    "points": 180,
-    "springs": 349,
-    "targets": 4,
-    "idleSeconds": 30,
+    "gravitySources": 4,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.5090477115228289,
     "passed": true,
     "stars": 3,
     "shots": 4,
@@ -844,16 +959,78 @@
     "maxThrustSweeps": []
   },
   {
-    "id": "fortress-expedition-06",
-    "name": "黎明要塞",
-    "fingerprint": "543cbcf2c76c3f8687b619afd233cd4b8e4011fb17721d0d77b0f1a1690e67a7",
-    "points": 213,
-    "springs": 400,
-    "targets": 7,
-    "idleSeconds": 30,
+    "id": "dawn-expedition-01",
+    "name": "双层蜂群",
+    "fingerprint": "71374c54249ad43ac67da302d082a5ed7d85604971b73ff218828cff2f0679f3",
+    "points": 44,
+    "springs": 80,
+    "targets": 4,
+    "gravitySources": 4,
+    "movingBodies": 3,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.35637604680274326,
+    "passed": true,
+    "stars": 3,
+    "shots": 2,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": []
+  },
+  {
+    "id": "dawn-expedition-02",
+    "name": "船坞会合",
+    "fingerprint": "386fe272a3841b4ca4b44498f511e4092cdbc3f299acb5017856729e6e3278b2",
+    "points": 180,
+    "springs": 349,
+    "targets": 4,
+    "gravitySources": 3,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.4138318059083615,
     "passed": true,
     "stars": 3,
     "shots": 5,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": []
+  },
+  {
+    "id": "dawn-expedition-03",
+    "name": "旗舰护航",
+    "fingerprint": "c57e2e7515222cfca1d6446ef6a0e413619065c412d8eb4efdb7787bcc02c268",
+    "points": 131,
+    "springs": 246,
+    "targets": 5,
+    "gravitySources": 4,
+    "movingBodies": 3,
+    "surfaceBuildings": 0,
+    "idleSeconds": 248,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.8905392860834332,
+    "passed": true,
+    "stars": 3,
+    "shots": 3,
+    "fullThrustReplacementPassed": false,
+    "maxThrustSweeps": []
+  },
+  {
+    "id": "dawn-expedition-04",
+    "name": "黎明要塞",
+    "fingerprint": "d90368d6bbe75f87fe110292c5b4d121b91aec8becffcf982c1539f38f229da7",
+    "points": 213,
+    "springs": 400,
+    "targets": 7,
+    "gravitySources": 4,
+    "movingBodies": 1,
+    "surfaceBuildings": 0,
+    "idleSeconds": 240,
+    "maxSurfaceDrift": 0,
+    "peakTensionRatio": 0.8981603031271498,
+    "passed": true,
+    "stars": 3,
+    "shots": 4,
     "fullThrustReplacementPassed": false,
     "maxThrustSweeps": []
   }

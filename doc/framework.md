@@ -324,6 +324,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 9 | 科学极简中文界面与任务简报 |
 | 10 | 36 关新战役 + 23 关旧版档案 |
 | 11 | 36 关堡垒重建、爆心引导与满推力反例验证 |
+| 14 | 精简至 24 关，移动天体、多引力源与无锚点地表建筑 |
 
 ---
 
@@ -430,7 +431,7 @@ main.js 通过真实时间累积器得到基础步数（每帧最多补 6 步）
 
 `campaign-data.js` 作为独立异步 chunk 加载 6 个新章节和 3 个旧章节。新关卡以稳定 `id` 保存成绩，旧关卡的 `legacyKey` 仍对应原 `cN-lN`。`configureProgress(chapters)` 建立屏幕索引映射；`getAllBest()` 返回当前 UI 索引下的成绩。`storage.js` 使用 localStorage 的 `gravity_dawn_progress_v2`，读取旧 Cookie 作为迁移来源，存储不可用时退化为当前会话内存。失败重试不会覆盖最好成绩。
 
-`npm run author:campaign` 从确定性蓝图生成六章 JSON。`npm run check:campaign` 回放 `doc/campaign-solutions.json` 中的参考解，检查 1800 帧结构稳定、泊车轨道与堡垒/星体分离、前十关满推力反例，以及移动框架、零距离接触、特殊载荷、输入与存档回归；报告输出至 `doc/campaign-validation.json`。离线搜索器 `src/campaign-solver.cjs` 仅寻找候选动作，生产 `FlightSimulation` 回放通过后才可纳入参考解。
+`npm run author:campaign` 从确定性蓝图生成六章 JSON。`npm run check:campaign` 回放 `doc/campaign-solutions.json` 中的参考解，检查静态关 60 秒、移动关至少 240 秒且覆盖最长轨道两周期、地表关 240 秒的结构稳定性，逐帧检查泊车轨道与堡垒/星体分离，前十关满推力反例，以及移动框架、零距离接触、特殊载荷、输入与存档回归；报告输出至 `doc/campaign-validation.json`。离线搜索器 `src/campaign-solver.cjs` 预计算各引力源的未来轨道位置，并用生产 `PhysicsEngine.stepParticle` 推进候选弹道，避免把移动行星当作固定引力源。几何估计仅用于寻找候选动作，生产 `FlightSimulation` 回放通过后才可纳入参考解。
 
 ### 堡垒建筑与材料参数（阶段十一）
 
@@ -438,4 +439,4 @@ main.js 通过真实时间累积器得到基础步数（每帧最多补 6 步）
 
 `Spring.burnRate` 默认 80，新战役的可熔断斜撑使用 600，旧关材料参数保持原值。精确位于弹簧中线的接触使用有限的法线分离；引力源中心加速度取零；零燃料分裂弹片的 Δv 和爆炸半径保持有限，避免复杂结构和引力井产生 NaN。
 
-战役 JSON 按章节拆分异步资源，四个游戏入口共用渲染与模拟代码。阶段十一演示为 `test/phase11-demo.html`，只调用 `initGame()`。
+战役 JSON 按章节拆分异步资源，各游戏入口共用渲染与模拟代码。阶段十四精简为六章各四关，23 关带自然引力源，15 关带移动行星；当前演示 `test/phase14-demo.html` 只调用 `initGame()`。首关沿用原 ID，其余使用新的 `dawn-*` ID。地表建筑不含固定点或核心，只在加载时以 `bindToBody` 定位，之后通过真实重力和接触支撑。

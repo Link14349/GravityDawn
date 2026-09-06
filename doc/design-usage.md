@@ -1,6 +1,6 @@
 # 关卡设计器 — 使用指南
 
-阶段十一堡垒战役使用建筑级参考轨道与公共材料参数，现有编辑器属性面板不包含这些字段。维护新战役请修改 `src/campaign-authoring.cjs`，运行 `npm run author:campaign` 后使用 `test/phase11-demo.html` 试玩，并执行 `npm run check:campaign`；不要在旧坐标模式中直接拖动这些局部坐标。下面的编辑器操作继续适用于原有单核心关卡格式。
+阶段十四引力战役使用建筑级参考轨道与公共材料参数，现有编辑器属性面板不包含这些字段。维护新战役请修改 `src/campaign-authoring.cjs`，运行 `npm run author:campaign` 后使用 `test/phase14-demo.html` 试玩，并执行 `npm run check:campaign`；不要在旧坐标模式中直接拖动这些局部坐标。下面的编辑器操作继续适用于原有单核心关卡格式。
 
 ## 启动
 

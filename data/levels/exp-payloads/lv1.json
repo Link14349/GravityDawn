@@ -1,8 +1,8 @@
 {
-  "id": "fortress-payloads-01",
-  "name": "穿甲通道",
-  "skill": "动能破壁",
-  "difficulty": 19,
+  "id": "dawn-payloads-01",
+  "name": "穿甲内环",
+  "skill": "引力场中破壁",
+  "difficulty": 13,
   "gravity": 200,
   "flightTimeout": 30,
   "camera": {
@@ -13,22 +13,41 @@
   "orbits": [
     {
       "type": "fixed",
+      "x": -170,
+      "y": 90
+    },
+    {
+      "type": "fixed",
       "x": 180,
-      "y": 0
+      "y": -20
     }
   ],
   "stars": [],
-  "planets": [],
+  "planets": [
+    {
+      "mass": 3200,
+      "radius": 56,
+      "label": "引力主星",
+      "orbit": 0,
+      "collisionRadius": 56
+    }
+  ],
   "bullets": [
     {
       "type": "kinetic",
-      "x": -310,
-      "y": -20
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 114,
+        "phase": 2.6
+      }
     },
     {
       "type": "explosive",
-      "x": -332,
-      "y": 28
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 114,
+        "phase": 4
+      }
     }
   ],
   "buildings": [
@@ -1450,14 +1469,14 @@
         "damping": 65,
         "breakTension": 6500
       },
-      "orbit": 0
+      "orbit": 1
     }
   ],
   "objective": "摧毁全部 2 个内部控制单元，得分达到 400 分。",
   "guidance": {
-    "title": "动能破壁",
-    "text": "双层外堡保护内环。用动能弹连续切开外壳，再让爆炸弹沿破口接近内环。",
-    "hint": "动能弹过快会在每次碰撞中损失更多耐久。先尝试中低速度，观察它穿过了几层。"
+    "title": "引力场中破壁",
+    "text": "双层外堡保护内环，发射区处于引力场中。动能弹切开外墙后，再将爆心送近内舱。",
+    "hint": "分别检查两种弹体的初始速度；破口不会自动落在下一发的航线上。"
   },
   "winCondition": {
     "importantTargetsAll": true,
@@ -1467,21 +1486,21 @@
     "parDeltaV": 200
   },
   "cutscene": {
-    "title": "破壳与清舱需要不同载荷。",
-    "kicker": "第 4 章 / 破壁战术",
+    "title": "在引力场中使用不同载荷。",
+    "kicker": "第 4 章 / 引力破壁",
     "scenes": [
       {
-        "title": "破壳与清舱需要不同载荷。",
+        "title": "在引力场中使用不同载荷。",
         "dialogue": {
           "speaker": "战术教官",
-          "text": "动能弹可以连续穿透，燃烧和引力弹改变结构，爆炸弹负责舱内毁伤。观察破口，再投入下一枚弹体。"
+          "text": "穿甲、分裂、燃烧和局部引力井各保留一个任务。先选择航线，再决定从哪一侧破壁、何时补射。"
         }
       },
       {
         "title": "本次任务",
         "dialogue": {
           "speaker": "任务控制中心",
-          "text": "双层外堡保护内环。用动能弹连续切开外壳，再让爆炸弹沿破口接近内环。 动能弹过快会在每次碰撞中损失更多耐久。先尝试中低速度，观察它穿过了几层。"
+          "text": "双层外堡保护内环，发射区处于引力场中。动能弹切开外墙后，再将爆心送近内舱。 分别检查两种弹体的初始速度；破口不会自动落在下一发的航线上。"
         }
       }
     ]

@@ -1,6 +1,17 @@
 /** Offline shot search. Candidates are estimates; only production replay certifies a solution. */
 const {LevelManager,FlightSimulation,Building}=require('./simulation-node.cjs');
 const {Bullet}=require('./bullet.js');
+const {PhysicsEngine}=require('./physics.js');
+// Candidate trajectories use the production integrator with future source positions.
+function forecastPhysics(sim, frames) {
+  const physics=new PhysicsEngine({G:sim.physics.G,dt:sim.physics.dt,subSteps:sim.physics.subSteps});
+  physics.gravitySources=sim.physics.gravitySources.map(s=>({...s}));
+  const positions=Array.from({length:frames+1},(_,f)=>physics.gravitySources.map(s=>s.orbitFn?s.orbitFn(sim.physicsTime+f/60):{x:s.x,y:s.y}));
+  return {step(state,frame){
+    physics.gravitySources.forEach((s,i)=>Object.assign(s,positions[frame][i]));
+    return physics.stepParticle(state,undefined,6);
+  }};
+}
 const targets = sim => sim.buildings.flatMap(b=>b.points).filter(p=>p.important&&p.alive);
 function replay(level,actions,endFrame) {
   const sim=new FlightSimulation(LevelManager.load(level));
@@ -26,7 +37,7 @@ function candidates(sim,bi,{max=false,angleStep=2,speeds=null}={}) {
       base:bld.frameOrbit?.getWorldPosition(sim.physicsTime,sim.orbits),
       motion:Array.from({length:901},(_,f)=>bld.frameOrbit?.getWorldPosition(sim.physicsTime+f/60,sim.orbits))};
   });
-  const br=b.maxHp>0?b.renderRadius:6;
+  const br=b.maxHp>0?b.renderRadius:6,forecast=forecastPhysics(sim,900);
   for(const speed of speeds|| (max?[b.remainingDeltaV]:[20,30,40,50,60,70,80,95,110,130,155,180])){
     const model=new Bullet({type:b.type,payloadMass:b.payloadMass,fuelMass:b.fuelMass,deltaV:b.remainingDeltaV,explosionRadius:b.explosionRadius});model.applyDeltaV(speed,0);
     const radius=model.getEffectiveExplosionRadius();
@@ -34,7 +45,7 @@ function candidates(sim,bi,{max=false,angleStep=2,speeds=null}={}) {
       const angle=deg*Math.PI/180,dvx=Math.cos(angle)*speed,dvy=Math.sin(angle)*speed;
       const state={x:b.x,y:b.y,vx:b.vx+dvx,vy:b.vy+dvy};
       for(let f=1;f<=900;f++){
-        if(sim.physics.stepParticle(state,undefined,6))break;
+        if(forecast.step(state,f))break;
         if(Math.abs(state.x)>1600||Math.abs(state.y)>1600)break;
         let impact=null,shapeHit=null;
         for(const sh of shapes){
@@ -64,7 +75,7 @@ function candidates(sim,bi,{max=false,angleStep=2,speeds=null}={}) {
   return selected;
 }
 function kineticCandidates(sim,bi) {
-  const bullet=sim.bullets[bi],found=[];
+  const bullet=sim.bullets[bi],found=[],forecast=forecastPhysics(sim,1080);
   if(bullet.launched||!bullet.alive)return found;
   for(const speed of [20,30,40,50,60,80,110,150,180])for(let deg=0;deg<360;deg+=3){
     const angle=deg*Math.PI/180,dvx=speed*Math.cos(angle),dvy=speed*Math.sin(angle);
@@ -78,7 +89,7 @@ function kineticCandidates(sim,bi) {
     });
     let hp=bullet.hp,kills=0,hits=0,last=0,lastBuilding=0,closest=Infinity;
     for(let f=1;f<=1080&&hp>0;f++){
-      if(sim.physics.stepParticle(state,undefined,6))break;
+      if(forecast.step(state,f))break;
       if(Math.abs(state.x)>1500||Math.abs(state.y)>1500)break;
       for(let si=0;si<shapes.length;si++){
         const sh=shapes[si],at=sh.original.frameOrbit?.getWorldPosition(sim.physicsTime+f/60,sim.orbits);
@@ -149,7 +160,7 @@ function solve(level,{max=false,verbose=false,startFrame=0,initialActions=[]}={}
 module.exports={solve,replay,candidates,targets};
 if(require.main===module){
   const {levels}=require('./campaign-authoring.cjs'),fs=require('fs');
-  const start=Number(process.argv[2]||1)-1,end=Number(process.argv[3]||36),reports=[];
+  const start=Number(process.argv[2]||1)-1,end=Number(process.argv[3]||levels.length),reports=[];
   for(const l of levels.slice(start,end)){
     const s=solve(l,{verbose:true});console.log(s.result.passed?'PASS':'FAIL',l.id,s.result.importantRemaining);
     reports.push({id:l.id,actions:s.actions,endFrame:s.endFrame,...s.result});

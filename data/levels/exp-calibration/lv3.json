@@ -1,7 +1,7 @@
 {
-  "id": "fortress-calibration-03",
-  "name": "棱堡斜面",
-  "skill": "避开厚装甲",
+  "id": "dawn-calibration-03",
+  "name": "引力棱堡",
+  "skill": "选择进近侧",
   "difficulty": 3,
   "gravity": 200,
   "flightTimeout": 30,
@@ -13,17 +13,33 @@
   "orbits": [
     {
       "type": "fixed",
-      "x": 180,
-      "y": 25
+      "x": -130,
+      "y": 60
+    },
+    {
+      "type": "fixed",
+      "x": 210,
+      "y": 10
     }
   ],
   "stars": [],
-  "planets": [],
+  "planets": [
+    {
+      "mass": 3000,
+      "radius": 58,
+      "label": "引力主星",
+      "orbit": 0,
+      "collisionRadius": 58
+    }
+  ],
   "bullets": [
     {
       "type": "explosive",
-      "x": -300,
-      "y": 130
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 117,
+        "phase": 2.7
+      }
     }
   ],
   "buildings": [
@@ -823,14 +839,14 @@
         "damping": 65,
         "breakTension": 6500
       },
-      "orbit": 0
+      "orbit": 1
     }
   ],
   "objective": "摧毁全部 2 个内部控制单元，得分达到 400 分。",
   "guidance": {
-    "title": "避开厚装甲",
-    "text": "棱堡正面向外突出，左侧凹口更靠近内部目标。选择接近内舱的撞击面。",
-    "hint": "正面厚角会提前触发爆炸。用斜向航线接近左侧凹口，保留足够爆炸半径。"
+    "title": "选择进近侧",
+    "text": "行星让弹道弯向棱堡。左侧凹口距内舱较近，突出装甲会提前拦弹。",
+    "hint": "结合初始切向速度，从凹口一侧接近；留足燃料覆盖上下两个控制单元。"
   },
   "winCondition": {
     "importantTargetsAll": true,
