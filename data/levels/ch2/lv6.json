@@ -13,9 +13,11 @@
       "y": 0
     },
     {
-      "type": "fixed",
-      "x": 820,
-      "y": -100
+      "type": "circular",
+      "radius": 826,
+      "period": 99.5,
+      "parent": 0,
+      "phase": 0.1214
     },
     {
       "type": "fixed",

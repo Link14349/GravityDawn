@@ -2,17 +2,18 @@
 
 二维横版引力弹弓射击游戏。利用万有引力和 Delta-V 机动，发射子弹摧毁敌方建筑。
 
-## 重建版本
+## v1.0.0 正式版
 
 全中文科学极简界面：任务档案、轨道简报、飞行笔记、弹体遥测、暂停与结果复盘。
-新战役精简为 6 章 24 关，按引力初航、群星航道、追逐星海、引力破壁、多星突入、黎明远征推进，包含移动行星、三至四引力源和无锚点地表建筑；原有 23 关保留为旧版档案。
+新战役共有 9 章 36 关，含「深空攻坚」「共振迷航」「终局星阵」12 个高难度关卡，包含移动行星、最多五处自然引力源和无锚点地表建筑；原有 23 关保留为旧版档案。
 
-- `npm run build`：生成可独立运行的 dist，含主页面和阶段九至十四演示。
-- `npm run check:campaign`：使用生产物理模拟验证 24 关，并执行输入、预测与存档回归检查。
-- `http://localhost:8080/test/phase9-demo.html`：中文 UI 与简报演示。
-- `http://localhost:8080/test/phase14-demo.html`：精简后的群星战役试玩。
+- `npm run release`：验证 36 关、构建正式版并生成 `releases/gravity-dawn-1.0.0.tar.gz` 与 SHA-256 校验文件。
+- `npm run build`：生成仅含游戏及所需资源的 `dist/`，支持静态网站根目录或子目录部署。
+- `npm run preview`：在 `http://127.0.0.1:4173/` 预览正式构建。
+- `npm run check:campaign`：使用生产物理模拟验证 36 关，并执行输入、预测与存档回归检查。
+- `http://localhost:8080/test/phase23-demo.html`：通过开发服务器运行的正式版阶段演示。
 
-详见 [战役设计](doc/campaign.md)。
+详见 [正式版运行与发布说明](doc/release.md) 和 [战役设计](doc/campaign.md)。
 
 ## 玩法简介
 
@@ -47,7 +48,7 @@ git clone <repo-url>
 cd gravity-shooter
 
 # 安装依赖
-npm install
+npm ci
 ```
 
 ## 启动开发服务器
@@ -56,51 +57,25 @@ npm install
 # 默认 8080 端口
 npm run dev
 
-# 指定端口（服务器部署推荐）
+# 指定开发端口
 PORT=3000 npm run serve
 ```
 
 - 游戏主页面：`http://localhost:<端口>/`
 - 关卡设计器：`http://localhost:<端口>/tools/design.html`
 
-## 服务器部署
-
-### 快速启动
+## 正式版部署
 
 ```bash
-# 前台运行（默认 8080 端口）
-./deploy.sh
-
-# 指定端口
-./deploy.sh 3000
-
-# 后台长期运行
-nohup ./deploy.sh 3000 > gravity.log 2>&1 &
-
-# 停止服务
-./deploy.sh stop
+npm run release
+npm run preview
 ```
 
-### systemd 服务（推荐）
+将 `dist/` 的全部内容部署到静态 HTTP(S) 网站即可。也可解压发布包，在解压目录执行 `node src/serve-release.cjs`，无需 npm 安装。服务器默认仅监听本机 4173 端口；需要局域网访问时使用 `HOST=0.0.0.0 PORT=8080 node src/serve-release.cjs`。
 
-```bash
-# 编辑服务文件，修改路径
-sudo vi gravity-shooter.service
-# 将 /path/to/gravity-shooter 替换为实际路径
+游戏通过 HTTP(S) 运行，不支持直接双击 `index.html`。进度保存在浏览器的网站存储中；更换域名或端口会使用不同存档。关卡设计器及其保存接口属于本地开发工具，不包含在正式包中。
 
-# 安装并启动
-sudo cp gravity-shooter.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now gravity-shooter
-sudo systemctl status gravity-shooter
-```
-
-### 开发模式
-
-```bash
-# 自动重编译，刷新浏览器查看修改，监听 0.0.0.0
-npm run serve
-```
+桌面鼠标操作为主要支持方式；窄窗口布局自适应。
 
 ## 项目结构
 

@@ -1,10 +1,12 @@
 {
   "name": "gravity-shooter",
   "version": "1.0.0",
-  "description": "A 2D side-scrolling gravity-based shooter game",
+  "description": "引力破晓 — Gravity Dawn: a 2D orbital physics shooter",
   "private": true,
   "scripts": {
     "build": "webpack --mode production",
+    "preview": "node src/serve-release.cjs",
+    "release": "npm run check:campaign && npm run build && node src/package-release.cjs",
     "dev": "webpack serve --mode development --open",
     "start": "webpack serve --mode development",
     "serve": "webpack serve --mode development --host 0.0.0.0",

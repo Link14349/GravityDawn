@@ -1,10 +1,10 @@
 {
-  "name": "蜂群走廊",
+  "name": "双层蜂群",
   "gravity": 300,
   "camera": {
     "x": 0,
     "y": 0,
-    "zoom": 0.5
+    "zoom": 0.48
   },
   "orbits": [
     {
@@ -14,55 +14,57 @@
     },
     {
       "type": "circular",
-      "radius": 300,
-      "period": 22.5,
+      "radius": 340,
+      "period": 27.2,
       "parent": 0,
       "phase": 0
     },
     {
       "type": "circular",
-      "radius": 380,
-      "period": 32,
+      "radius": 500,
+      "period": 48.5,
       "parent": 0,
-      "phase": 1.571
+      "phase": 3.1416
     },
     {
       "type": "circular",
-      "radius": 460,
-      "period": 43,
-      "parent": 0,
-      "phase": 3.142
+      "radius": 55,
+      "period": 7.4,
+      "parent": 1,
+      "phase": 0
     },
     {
       "type": "circular",
-      "radius": 540,
-      "period": 54,
-      "parent": 0,
-      "phase": 4.712
+      "radius": 70,
+      "period": 10.6,
+      "parent": 1,
+      "phase": 3.1416
+    },
+    {
+      "type": "circular",
+      "radius": 70,
+      "period": 10.6,
+      "parent": 2,
+      "phase": 0
+    },
+    {
+      "type": "circular",
+      "radius": 95,
+      "period": 16.8,
+      "parent": 2,
+      "phase": 3.1416
     },
     {
       "type": "fixed",
       "x": 0,
-      "y": -44,
+      "y": -60,
       "parent": 1
     },
     {
       "type": "fixed",
       "x": 0,
-      "y": -44,
+      "y": -60,
       "parent": 2
-    },
-    {
-      "type": "fixed",
-      "x": 0,
-      "y": -44,
-      "parent": 3
-    },
-    {
-      "type": "fixed",
-      "x": 0,
-      "y": -44,
-      "parent": 4
     }
   ],
   "stars": [
@@ -77,36 +79,20 @@
   ],
   "planets": [
     {
-      "mass": 350,
-      "radius": 14,
-      "collisionRadius": 12,
+      "mass": 400,
+      "radius": 18,
+      "collisionRadius": 15,
       "color": "#997755",
-      "label": "蜂群一号",
+      "label": "母岩甲",
       "orbit": 1
     },
     {
-      "mass": 350,
-      "radius": 14,
-      "collisionRadius": 12,
-      "color": "#997755",
-      "label": "蜂群二号",
+      "mass": 400,
+      "radius": 18,
+      "collisionRadius": 15,
+      "color": "#aa8866",
+      "label": "母岩乙",
       "orbit": 2
-    },
-    {
-      "mass": 350,
-      "radius": 14,
-      "collisionRadius": 12,
-      "color": "#997755",
-      "label": "蜂群三号",
-      "orbit": 3
-    },
-    {
-      "mass": 350,
-      "radius": 14,
-      "collisionRadius": 12,
-      "color": "#997755",
-      "label": "蜂群四号",
-      "orbit": 4
     }
   ],
   "bullets": [
@@ -123,7 +109,7 @@
       "orbitAround": {
         "bodyIndex": 0,
         "altitude": 125,
-        "phase": 1.571
+        "phase": 1.257
       }
     },
     {
@@ -131,7 +117,7 @@
       "orbitAround": {
         "bodyIndex": 0,
         "altitude": 165,
-        "phase": 3.142
+        "phase": 2.513
       }
     },
     {
@@ -139,7 +125,23 @@
       "orbitAround": {
         "bodyIndex": 0,
         "altitude": 205,
-        "phase": 4.712
+        "phase": 3.77
+      }
+    },
+    {
+      "type": "agile",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 245,
+        "phase": 5.027
+      }
+    },
+    {
+      "type": "explosive",
+      "orbitAround": {
+        "bodyIndex": 0,
+        "altitude": 285,
+        "phase": 0.628
       }
     }
   ],
@@ -147,7 +149,185 @@
     {
       "points": [
         {
-          "mass": 130,
+          "mass": 120,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 3,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 1800
+        },
+        {
+          "x": -13,
+          "y": 10,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": -16,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "mass": 120,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 4,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 1800
+        },
+        {
+          "x": -13,
+          "y": 10,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": -16,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "mass": 120,
           "radius": 8,
           "score": 300,
           "important": true,
@@ -158,8 +338,8 @@
           "explosionImpulse": 1800
         },
         {
-          "x": -16,
-          "y": 16,
+          "x": -13,
+          "y": 10,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -168,8 +348,18 @@
           "explosionImpulse": 500
         },
         {
-          "x": 16,
-          "y": 16,
+          "x": 13,
+          "y": 10,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": -16,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -182,30 +372,51 @@
         {
           "a": 0,
           "b": 1,
-          "stiffness": 1000,
+          "stiffness": 1400,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 8000
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 1000,
+          "stiffness": 1400,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 8000
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 1000,
+          "stiffness": 1400,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 8000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
         }
       ]
     },
     {
       "points": [
         {
-          "mass": 130,
+          "mass": 120,
           "radius": 8,
           "score": 300,
           "important": true,
@@ -216,8 +427,8 @@
           "explosionImpulse": 1800
         },
         {
-          "x": -16,
-          "y": 16,
+          "x": -13,
+          "y": 10,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -226,8 +437,18 @@
           "explosionImpulse": 500
         },
         {
-          "x": 16,
-          "y": 16,
+          "x": 13,
+          "y": 10,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": -16,
           "mass": 8,
           "radius": 5,
           "score": 20,
@@ -240,30 +461,51 @@
         {
           "a": 0,
           "b": 1,
-          "stiffness": 1000,
+          "stiffness": 1400,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 8000
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 1000,
+          "stiffness": 1400,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 8000
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 1000,
+          "stiffness": 1400,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 8000
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 1400,
+          "damping": 60,
+          "breakTension": 8000
         }
       ]
     },
     {
       "points": [
         {
-          "mass": 130,
+          "mass": 140,
           "radius": 8,
           "score": 300,
           "important": true,
@@ -274,22 +516,32 @@
           "explosionImpulse": 1800
         },
         {
-          "x": -16,
-          "y": 16,
-          "mass": 8,
-          "radius": 5,
-          "score": 20,
-          "color": "#cccccc",
+          "x": -14,
+          "y": 14,
+          "mass": 10,
+          "radius": 6,
+          "score": 40,
+          "color": "#8899aa",
           "explosionRadius": 10,
           "explosionImpulse": 500
         },
         {
-          "x": 16,
-          "y": 16,
-          "mass": 8,
-          "radius": 5,
-          "score": 20,
-          "color": "#cccccc",
+          "x": 14,
+          "y": 14,
+          "mass": 10,
+          "radius": 6,
+          "score": 40,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "mass": 10,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
           "explosionRadius": 10,
           "explosionImpulse": 500
         }
@@ -298,30 +550,51 @@
         {
           "a": 0,
           "b": 1,
-          "stiffness": 1000,
+          "stiffness": 2000,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 10400
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 1000,
+          "stiffness": 2000,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 10400
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 60,
+          "breakTension": 10400
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 1000,
+          "stiffness": 2000,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 10400
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 60,
+          "breakTension": 10400
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 60,
+          "breakTension": 10400
         }
       ]
     },
     {
       "points": [
         {
-          "mass": 130,
+          "mass": 140,
           "radius": 8,
           "score": 300,
           "important": true,
@@ -332,22 +605,32 @@
           "explosionImpulse": 1800
         },
         {
-          "x": -16,
-          "y": 16,
-          "mass": 8,
-          "radius": 5,
-          "score": 20,
-          "color": "#cccccc",
+          "x": -14,
+          "y": 14,
+          "mass": 10,
+          "radius": 6,
+          "score": 40,
+          "color": "#8899aa",
           "explosionRadius": 10,
           "explosionImpulse": 500
         },
         {
-          "x": 16,
-          "y": 16,
-          "mass": 8,
-          "radius": 5,
-          "score": 20,
-          "color": "#cccccc",
+          "x": 14,
+          "y": 14,
+          "mass": 10,
+          "radius": 6,
+          "score": 40,
+          "color": "#8899aa",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "mass": 10,
+          "radius": 6,
+          "score": 30,
+          "color": "#8899aa",
           "explosionRadius": 10,
           "explosionImpulse": 500
         }
@@ -356,30 +639,51 @@
         {
           "a": 0,
           "b": 1,
-          "stiffness": 1000,
+          "stiffness": 2000,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 10400
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 1000,
+          "stiffness": 2000,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 10400
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 60,
+          "breakTension": 10400
         },
         {
           "a": 1,
           "b": 2,
-          "stiffness": 1000,
+          "stiffness": 2000,
           "damping": 60,
-          "breakTension": 5200
+          "breakTension": 10400
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 60,
+          "breakTension": 10400
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 2000,
+          "damping": 60,
+          "breakTension": 10400
         }
       ]
     }
   ],
   "winCondition": {
-    "destructionThreshold": 0.3,
+    "destructionThreshold": 0.35,
     "importantTargetsAll": true,
-    "minScore": 1000
+    "minScore": 1500
   }
 }

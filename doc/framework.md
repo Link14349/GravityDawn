@@ -338,6 +338,9 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 18 | 暖白战场与 HUD、浅色背景下的弹药可见性、选关顶栏 Logo |
 | 19 | 全窗口 Canvas、左缘平移缩放与发射、窗口尺寸变化 |
 | 22 | 追加三章 12 关，多据点装甲、五源引力与三星资源预算 |
+| 23 | v1.0.0 正式构建、独立发布包、资源路径与发布流程 |
+
+正式构建仅输出游戏入口及其资源，阶段演示和设计器通过 webpack-dev-server 使用。`src/serve-release.cjs` 提供限定于 `dist/` 的只读 HTTP 服务；`src/package-release.cjs` 生成版本与资源校验清单、压缩包及 SHA-256 校验文件。发布命令、运行方式与验证范围见 [正式版说明](release.md)。
 
 ---
 

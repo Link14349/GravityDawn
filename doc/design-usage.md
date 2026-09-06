@@ -9,6 +9,8 @@ npm run dev
 # 浏览器访问 http://localhost:8080/tools/design.html
 ```
 
+设计器是源码仓库中的本地开发工具，不包含在 v1.0.0 正式发布包和 `npm run preview` 服务中。
+
 ## 界面布局
 
 ```

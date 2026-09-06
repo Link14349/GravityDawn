@@ -221,9 +221,11 @@ exitTestMode():
 
 ## Webpack 配置
 
-`webpack.config.js` 中为设计器添加了：
+`webpack.config.js` 的开发模式中为设计器添加了：
 
 - `devServer.static` 增加 `'./'` 使 `tools/` 和 `src/` 下的 ES 模块可被浏览器加载
-- 第二个 `HtmlWebpackPlugin` 条目：`template: './tools/design.html'` → `filename: 'tools/design.html'`
+- 独立 `HtmlWebpackPlugin` 条目：`template: './tools/design.html'` → `filename: 'tools/design.html'`
 
 浏览器通过 ES module 原生加载 `../src/` 下的游戏模块（不经 webpack 打包，直接作为静态文件提供）。
+
+v1.0.0 正式构建只包含游戏入口及资源，设计器不进入 `dist/` 和发布包。设计器仍通过 webpack-dev-server 或原本地编辑服务器使用；正式预览 `src/serve-release.cjs` 只读提供 `dist/`，不包含编辑器保存 API。

@@ -13,9 +13,10 @@
       "y": 0
     },
     {
-      "type": "circular",
-      "radius": 150,
-      "period": 6.7,
+      "type": "elliptical",
+      "rx": 160,
+      "ry": 240,
+      "period": 10.3,
       "parent": 0
     },
     {
@@ -27,6 +28,12 @@
       "type": "fixed",
       "x": 0,
       "y": -118,
+      "parent": 2
+    },
+    {
+      "type": "circular",
+      "radius": 90,
+      "period": 8.9,
       "parent": 2
     }
   ],
@@ -135,58 +142,58 @@
         {
           "a": 1,
           "b": 3,
-          "stiffness": 1100,
+          "stiffness": 2200,
           "damping": 60,
-          "breakTension": 5850
+          "breakTension": 12000
         },
         {
           "a": 3,
           "b": 2,
-          "stiffness": 1100,
+          "stiffness": 2200,
           "damping": 60,
-          "breakTension": 5850
+          "breakTension": 12000
         },
         {
           "a": 2,
           "b": 4,
-          "stiffness": 1100,
+          "stiffness": 2200,
           "damping": 60,
-          "breakTension": 5850
+          "breakTension": 12000
         },
         {
           "a": 4,
           "b": 1,
-          "stiffness": 1100,
+          "stiffness": 2200,
           "damping": 60,
-          "breakTension": 5850
+          "breakTension": 12000
         },
         {
           "a": 0,
           "b": 1,
-          "stiffness": 1100,
+          "stiffness": 2200,
           "damping": 60,
-          "breakTension": 5850
+          "breakTension": 12000
         },
         {
           "a": 0,
           "b": 2,
-          "stiffness": 1100,
+          "stiffness": 2200,
           "damping": 60,
-          "breakTension": 5850
+          "breakTension": 12000
         },
         {
           "a": 0,
           "b": 3,
-          "stiffness": 1100,
+          "stiffness": 2200,
           "damping": 60,
-          "breakTension": 5850
+          "breakTension": 12000
         },
         {
           "a": 0,
           "b": 4,
-          "stiffness": 1100,
+          "stiffness": 2200,
           "damping": 60,
-          "breakTension": 5850
+          "breakTension": 12000
         }
       ]
     },
@@ -285,11 +292,100 @@
           "breakTension": 5200
         }
       ]
+    },
+    {
+      "points": [
+        {
+          "mass": 120,
+          "radius": 8,
+          "score": 300,
+          "important": true,
+          "isCore": true,
+          "orbit": 4,
+          "color": "#ffdd44",
+          "explosionRadius": 40,
+          "explosionImpulse": 1800
+        },
+        {
+          "x": -16,
+          "y": 12,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 16,
+          "y": 12,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        },
+        {
+          "x": 0,
+          "y": -16,
+          "mass": 8,
+          "radius": 5,
+          "score": 20,
+          "color": "#cccccc",
+          "explosionRadius": 10,
+          "explosionImpulse": 500
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 1600,
+          "damping": 60,
+          "breakTension": 8300
+        },
+        {
+          "a": 0,
+          "b": 2,
+          "stiffness": 1600,
+          "damping": 60,
+          "breakTension": 8300
+        },
+        {
+          "a": 0,
+          "b": 3,
+          "stiffness": 1600,
+          "damping": 60,
+          "breakTension": 8300
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 1600,
+          "damping": 60,
+          "breakTension": 8300
+        },
+        {
+          "a": 1,
+          "b": 3,
+          "stiffness": 1600,
+          "damping": 60,
+          "breakTension": 8300
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 1600,
+          "damping": 60,
+          "breakTension": 8300
+        }
+      ]
     }
   ],
   "winCondition": {
     "destructionThreshold": 0.3,
     "importantTargetsAll": true,
-    "minScore": 700
+    "minScore": 900
   }
 }
