@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阶段十三 — 弹药颜色区分</title>
+  <style>
+    body { margin: 0; padding: 32px 20px; background: #171e1b; color: #e1e5db; font: 14px/1.8 system-ui, sans-serif; }
+    main { max-width: 1120px; margin: auto; }
+    h1 { margin: 0; font-size: 26px; font-weight: 500; }
+    p { color: #a7b1a7; }
+    a { color: #e1e5db; }
+    canvas { display: block; width: 100%; height: auto; border: 1px solid #3b4440; }
+  </style>
+</head>
+<body><main>
+  <h1>弹药颜色对照</h1>
+  <p>七种弹药各有颜色，发射和悬停时保持一致。白色描边表示待发射，外侧光环表示悬停状态。</p>
+  <canvas id="ammo" width="1120" height="500" role="img" aria-label="普通弹红色、爆炸弹蓝色、动能弹青色、机动弹黄色、分裂弹绿色、引力弹紫色、燃烧弹橙色；依次展示待发射、飞行中、悬停可机动与悬停不可机动四行。"></canvas>
+  <p><a href="/">进入游戏实测 →</a></p>
+</main>
+<script type="module">
+import { Bullet, BULLET_TYPES } from '../src/bullet.js';
+import { Renderer } from '../src/renderer.js';
+
+const renderer = new Renderer(document.getElementById('ammo'));
+const ctx = renderer.ctx;
+const states = [
+  { label: '待发射', launched: false, hovered: false },
+  { label: '飞行中', launched: true, hovered: false },
+  { label: '悬停 / 可机动', launched: true, hovered: true },
+  { label: '悬停 / 不可机动', launched: true, hovered: true, canManeuver: false },
+];
+renderer.clear();
+states.forEach((state, row) => {
+  const y = 125 + row * 100;
+  ctx.fillStyle = '#a7b1a7'; ctx.font = '14px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(state.label, 22, y + 5);
+  Object.keys(BULLET_TYPES).forEach((type, col) => {
+    const bullet = new Bullet({ type, x: 230 + col * 130, y, vx: state.launched ? 40 : 0, launched: state.launched });
+    if (row === 0) {
+      ctx.fillStyle = bullet.color; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(bullet.typeName, bullet.x, 40);
+      ctx.font = '12px monospace'; ctx.fillText(bullet.color, bullet.x, 65);
+    }
+    renderer.drawBullet(bullet.x, bullet.y, bullet.vx, bullet.vy, bullet.renderRadius, bullet.launched, state.hovered, bullet.color, state.canManeuver);
+  });
+});
+</script></body></html>

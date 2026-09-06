@@ -4,7 +4,7 @@ The player interface uses semantic HTML over a Canvas simulation. `src/css/style
 
 - Paper `#f4f3ed`, graphite `#252b2a`, muted text `#6d7470`, rules `#d8dad2`.
 - Burn orange `#cc5737` marks trajectories and key actions. Green indicates completion / readiness.
-- Flight view: graphite green `#171e1b`, muted sage bodies, ivory probes, amber objectives.
+- Flight view: graphite green `#171e1b`, muted sage bodies, probes colored by ammunition type, amber objectives. Probe fills and outer rings retain their type color before and after launch and while hovered: normal red `#ff4444`, explosive blue `#4488ff`, kinetic cyan `#44ddee`, agile yellow `#ffdd44`, cluster green `#44ff88`, gravity purple `#cc88ff`, incendiary orange `#ff9944`. Explicit probe colors override these defaults; white ready outlines and hover rings still indicate interaction state.
 - System sans for content, system monospace for measured values and labels, serif italic for the landing headline.
 - Thin rules, square buttons, restrained motion, generous spacing. No glow effects or glass panels.
 - Start: editorial headline + transfer diagram + controls / mission overview.

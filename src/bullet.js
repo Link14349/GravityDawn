@@ -24,7 +24,7 @@ export const BULLET_TYPES = {
     name: '动能弹',
     payloadMass: 20, fuelMass: 12, deltaV: 220, ignitionCount: 2,
     explosionRadius: 0, explosionImpulse: 0,
-    color: '#ff4444', renderRadius: 16, hp: 300,
+    color: '#44ddee', renderRadius: 16, hp: 300,
   },
   agile: {
     name: '机动弹',
@@ -50,7 +50,7 @@ export const BULLET_TYPES = {
     name: '燃烧弹',
     payloadMass: 6, fuelMass: 10, deltaV: 300, ignitionCount: 2,
     explosionRadius: 0, explosionImpulse: 0,
-    color: '#ff6644', renderRadius: 9,
+    color: '#ff9944', renderRadius: 9,
     onImpact: 'incendiary',
   },
 };

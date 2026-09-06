@@ -164,8 +164,9 @@ export class Renderer {
    * @param {number} vx
    * @param {number} vy
    * @param {number} radius
-   * @param {boolean} launched - 是否已发射（影响颜色）
+   * @param {boolean} launched - 是否已发射（影响待发射描边）
    * @param {boolean} hovered - 是否悬停（加光环）
+   * @param {string} color - 弹药类型颜色，发射和悬停时保持不变
    */
   drawBullet(x, y, vx, vy, radius, launched, hovered, color = '#44ccff', canManeuver = true) {
     const ctx = this.ctx;
@@ -175,9 +176,9 @@ export class Renderer {
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(x, y, radius + 7, 0, Math.PI * 2); ctx.stroke();
     }
-    ctx.fillStyle = launched ? '#dba481' : '#dbe6c7';
+    ctx.fillStyle = color;
     ctx.beginPath(); ctx.arc(x, y, radius * .7, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#a4b392'; ctx.lineWidth = 1;
+    ctx.strokeStyle = color; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(x, y, radius + 3, 0, Math.PI * 2); ctx.stroke();
     // 未发射有描边，已发射无描边
     if (!launched) {
