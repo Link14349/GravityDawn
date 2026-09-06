@@ -255,7 +255,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | `drawTargetOrbits(buildings)` | 运动核心的实际轨道线 |
 | `drawFirstShotGuide(probe,target,vector)` | 首关拖拽方向与目标指示 |
 | `drawOrbitPath(body)` | 轨道虚线 |
-| `drawBullet(x,y,vx,vy,r,launched,hovered,color,canManeuver=true)` | 弹体与外圈使用传入的类型颜色，发射/悬停时保持；白色待发射描边与悬停光环表示交互状态 |
+| `drawBullet(x,y,vx,vy,r,launched,hovered,color,canManeuver=true)` | 弹体与外圈使用传入的类型颜色，发射/悬停时保持；实心圆细浅色描边保证深色弹药可见，白色待发射描边与悬停光环表示交互状态 |
 | `drawBuilding(building)` | 弹簧+质点+敌人/核心标记 |
 | `drawFadingTrail(points)` | 衰减轨迹线 |
 | `drawAimOverlay(ctrl, bodies)` | 瞄准叠加（预测线+碰撞点+ΔV箭头） |

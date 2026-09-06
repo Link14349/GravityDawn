@@ -15,8 +15,8 @@
 </head>
 <body><main>
   <h1>弹药颜色对照</h1>
-  <p>七种弹药各有颜色，发射和悬停时保持一致。白色描边表示待发射，外侧光环表示悬停状态。</p>
-  <canvas id="ammo" width="1120" height="500" role="img" aria-label="普通弹红色、爆炸弹蓝色、动能弹青色、机动弹黄色、分裂弹绿色、引力弹紫色、燃烧弹橙色；依次展示待发射、飞行中、悬停可机动与悬停不可机动四行。"></canvas>
+  <p>普通弹红色，动能弹深红色且半径为普通弹的两倍；爆炸弹黑色，分裂弹青色。发射和悬停时保持类型颜色。</p>
+  <canvas id="ammo" width="1120" height="500" role="img" aria-label="普通弹红色、爆炸弹黑色、动能弹深红色且半径为普通弹的两倍、机动弹黄色、分裂弹青色、引力弹紫色、燃烧弹橙色；依次展示待发射、飞行中、悬停可机动与悬停不可机动四行。"></canvas>
   <p><a href="/">进入游戏实测 →</a></p>
 </main>
 <script type="module">
@@ -39,7 +39,7 @@ states.forEach((state, row) => {
   Object.keys(BULLET_TYPES).forEach((type, col) => {
     const bullet = new Bullet({ type, x: 230 + col * 130, y, vx: state.launched ? 40 : 0, launched: state.launched });
     if (row === 0) {
-      ctx.fillStyle = bullet.color; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#e1e5db'; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(bullet.typeName, bullet.x, 40);
       ctx.font = '12px monospace'; ctx.fillText(bullet.color, bullet.x, 65);
     }

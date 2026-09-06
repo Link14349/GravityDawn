@@ -178,6 +178,8 @@ export class Renderer {
     }
     ctx.fillStyle = color;
     ctx.beginPath(); ctx.arc(x, y, radius * .7, 0, Math.PI * 2); ctx.fill();
+    // 细描边保证黑色和深红色弹体在深空背景中可见。
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.strokeStyle = color; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(x, y, radius + 3, 0, Math.PI * 2); ctx.stroke();
     // 未发射有描边，已发射无描边
