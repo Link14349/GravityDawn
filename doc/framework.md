@@ -248,18 +248,20 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 
 ### Renderer 类
 
+`PALETTE` 与 CSS 统一使用纸色 `#f4f3ed`、墨色 `#252b2a` 和橙色 `#cc5737`。星体、桁架、标签、预测线、拖拽标记与特殊效果适配浅色背景；弹药类型色与物理行为不变。
+
 | 方法 | 说明 |
 |------|------|
-| `clear()` | 星空背景 |
+| `clear()` | 与菜单一致的暖白背景、淡灰网格与星点 |
 | `drawCelestialBody(body)` | 扁平科学地图星体、经纬线与质量标注 |
 | `drawTargetOrbits(buildings)` | 运动核心的实际轨道线 |
 | `drawFirstShotGuide(probe,target,vector)` | 首关拖拽方向与目标指示 |
 | `drawOrbitPath(body)` | 轨道虚线 |
-| `drawBullet(x,y,vx,vy,r,launched,hovered,color,canManeuver=true)` | 弹体与外圈使用传入的类型颜色，发射/悬停时保持；实心圆细浅色描边保证深色弹药可见，白色待发射描边与悬停光环表示交互状态 |
+| `drawBullet(x,y,vx,vy,r,launched,hovered,color,canManeuver=true)` | 弹体与外圈使用传入的类型颜色，发射/悬停时保持；实心圆深色细描边保证浅色弹药在白底可见，墨色待发射描边与悬停光环表示可交互状态，不可机动时为橙色光环 |
 | `drawBuilding(building)` | 弹簧+质点+敌人/核心标记 |
 | `drawFadingTrail(points)` | 衰减轨迹线 |
 | `drawAimOverlay(ctrl, bodies)` | 瞄准叠加（预测线+碰撞点+ΔV箭头） |
-| `drawExplosion(x,y,r,maxR)` | 爆炸光环+白色十字 |
+| `drawExplosion(x,y,r,maxR)` | 橙色爆炸光环+墨色爆心十字 |
 | `drawGravityWell(x,y,elapsed,duration,mass)` | 引力弹脉动紫色光环 |
 | `drawBurnEffect(spring)` | 燃烧弹火焰粒子 |
 | `drawPredictionPath(path, color)` | 预测虚线 |
@@ -328,6 +330,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 15 | 单屏主界面、章节与关卡独立滚动、窄屏和低窗口适配 |
 | 16 | 主菜单大标题、Logo、大尺寸入口按钮与三栏说明移除 |
 | 17 | 移除主菜单顶栏，主内容填充腾出的空间 |
+| 18 | 暖白战场与 HUD、浅色背景下的弹药可见性、选关顶栏 Logo |
 
 ---
 
@@ -367,6 +370,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 - HUD 的「时间加速」按钮调用控制器 `cycleTimeScale()`，显示当前 `timeScale`（1×–10×）；悬停按钮可查看循环切换说明。暂停期间可切换倍率，恢复时生效；重试和进入新关卡恢复 1×。
 - `drawTutorialHint(hint|null)` updates / hides contextual guidance.
 - `drawSettleCountdown(remaining)` updates the result countdown.
+- `.flight-interface` 继承菜单的浅色 CSS 变量，Canvas 外侧及 HUD、暂停、引导和遥测面板使用相同纸色。共享 `_header()` 的首页按钮使用 `gravityDawnMark` 图片，保持原有点击返回首页和无障碍标签。
 - `src/ui-diagrams.js` holds decorative scientific SVG. `src/css/style.css` controls layout and responsive behavior.
 - `_drawStart()` 以「引力破晓」大标题和 `img/gravity-dawn-mark.png` 透明 Logo 展示游戏名称，移除旧主标语与三栏说明。首页不调用 `_header()`，只输出主内容和页脚，主内容自动填满剩余视口；选关与结算仍使用共享顶栏。Logo 通过 ES 模块导入，由 Webpack 图片 loader 打包；两枚主入口按钮在小窗口中保持放大且不撑高页面。
 - `CutsceneManager` owns a separate DOM overlay; see `cutscene.md`.

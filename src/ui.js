@@ -80,7 +80,7 @@ export class UIManager {
   }
 
   _header(section) {
-    return `<header class="masthead"><button class="wordmark" data-action="home" aria-label="引力破晓首页"><span class="brand-symbol">⊕</span> 引力破晓<span class="brand-divider"></span><span class="mono brand-sub">轨道动力学研究部</span></button><span class="mono section-label">${section}</span>${button('help', '飞行手册 ↗')}</header>`;
+    return `<header class="masthead"><button class="wordmark" data-action="home" aria-label="引力破晓首页"><img class="brand-logo" src="${gravityDawnMark}" alt="" width="44" height="44"> 引力破晓<span class="brand-divider"></span><span class="mono brand-sub">轨道动力学研究部</span></button><span class="mono section-label">${section}</span>${button('help', '飞行手册 ↗')}</header>`;
   }
   _footer() { return '<footer class="page-footer mono"><span>引力破晓 / 飞行动力学实验室</span><span>观测 · 预测 · 拦截</span><span><i class="status-dot"></i> 系统运行正常</span></footer>'; }
   _level() { return this.gameData.chapters[this.gameData.currentChapter]?.levels[this.gameData.currentLevel] || {}; }

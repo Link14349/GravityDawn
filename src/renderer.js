@@ -1,15 +1,22 @@
 /**
- * Canvas 渲染器 — 星空背景 + 星体 + 粒子轨迹
+ * Canvas 渲染器 — 暖白背景 + 星体 + 粒子轨迹
  *
- * 美术风格：扁平、鲜艳的色彩，明亮活泼
+ * 美术风格：与菜单一致的暖白科学地图，深色标记与类型色弹药
  */
 
-// 扁平鲜艳的调色板
+// 与 src/css/style.css 的纸色、墨色和强调色保持一致。
 const PALETTE = {
-  space: '#171e1b',
-  star: '#ffffff',
-  orbitLine: 'rgba(94, 234, 219, 0.1)',
-  predictionDash: 'rgba(94, 234, 219, 0.5)',
+  space: '#f4f3ed',
+  ink: '#252b2a',
+  muted: '#6d7470',
+  accent: '#cc5737',
+  green: '#526b50',
+  body: '#d8dfd3',
+  bodyLine: '#74846e',
+  point: '#768772',
+  spring: 'rgba(80, 96, 85, 0.6)',
+  orbitLine: 'rgba(101, 125, 99, 0.32)',
+  predictionDash: 'rgba(74, 103, 73, 0.85)',
 };
 
 export class Renderer {
@@ -40,20 +47,20 @@ export class Renderer {
     return stars;
   }
 
-  /** 清屏并绘制星空背景 */
+  /** 清屏并绘制暖白底、淡网格和星点 */
   clear() {
     const ctx = this.ctx;
     ctx.fillStyle = PALETTE.space;
     ctx.fillRect(0, 0, this.width, this.height);
 
-    ctx.strokeStyle = 'rgba(183, 201, 178, 0.045)';
+    ctx.strokeStyle = 'rgba(37, 43, 42, 0.045)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let x = 0; x < this.width; x += 40) { ctx.moveTo(x, 0); ctx.lineTo(x, this.height); }
     for (let y = 0; y < this.height; y += 40) { ctx.moveTo(0, y); ctx.lineTo(this.width, y); }
     ctx.stroke();
     for (const s of this.stars) {
-      ctx.fillStyle = `rgba(211, 221, 202, ${s.alpha * .28})`;
+      ctx.fillStyle = `rgba(109, 116, 112, ${s.alpha * .22})`;
       ctx.fillRect(s.x, s.y, 1, 1);
     }
   }
@@ -61,18 +68,18 @@ export class Renderer {
   /** Restrained map symbols keep collision boundaries legible. */
   drawCelestialBody(body) {
     const ctx = this.ctx, { x, y } = body.getPosition(), r = body.radius;
-    ctx.fillStyle = '#35473a';
-    ctx.strokeStyle = '#96a28b'; ctx.lineWidth = 1;
+    ctx.fillStyle = PALETTE.body;
+    ctx.strokeStyle = PALETTE.bodyLine; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = '#75876c';
+    ctx.strokeStyle = PALETTE.bodyLine;
     ctx.beginPath(); ctx.ellipse(x, y, r * .45, r, -.45, 0, Math.PI * 2); ctx.stroke();
     ctx.beginPath(); ctx.ellipse(x, y, r, r * .35, -.45, 0, Math.PI * 2); ctx.stroke();
-    ctx.setLineDash([2, 5]); ctx.strokeStyle = 'rgba(183,201,178,.25)';
+    ctx.setLineDash([2, 5]); ctx.strokeStyle = 'rgba(101,125,99,.3)';
     ctx.beginPath(); ctx.arc(x, y, r + 15, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
     if (body.label) {
-      ctx.fillStyle = '#b8c2ae'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+      ctx.fillStyle = PALETTE.ink; ctx.font = '10px monospace'; ctx.textAlign = 'center';
       ctx.fillText(body.label.toUpperCase(), x, y - r - 33);
-      ctx.fillStyle = '#889680'; ctx.font = '9px monospace';
+      ctx.fillStyle = PALETTE.muted; ctx.font = '9px monospace';
       ctx.fillText(`M = ${body.mass}`, x, y - r - 20);
     }
   }
@@ -80,7 +87,7 @@ export class Renderer {
   /** Show real target orbit tracks; trajectory prediction remains a separate line. */
   drawTargetOrbits(buildings) {
     const ctx = this.ctx;
-    ctx.save(); ctx.strokeStyle = 'rgba(219,164,129,.24)'; ctx.lineWidth = 1;
+    ctx.save(); ctx.strokeStyle = 'rgba(204,87,55,.3)'; ctx.lineWidth = 1;
     ctx.setLineDash([2, 5]);
     for (const building of buildings) for (const p of building.points) {
       const orbit = building.frameOrbit || p._orbit;
@@ -100,14 +107,14 @@ export class Renderer {
   drawFirstShotGuide(probe, target, vector) {
     const ctx = this.ctx;
     ctx.save(); ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillStyle = '#dbe6c7';
+    ctx.fillStyle = PALETTE.ink;
     ctx.fillText('① 悬停此弹体', probe.x, probe.y - 32);
-    ctx.fillStyle = '#dba481'; ctx.fillText('③ 爆心覆盖内舱', target.x, target.y - 74);
+    ctx.fillStyle = PALETTE.accent; ctx.fillText('③ 爆心覆盖内舱', target.x, target.y - 74);
     const endX = probe.x - vector.dvx * 2, endY = probe.y - vector.dvy * 2;
-    ctx.strokeStyle = '#dbe6c7'; ctx.lineWidth = 1; ctx.setLineDash([3, 5]);
+    ctx.strokeStyle = PALETTE.ink; ctx.lineWidth = 1; ctx.setLineDash([3, 5]);
     ctx.beginPath(); ctx.moveTo(probe.x - 20, probe.y); ctx.lineTo(endX, endY); ctx.stroke();
     ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(endX + 8, endY - 5); ctx.lineTo(endX, endY); ctx.lineTo(endX + 8, endY + 5); ctx.stroke();
-    ctx.fillStyle = '#aebba3'; ctx.fillText('② 向左拖到这里，再松手', (probe.x + endX) / 2, endY + 32);
+    ctx.fillStyle = PALETTE.muted; ctx.fillText('② 向左拖到这里，再松手', (probe.x + endX) / 2, endY + 32);
     ctx.restore();
   }
 
@@ -170,27 +177,27 @@ export class Renderer {
    */
   drawBullet(x, y, vx, vy, radius, launched, hovered, color = '#44ccff', canManeuver = true) {
     const ctx = this.ctx;
-    // 悬停光环（可机动=白色，不可机动=黄色）
+    // 悬停光环（可机动=墨色，不可机动=橙色）
     if (hovered) {
-      ctx.strokeStyle = canManeuver ? '#fff' : '#dba481';
+      ctx.strokeStyle = canManeuver ? PALETTE.ink : PALETTE.accent;
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(x, y, radius + 7, 0, Math.PI * 2); ctx.stroke();
     }
     ctx.fillStyle = color;
     ctx.beginPath(); ctx.arc(x, y, radius * .7, 0, Math.PI * 2); ctx.fill();
-    // 细描边保证黑色和深红色弹体在深空背景中可见。
-    ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.stroke();
+    // 深色细描边让黄、青、粉等浅色弹体在暖白背景上保持清晰。
+    ctx.strokeStyle = 'rgba(37,43,42,0.65)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.strokeStyle = color; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(x, y, radius + 3, 0, Math.PI * 2); ctx.stroke();
     // 未发射有描边，已发射无描边
     if (!launched) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(37,43,42,0.7)'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(x, y, radius + 1, 0, Math.PI * 2); ctx.stroke();
     }
     // 速度方向线
     const sp = Math.sqrt(vx * vx + vy * vy);
     if (sp > 1) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(37,43,42,0.5)'; ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.lineTo(x + vx / sp * 12, y + vy / sp * 12);
@@ -240,7 +247,7 @@ export class Renderer {
    * @param {number} [decay=0.008] - 每帧生命衰减量
    * @param {number} [maxAlpha=0.5] - 最大透明度
    */
-  drawFadingTrail(points, color = '255, 160, 80', decay = 0.008, maxAlpha = 0.5) {
+  drawFadingTrail(points, color = '204, 87, 55', decay = 0.008, maxAlpha = 0.5) {
     // 衰减生命值并移除死亡点
     for (let i = points.length - 1; i >= 0; i--) {
       points[i].life -= decay;
@@ -271,7 +278,7 @@ export class Renderer {
     // 预测轨迹虚线
     const pred = ctrl.getPredictedPath();
     if (pred.length > 0) {
-      this.drawPredictionPath(pred, 'rgba(212, 226, 181, 0.85)');
+      this.drawPredictionPath(pred);
     }
 
     // 预测碰撞点 + 轮廓
@@ -280,29 +287,29 @@ export class Renderer {
       const burn = ctrl.getBurnPreview();
       if (predCol.buildingCollision && burn && burn.explosionRadius > 1) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(219,164,129,.7)'; ctx.fillStyle = 'rgba(219,164,129,.07)';
+        ctx.strokeStyle = 'rgba(204,87,55,.7)'; ctx.fillStyle = 'rgba(204,87,55,.07)';
         ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
         ctx.beginPath(); ctx.arc(predCol.x, predCol.y, burn.explosionRadius / 2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.setLineDash([]); ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#dba481';
+        ctx.setLineDash([]); ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = PALETTE.accent;
         ctx.fillText('内舱清除范围 / 预估', predCol.x, predCol.y - burn.explosionRadius / 2 - 14);
         ctx.restore();
       }
       // 橙色碰撞点
-      ctx.fillStyle = '#dfaa83';
+      ctx.fillStyle = PALETTE.accent;
       ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 6, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#dfaa83'; ctx.lineWidth = 2;
+      ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 10, 0, Math.PI * 2); ctx.stroke();
 
       if (predCol.buildingCollision) {
         // 建筑碰撞：标记碰撞元素
         const bc = predCol.buildingCollision;
         if (bc.type === 'point') {
-          ctx.strokeStyle = bc.point.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+          ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
           ctx.beginPath();
           ctx.arc(bc.point.x, bc.point.y, bc.point.radius, 0, Math.PI * 2);
           ctx.stroke(); ctx.setLineDash([]);
         } else if (bc.type === 'spring') {
-          ctx.strokeStyle = 'rgba(180,200,220,0.8)'; ctx.lineWidth = 3; ctx.setLineDash([5, 4]);
+          ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 3; ctx.setLineDash([5, 4]);
           ctx.beginPath();
           ctx.moveTo(bc.spring.a.x, bc.spring.a.y);
           ctx.lineTo(bc.spring.b.x, bc.spring.b.y);
@@ -312,7 +319,7 @@ export class Renderer {
         // 星体碰撞
         const colBody = bodies[predCol.sourceIndex];
         const cp = colBody.getPositionAtTime(predCol.time);
-        ctx.strokeStyle = colBody.color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+        ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
         ctx.beginPath();
         ctx.arc(cp.x, cp.y, colBody.collisionRadius, 0, Math.PI * 2);
         ctx.stroke(); ctx.setLineDash([]);
@@ -323,7 +330,7 @@ export class Renderer {
     const dv = ctrl.getDragVector();
     if (dv) {
       // 淡色虚线连接子弹与鼠标
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(37, 43, 42, 0.35)'; ctx.lineWidth = 1;
       ctx.setLineDash([2, 6]);
       ctx.beginPath(); ctx.moveTo(dv.startX, dv.startY); ctx.lineTo(dv.endX, dv.endY);
       ctx.stroke(); ctx.setLineDash([]);
@@ -334,12 +341,12 @@ export class Renderer {
       const arrowLen = Math.min(dv.magnitude * 0.4, 25);
       const tipX = bx + arrowLen * Math.cos(dvAng);
       const tipY = by + arrowLen * Math.sin(dvAng);
-      ctx.strokeStyle = '#c3d7a6'; ctx.lineWidth = 2;
+      ctx.strokeStyle = PALETTE.green; ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(bx, by);
       ctx.lineTo(tipX, tipY);
       ctx.stroke();
-      ctx.fillStyle = '#c3d7a6';
+      ctx.fillStyle = PALETTE.green;
       ctx.beginPath();
       ctx.moveTo(tipX, tipY);
       ctx.lineTo(tipX - 7 * Math.cos(dvAng - 0.6), tipY - 7 * Math.sin(dvAng - 0.6));
@@ -348,7 +355,7 @@ export class Renderer {
       // Delta-V 数值标注
       const labelX = tipX + 14 * Math.cos(dvAng);
       const labelY = tipY + 14 * Math.sin(dvAng);
-      ctx.fillStyle = '#c3d7a6'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+      ctx.fillStyle = PALETTE.green; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
       ctx.fillText(`ΔV ${dv.magnitude.toFixed(0)} m/s`, labelX, labelY);
     }
   }
@@ -362,14 +369,14 @@ export class Renderer {
     if (building.name) {
       const alive = building.points.filter(p => p.alive && !p.detached);
       if (alive.length) {
-        ctx.fillStyle = '#a9b4a0'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillStyle = PALETTE.muted; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
         ctx.fillText(building.name, Math.min(...alive.map(p => p.x)), Math.min(...alive.map(p => p.y)) - 17);
       }
     }
     // 弹簧（端点死亡则跳过）
     for (const sp of building.springs) {
       if (!sp.alive || !sp.a.alive || !sp.b.alive) continue;
-      ctx.strokeStyle = 'rgba(180, 200, 220, 0.6)'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = PALETTE.spring; ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(sp.a.x, sp.a.y);
       ctx.lineTo(sp.b.x, sp.b.y);
@@ -378,25 +385,25 @@ export class Renderer {
     // 质点
     for (const p of building.points) {
       if (!p.alive) continue;
-      ctx.fillStyle = p.important ? '#dba481' : '#9aa992';
+      ctx.fillStyle = p.important ? PALETTE.accent : PALETTE.point;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius, 0, Math.PI * 2); ctx.fill();
       if (building.frameOrbit && p.fixed && !p.important) {
-        ctx.strokeStyle = '#71846d'; ctx.lineWidth = 1;
+        ctx.strokeStyle = PALETTE.green; ctx.lineWidth = 1;
         ctx.strokeRect(p.x - p.renderRadius - 2, p.y - p.renderRadius - 2, (p.renderRadius + 2) * 2, (p.renderRadius + 2) * 2);
       }
-      // 敌人：血量>2/3绿色，≤2/3紫色
+      // 敌人：血量>2/3绿色，≤2/3橙色
       if (p.isEnemy) {
         const hpRatio = p.hp / p.maxHp;
-        const ringColor = hpRatio > 2/3 ? '#b8c68c' : '#db9b83';
+        const ringColor = hpRatio > 2/3 ? PALETTE.green : PALETTE.accent;
         ctx.strokeStyle = ringColor; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 3, 0, Math.PI * 2); ctx.stroke();
-        ctx.strokeStyle = '#dba481'; ctx.lineWidth = 1;
+        ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 1, 0, Math.PI * 2); ctx.stroke();
       } else if (p.isCore && p.important) {
-        ctx.strokeStyle = '#dba481'; ctx.lineWidth = 2.5;
+        ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 2.5;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 3, 0, Math.PI * 2); ctx.stroke();
       } else if (p.important) {
-        ctx.strokeStyle = '#dba481'; ctx.lineWidth = 1.5;
+        ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius + 2, 0, Math.PI * 2); ctx.stroke();
       }
     }
@@ -415,14 +422,14 @@ export class Renderer {
     if (alpha <= 0) return true;
     const ctx = this.ctx;
     // 橙色冲击波环
-    ctx.strokeStyle = `rgba(255, 160, 40, ${alpha})`;
+    ctx.strokeStyle = `rgba(204, 87, 55, ${alpha})`;
     ctx.lineWidth = 5;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = `rgba(255, 200, 80, ${alpha * 0.2})`;
+    ctx.fillStyle = `rgba(204, 87, 55, ${alpha * 0.12})`;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-    // 白色十字（爆心标记）
+    // 墨色十字（爆心标记）
     const crossLen = 4;
-    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.strokeStyle = `rgba(37, 43, 42, ${alpha})`;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(x - crossLen, y); ctx.lineTo(x + crossLen, y);
@@ -457,7 +464,7 @@ export class Renderer {
     ctx.fill();
 
     // 内环
-    ctx.strokeStyle = `rgba(200, 160, 255, ${0.7 * remaining * pulse})`;
+    ctx.strokeStyle = `rgba(128, 73, 184, ${0.7 * remaining * pulse})`;
     ctx.lineWidth = 2.5 * remaining;
     ctx.setLineDash([8, 4]);
     ctx.beginPath();
@@ -467,7 +474,7 @@ export class Renderer {
 
     // 中心十字
     const cs = 6 * pulse;
-    ctx.strokeStyle = `rgba(255, 220, 255, ${0.8 * remaining})`;
+    ctx.strokeStyle = `rgba(102, 51, 153, ${0.8 * remaining})`;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(x - cs, y); ctx.lineTo(x + cs, y);
@@ -499,7 +506,7 @@ export class Renderer {
       const py = a.y + dy * frac + (Math.cos(seed + i * 5) * 4);
       const alpha = 0.4 + Math.random() * 0.4;
       const r = 1.5 + Math.random() * 2.5;
-      const hue = Math.random() > 0.5 ? '255, 160, 40' : '255, 200, 60';
+      const hue = Math.random() > 0.5 ? '204, 87, 55' : '220, 129, 38';
 
       ctx.fillStyle = `rgba(${hue}, ${alpha})`;
       ctx.beginPath();

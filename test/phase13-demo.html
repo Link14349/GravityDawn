@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>阶段十三 — 弹药颜色区分</title>
   <style>
-    body { margin: 0; padding: 32px 20px; background: #171e1b; color: #e1e5db; font: 14px/1.8 system-ui, sans-serif; }
+    body { margin: 0; padding: 32px 20px; background: #f4f3ed; color: #252b2a; font: 14px/1.8 system-ui, sans-serif; }
     main { max-width: 1120px; margin: auto; }
     h1 { margin: 0; font-size: 26px; font-weight: 500; }
-    p { color: #a7b1a7; }
-    a { color: #e1e5db; }
-    canvas { display: block; width: 100%; height: auto; border: 1px solid #3b4440; }
+    p { color: #6d7470; }
+    a { color: #252b2a; }
+    canvas { display: block; width: 100%; height: auto; border: 1px solid #d8dad2; }
   </style>
 </head>
 <body><main>
@@ -34,12 +34,12 @@ const states = [
 renderer.clear();
 states.forEach((state, row) => {
   const y = 125 + row * 100;
-  ctx.fillStyle = '#a7b1a7'; ctx.font = '14px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#6d7470'; ctx.font = '14px sans-serif'; ctx.textAlign = 'left';
   ctx.fillText(state.label, 22, y + 5);
   Object.keys(BULLET_TYPES).forEach((type, col) => {
     const bullet = new Bullet({ type, x: 230 + col * 130, y, vx: state.launched ? 40 : 0, launched: state.launched });
     if (row === 0) {
-      ctx.fillStyle = '#e1e5db'; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#252b2a'; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(bullet.typeName, bullet.x, 40);
       ctx.font = '12px monospace'; ctx.fillText(bullet.color, bullet.x, 65);
     }
