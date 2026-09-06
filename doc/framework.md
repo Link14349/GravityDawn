@@ -325,6 +325,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 10 | 36 关新战役 + 23 关旧版档案 |
 | 11 | 36 关堡垒重建、爆心引导与满推力反例验证 |
 | 14 | 精简至 24 关，移动天体、多引力源与无锚点地表建筑 |
+| 15 | 单屏主界面、章节与关卡独立滚动、窄屏和低窗口适配 |
 
 ---
 
@@ -357,6 +358,8 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 ## UI 系统 (ui.js)
 
 `UIManager(canvas)` creates the DOM overlay `#interface`. Screens remain `START`, `LEVEL_SELECT`, `CUTSCENE`, `GAME_HUD`, `RESULT`. `goTo(screen)` replaces the screen; `render()` updates live HUD values without rebuilding controls every frame. `gameData` also carries `time`, `importantTotal`, `importantRemaining`, chapters and mission metadata.
+
+`#game-shell` 固定占据 `100dvh`，`html/body` 与 `#interface` 不滚动。菜单使用纵向 flex 布局，主内容以 `min-height: 0` 填充页眉、页脚之间的剩余空间。首页按窗口宽高压缩间距和次要展示，不产生滚动；选关的 `.sector-sidebar nav` 与 `.mission-grid` 分别内部滚动。切换章节保留章节列表的滚动位置与选中按钮焦点，新章节的关卡列表从顶部展示。结算、简报正文与手册只在各自受限内容区滚动，禁止滚动传递到外层；`goTo()` 不再调用 `window.scrollTo()`。
 
 - `_onReplay()` restarts without briefing; `_onFocus()` restores the level camera.
 - HUD 的「时间加速」按钮调用控制器 `cycleTimeScale()`，显示当前 `timeScale`（1×–10×）；悬停按钮可查看循环切换说明。暂停期间可切换倍率，恢复时生效；重试和进入新关卡恢复 1×。

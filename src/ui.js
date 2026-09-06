@@ -42,7 +42,16 @@ export class UIManager {
   _act(action, data = {}) {
     if (action === 'home') this.goTo(Screen.START);
     if (action === 'missions') this.goTo(Screen.LEVEL_SELECT);
-    if (action === 'chapter') { this.gameData.currentChapter = Number(data.chapter); this._draw(); }
+    if (action === 'chapter') {
+      const scrollTop = this.root.querySelector('.sector-sidebar nav')?.scrollTop || 0;
+      this.gameData.currentChapter = Number(data.chapter);
+      this._draw();
+      const nav = this.root.querySelector('.sector-sidebar nav');
+      if (nav) {
+        nav.scrollTop = scrollTop;
+        nav.querySelector('.selected')?.focus({ preventScroll: true });
+      }
+    }
     if (action === 'play') { this.gameData.currentLevel = Number(data.level); this.goTo(Screen.GAME_HUD); }
     if (action === 'continue') {
       const best = getAllBest();
@@ -179,6 +188,5 @@ export class UIManager {
   goTo(screen) {
     this.screen = screen;
     this._draw();
-    window.scrollTo(0, 0);
   }
 }

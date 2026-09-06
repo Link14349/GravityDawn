@@ -1,7 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const fs = require('fs');
-const pages = ['index.html', 'test/phase9-demo.html', 'test/phase10-demo.html', 'test/phase11-demo.html', 'test/phase12-demo.html', 'test/phase13-demo.html', 'test/phase14-demo.html'].filter(file => fs.existsSync(path.resolve(__dirname, file)));
+const pages = ['index.html', 'test/phase9-demo.html', 'test/phase10-demo.html', 'test/phase11-demo.html', 'test/phase12-demo.html', 'test/phase13-demo.html', 'test/phase14-demo.html', 'test/phase15-demo.html'].filter(file => fs.existsSync(path.resolve(__dirname, file)));
 const pageKey = file => file === 'index.html' ? 'app' : path.basename(file, '.html');
 
 module.exports = {
