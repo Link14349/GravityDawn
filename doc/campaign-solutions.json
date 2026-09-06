@@ -550,5 +550,479 @@
     "totalScore": 2736,
     "destructionRate": 0.568075117370892,
     "importantRemaining": 0
+  },
+  {
+    "id": "dawn-siege-01",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 4,
+        "dvx": 35.96699001693254,
+        "dvy": -34.73291852294988
+      },
+      {
+        "frame": 409,
+        "bullet": 5,
+        "dvx": 36.541818305704034,
+        "dvy": 16.269465723032006
+      },
+      {
+        "frame": 1344,
+        "bullet": 1,
+        "dvx": 20.33683215379001,
+        "dvy": 45.67727288213004
+      },
+      {
+        "frame": 1931,
+        "bullet": 3,
+        "dvx": 15.000000000000004,
+        "dvy": 25.980762113533157
+      }
+    ],
+    "endFrame": 2887,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 2974,
+    "destructionRate": 0.6479591836734694,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-siege-02",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 4,
+        "dvx": 27.81551563700362,
+        "dvy": 11.23819780247736
+      },
+      {
+        "frame": 585,
+        "bullet": 1,
+        "dvx": -5.226423163382667,
+        "dvy": 49.72609476841367
+      },
+      {
+        "frame": 1448,
+        "bullet": 2,
+        "dvx": 28.007412794916046,
+        "dvy": -10.751038486359024
+      }
+    ],
+    "endFrame": 2075,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 2321,
+    "destructionRate": 0.5469613259668509,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-siege-03",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 2,
+        "dvx": 39.4005376803361,
+        "dvy": 30.78307376628291
+      },
+      {
+        "frame": 405,
+        "bullet": 5,
+        "dvx": 37.0873541826715,
+        "dvy": 14.98426373663648
+      },
+      {
+        "frame": 1089,
+        "bullet": 0,
+        "dvx": 38.85729807284854,
+        "dvy": 31.46601955249187
+      },
+      {
+        "frame": 1918,
+        "bullet": 3,
+        "dvx": 56.381557247154504,
+        "dvy": 20.521208599540124
+      }
+    ],
+    "endFrame": 2569,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 1828,
+    "destructionRate": 0.281767955801105,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-siege-04",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 1,
+        "dvx": 39.4005376803361,
+        "dvy": 30.78307376628291
+      },
+      {
+        "frame": 488,
+        "bullet": 3,
+        "dvx": 12.360679774997898,
+        "dvy": 38.04226065180614
+      },
+      {
+        "frame": 1335,
+        "bullet": 2,
+        "dvx": -2.0905692653530665,
+        "dvy": 19.890437907365467
+      },
+      {
+        "frame": 2367,
+        "bullet": 0,
+        "dvx": -146.72214011007085,
+        "dvy": -31.18675362266386
+      },
+      {
+        "frame": 3866,
+        "bullet": 5,
+        "dvx": 26.96382138897501,
+        "dvy": 13.151134403672323
+      },
+      {
+        "frame": 4806,
+        "bullet": 6,
+        "dvx": 69.61653267577913,
+        "dvy": 7.316992428735742
+      }
+    ],
+    "endFrame": 5275,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 3877,
+    "destructionRate": 0.6341463414634146,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-resonance-01",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 1,
+        "dvx": 42.4024048078213,
+        "dvy": 26.495963211660246
+      },
+      {
+        "frame": 694,
+        "bullet": 2,
+        "dvx": 2.090569265353069,
+        "dvy": 19.890437907365467
+      },
+      {
+        "frame": 1284,
+        "bullet": 4,
+        "dvx": 39.78087581473093,
+        "dvy": -4.181138530706137
+      },
+      {
+        "frame": 1917,
+        "bullet": 3,
+        "dvx": 39.4005376803361,
+        "dvy": 30.78307376628291
+      },
+      {
+        "frame": 2787,
+        "bullet": 5,
+        "dvx": 122.14166680904191,
+        "dvy": 95.42752867547702
+      }
+    ],
+    "endFrame": 3212,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 2792,
+    "destructionRate": 0.5213270142180095,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-resonance-02",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 3,
+        "dvx": 20.33683215379001,
+        "dvy": 45.67727288213004
+      },
+      {
+        "frame": 420,
+        "bullet": 1,
+        "dvx": 66.57395614066074,
+        "dvy": -21.631189606246334
+      },
+      {
+        "frame": 823,
+        "bullet": 5,
+        "dvx": 26.302268807344646,
+        "dvy": 53.92764277795002
+      },
+      {
+        "frame": 1733,
+        "bullet": 0,
+        "dvx": 37.157241273869715,
+        "dvy": 33.456530317942914
+      }
+    ],
+    "endFrame": 2483,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 2484,
+    "destructionRate": 0.46190476190476193,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-resonance-03",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 0,
+        "dvx": -89.27079897466129,
+        "dvy": 32.49191361593854
+      },
+      {
+        "frame": 325,
+        "bullet": 1,
+        "dvx": 63.56740760409149,
+        "dvy": -70.59875842035248
+      },
+      {
+        "frame": 553,
+        "bullet": 3,
+        "dvx": 43.16038802031907,
+        "dvy": 41.679502227539835
+      },
+      {
+        "frame": 1274,
+        "bullet": 5,
+        "dvx": 73.08363661140807,
+        "dvy": 32.53893144606401
+      }
+    ],
+    "endFrame": 1998,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 2088,
+    "destructionRate": 0.6062992125984252,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-resonance-04",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 1,
+        "dvx": 14.984263736636478,
+        "dvy": 37.0873541826715
+      },
+      {
+        "frame": 659,
+        "bullet": 2,
+        "dvx": 49.7422543533025,
+        "dvy": 33.551574208244816
+      },
+      {
+        "frame": 1262,
+        "bullet": 4,
+        "dvx": 59.6713137220964,
+        "dvy": -6.271707796059205
+      },
+      {
+        "frame": 1901,
+        "bullet": 5,
+        "dvx": 29.108871788279895,
+        "dvy": 7.257656867990032
+      },
+      {
+        "frame": 2975,
+        "bullet": 0,
+        "dvx": 9.270509831248424,
+        "dvy": 28.531695488854606
+      },
+      {
+        "frame": 3985,
+        "bullet": 3,
+        "dvx": 96.60882731206125,
+        "dvy": 86.98697882665157
+      }
+    ],
+    "endFrame": 4348,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 3486,
+    "destructionRate": 0.5756302521008403,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-endgame-01",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 2,
+        "dvx": 37.157241273869715,
+        "dvy": 33.456530317942914
+      },
+      {
+        "frame": 377,
+        "bullet": 5,
+        "dvx": -13.680805733026748,
+        "dvy": 37.58770483143634
+      },
+      {
+        "frame": 1349,
+        "bullet": 6,
+        "dvx": 40,
+        "dvy": 0
+      },
+      {
+        "frame": 1886,
+        "bullet": 7,
+        "dvx": 27.81551563700362,
+        "dvy": -11.238197802477371
+      }
+    ],
+    "endFrame": 2619,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 3237,
+    "destructionRate": 0.5185185185185185,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-endgame-02",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 2,
+        "dvx": 51.96152422706632,
+        "dvy": 29.999999999999996
+      },
+      {
+        "frame": 388,
+        "bullet": 6,
+        "dvx": 13.781867790849958,
+        "dvy": 48.063084796915945
+      },
+      {
+        "frame": 1204,
+        "bullet": 3,
+        "dvx": 1.3959798681000433,
+        "dvy": 39.97563308076383
+      },
+      {
+        "frame": 2178,
+        "bullet": 5,
+        "dvx": 53.62311101832846,
+        "dvy": 44.99513267805775
+      },
+      {
+        "frame": 2795,
+        "bullet": 4,
+        "dvx": 48.62608593212982,
+        "dvy": 50.353786023705574
+      }
+    ],
+    "endFrame": 3292,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 3404,
+    "destructionRate": 0.5757575757575758,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-endgame-03",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 1,
+        "dvx": 37.157241273869715,
+        "dvy": 33.456530317942914
+      },
+      {
+        "frame": 461,
+        "bullet": 3,
+        "dvx": -18.730329670795605,
+        "dvy": 46.35919272833937
+      },
+      {
+        "frame": 1265,
+        "bullet": 4,
+        "dvx": 101.99022400234662,
+        "dvy": 41.20672527575032
+      },
+      {
+        "frame": 1746,
+        "bullet": 2,
+        "dvx": 69.61653267577913,
+        "dvy": 7.316992428735742
+      },
+      {
+        "frame": 2237,
+        "bullet": 0,
+        "dvx": 38.04226065180614,
+        "dvy": 12.360679774997896
+      },
+      {
+        "frame": 3034,
+        "bullet": 5,
+        "dvx": -34.999999999999986,
+        "dvy": 60.62177826491071
+      }
+    ],
+    "endFrame": 3794,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 3702,
+    "destructionRate": 0.5641025641025641,
+    "importantRemaining": 0
+  },
+  {
+    "id": "dawn-endgame-04",
+    "actions": [
+      {
+        "frame": 0,
+        "bullet": 2,
+        "dvx": 32.13938048432697,
+        "dvy": 38.302222155948904
+      },
+      {
+        "frame": 453,
+        "bullet": 8,
+        "dvx": 28.773592013546047,
+        "dvy": 27.78633481835989
+      },
+      {
+        "frame": 1129,
+        "bullet": 6,
+        "dvx": 10.000000000000002,
+        "dvy": 17.32050807568877
+      },
+      {
+        "frame": 2253,
+        "bullet": 0,
+        "dvx": 29.958886042637214,
+        "dvy": -1.570078687288331
+      },
+      {
+        "frame": 3684,
+        "bullet": 5,
+        "dvx": -51.96152422706632,
+        "dvy": 29.999999999999996
+      },
+      {
+        "frame": 4595,
+        "bullet": 7,
+        "dvx": 39.61072274966281,
+        "dvy": 5.566924038402617
+      }
+    ],
+    "endFrame": 5392,
+    "passed": true,
+    "stars": 3,
+    "totalScore": 4593,
+    "destructionRate": 0.6472222222222223,
+    "importantRemaining": 0
   }
 ]

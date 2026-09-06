@@ -337,6 +337,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 17 | 移除主菜单顶栏，主内容填充腾出的空间 |
 | 18 | 暖白战场与 HUD、浅色背景下的弹药可见性、选关顶栏 Logo |
 | 19 | 全窗口 Canvas、左缘平移缩放与发射、窗口尺寸变化 |
+| 22 | 追加三章 12 关，多据点装甲、五源引力与三星资源预算 |
 
 ---
 
@@ -445,9 +446,9 @@ main.js 通过真实时间累积器得到基础步数（每帧最多补 6 步）
 
 ## 战役与存档
 
-`campaign-data.js` 作为独立异步 chunk 加载 6 个新章节和 3 个旧章节。新关卡以稳定 `id` 保存成绩，旧关卡的 `legacyKey` 仍对应原 `cN-lN`。`configureProgress(chapters)` 建立屏幕索引映射；`getAllBest()` 返回当前 UI 索引下的成绩。`storage.js` 使用 localStorage 的 `gravity_dawn_progress_v2`，读取旧 Cookie 作为迁移来源，存储不可用时退化为当前会话内存。失败重试不会覆盖最好成绩。
+`campaign-data.js` 作为独立异步 chunk 加载 9 个新章节和 3 个旧章节。新关卡以稳定 `id` 保存成绩，旧关卡的 `legacyKey` 仍对应原 `cN-lN`。新战役章节偏移从总索引长度计算，新增章节不会改变旧关卡的存档键。`configureProgress(chapters)` 建立屏幕索引映射；`getAllBest()` 返回当前 UI 索引下的成绩。`storage.js` 使用 localStorage 的 `gravity_dawn_progress_v2`，读取旧 Cookie 作为迁移来源，存储不可用时退化为当前会话内存。失败重试不会覆盖最好成绩。
 
-`npm run author:campaign` 从确定性蓝图生成六章 JSON。`npm run check:campaign` 回放 `doc/campaign-solutions.json` 中的参考解，检查静态关 60 秒、移动关至少 240 秒且覆盖最长轨道两周期、地表关 240 秒的结构稳定性，逐帧检查泊车轨道与堡垒/星体分离，前十关满推力反例，以及移动框架、零距离接触、特殊载荷、输入与存档回归；报告输出至 `doc/campaign-validation.json`。离线搜索器 `src/campaign-solver.cjs` 预计算各引力源的未来轨道位置，并用生产 `PhysicsEngine.stepParticle` 推进候选弹道，避免把移动行星当作固定引力源。几何估计仅用于寻找候选动作，生产 `FlightSimulation` 回放通过后才可纳入参考解。
+`npm run author:campaign` 从确定性蓝图与 `campaign-advanced.cjs` 的扩展规格生成九章 JSON，并同步总索引。`npm run check:campaign` 回放 `doc/campaign-solutions.json` 中的参考解，检查静态关 60 秒、移动关至少 240 秒且覆盖最长轨道两周期、地表关 240 秒的结构稳定性，逐帧检查泊车轨道与堡垒/星体分离，前十关满推力反例、新增 12 关的三星预算与多据点限制，以及移动框架、零距离接触、特殊载荷、输入与存档回归；报告输出至 `doc/campaign-validation.json`。离线搜索器 `src/campaign-solver.cjs` 预计算各引力源的未来轨道位置，并用生产 `PhysicsEngine.stepParticle` 推进候选弹道，避免把移动行星当作固定引力源。几何估计仅用于寻找候选动作，生产 `FlightSimulation` 回放通过后才可纳入参考解。
 
 ### 堡垒建筑与材料参数（阶段十一）
 
@@ -455,4 +456,4 @@ main.js 通过真实时间累积器得到基础步数（每帧最多补 6 步）
 
 `Spring.burnRate` 默认 80，新战役的可熔断斜撑使用 600，旧关材料参数保持原值。精确位于弹簧中线的接触使用有限的法线分离；引力源中心加速度取零；零燃料分裂弹片的 Δv 和爆炸半径保持有限，避免复杂结构和引力井产生 NaN。
 
-战役 JSON 按章节拆分异步资源，各游戏入口共用渲染与模拟代码。阶段十四精简为六章各四关，23 关带自然引力源，15 关带移动行星；当前演示 `test/phase14-demo.html` 只调用 `initGame()`。首关沿用原 ID，其余使用新的 `dawn-*` ID。地表建筑不含固定点或核心，只在加载时以 `bindToBody` 定位，之后通过真实重力和接触支撑。
+战役 JSON 按章节拆分异步资源，各游戏入口共用渲染与模拟代码。阶段十四精简为六章各四关，23 关带自然引力源，15 关带移动行星；阶段二十二追加三章 12 关，当前演示 `test/phase22-demo.html` 只调用 `initGame()`。首关沿用原 ID，其余使用新的 `dawn-*` ID。地表建筑不含固定点或核心，只在加载时以 `bindToBody` 定位，之后通过真实重力和接触支撑。

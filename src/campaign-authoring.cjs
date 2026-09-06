@@ -99,6 +99,23 @@ function fort(shape, name) {
     f.shell([[-60,-55],[-12,-80],[60,-80],[110,-40],[160,-40],[185,0],[160,40],[110,40],[60,80],[-12,80],[-60,55]],22);
     f.box(8,0,55,80,14); f.target(8,-20); f.target(8,20); f.target(112,0);
     f.beam(66,-57,90,-37,10); f.beam(66,57,90,37,10);
+  } else if (shape === 'relay') {
+    // Three separated armored rooms joined by a narrow, destructible spine.
+    for (const y of [-108,0,108]) { f.box(0,y,60,58,14); f.target(0,y); }
+    f.beam(0,-65,0,-43,12); f.beam(0,43,0,65,12);
+  } else if (shape === 'gatehouse') {
+    for (const x of [-86,86]) {
+      f.box(x,0,66,96,18); f.target(x,-20); f.target(x,20);
+    }
+    f.beam(-35,-30,35,-30,12); f.beam(-35,30,35,30,12);
+  } else if (shape === 'spearhead') {
+    f.shell([[-72,-62],[28,-62],[132,0],[28,62],[-72,62]],20);
+    f.beam(-3,-43,-3,43,12);
+    f.target(-38,-22); f.target(-38,22); f.target(54,0);
+  } else if (shape === 'reactor') {
+    f.box(0,0,48,58,10);
+    f.shell([[-68,-68],[38,-86],[88,-35],[88,35],[38,86],[-68,68],[-47,0]],18);
+    f.target(-4,-14); f.target(-4,14);
   } else throw new Error(shape);
   return f.finish();
 }
@@ -227,6 +244,11 @@ const specs = [
     '四个引力源与三座运动堡垒构成最后防线。清除护卫、旗舰和南侧前哨的全部控制单元。','结合引力通道、相位、破壁与剩余燃料规划顺序；每发之后先观察，再投入下一枚弹体。'],
 ];
 
+// Append advanced encounters; the first 24 blueprints and their save IDs stay stable.
+const advanced = require('./campaign-advanced.cjs')({fixed, moon, ellipse});
+chapters.push(...advanced.chapters);
+specs.push(...advanced.specs);
+
 function makeLevel(spec, i) {
   const [name,skill,placements,opts,text,hint]=spec,ci=Math.floor(i/4),li=i%4,chapter=chapters[ci];
   // Stable semantic IDs prevent removed/reordered missions from inheriting unrelated scores.
@@ -234,6 +256,7 @@ function makeLevel(spec, i) {
     camera:{x:0,y:0,zoom:opts.zoom||.95},orbits:[],stars:[],planets:[],bullets:[],buildings:[]};
   const wideViews={6:{x:5,y:0,zoom:.49},8:{x:-64,y:-79,zoom:.5},10:{x:-94,y:-22,zoom:.49},17:{x:-5,y:-116,zoom:.45},20:{x:3,y:49,zoom:.42},21:{x:0,y:-40,zoom:.64},22:{x:-56,y:-98,zoom:.39}};
   if(wideViews[i])level.camera=wideViews[i];
+  if(opts.camera)level.camera=opts.camera;
   const orbit=def=>{level.orbits.push(def);return level.orbits.length-1;};
   for(const body of opts.bodies||[])level.planets.push({...body,orbit:orbit(body.orbit),collisionRadius:body.radius});
   opts.ammo.forEach((type,bi)=>{
@@ -243,10 +266,10 @@ function makeLevel(spec, i) {
     level.bullets.push(b);
   });
   placements.forEach(([shape,x,y,motion],bi)=>{
-    const names={skiff:'近月护卫',capsule:'双壳前哨',bastion:'棱堡',hangar:'分舱机库',bridge:'双塔连桥',citadel:'内舱堡',vault:'重装内环',crucible:'十字船坞',array:'三叉阵列',crown:'双冠堡',needle:'长轴船坞',flagship:'装甲旗舰'};
+    const names={skiff:'近月护卫',capsule:'双壳前哨',bastion:'棱堡',hangar:'分舱机库',bridge:'双塔连桥',citadel:'内舱堡',vault:'重装内环',crucible:'十字船坞',array:'三叉阵列',crown:'双冠堡',needle:'长轴船坞',flagship:'装甲旗舰',relay:'三级中继',gatehouse:'双闸堡',spearhead:'楔形战舰',reactor:'反应堆堡'};
     const b=fort(shape,`${String(bi+1).padStart(2,'0')} / ${names[shape]}`);
     b.orbit=orbit(motion?{type:'elliptical',x,y,phase:0,...motion}:{type:'fixed',x,y});
-    if(opts.fragile&&['citadel','flagship'].includes(shape))b.springs.forEach((s,si)=>{if(si%4===3){s.breakTension=shape==='flagship'?3600:1800;s.burnRate=600;}});
+    if(opts.fragile&&['citadel','flagship'].includes(shape))b.springs.forEach((s,si)=>{if(si%4===3){s.breakTension=opts.braceTension??(shape==='flagship'?3600:1800);s.burnRate=600;}});
     level.buildings.push(b);
   });
   for(const s of opts.surface||[]){const b=surfaceBase(opts.bodies[s.body].radius,s.angle);b.bindToBody=s.body;level.buildings.push(b);}
@@ -254,13 +277,17 @@ function makeLevel(spec, i) {
   level.objective=`摧毁全部 ${targets} 个内部控制单元，得分达到 ${targets*200} 分。`;
   level.guidance={title:skill,text,hint};
   level.winCondition={importantTargetsAll:true,destructionThreshold:0,minScore:targets*200,parShots:opts.ammo.length,parDeltaV:opts.ammo.length*100};
+  if(opts.parShots!=null)level.winCondition.parShots=opts.parShots;
+  if(opts.parDeltaV!=null)level.winCondition.parDeltaV=opts.parDeltaV;
   if(i===0)level.guidance.firstShot={dvx:50,dvy:0};
   if(li===0)level.cutscene={title:chapter[2],kicker:`第 ${ci+1} 章 / ${chapter[1]}`,scenes:[{title:chapter[2],dialogue:{speaker:'战术教官',text:chapter[3]}},{title:'本次任务',dialogue:{speaker:'任务控制中心',text:text+' '+hint}}]};
   return level;
 }
 const levels=specs.map(makeLevel);
 if(require.main===module){
+  fs.writeFileSync(path.join(ROOT,'campaign-index.json'),JSON.stringify(chapters.map(([dir])=>dir),null,2)+'\n');
   chapters.forEach(([dir,name,subtitle,description],ci)=>{
+    fs.mkdirSync(path.join(ROOT,dir),{recursive:true});
     fs.writeFileSync(path.join(ROOT,dir,'index.json'),JSON.stringify({name,subtitle,description,levels:[1,2,3,4].map(n=>`lv${n}`)},null,2)+'\n');
     levels.slice(ci*4,ci*4+4).forEach((l,li)=>fs.writeFileSync(path.join(ROOT,dir,`lv${li+1}.json`),JSON.stringify(l,null,2)+'\n'));
     for(const n of [5,6])fs.rmSync(path.join(ROOT,dir,`lv${n}.json`),{force:true});

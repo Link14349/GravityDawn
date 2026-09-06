@@ -4,5 +4,8 @@
   "exp-interception",
   "exp-payloads",
   "exp-transfer",
-  "exp-expedition"
+  "exp-expedition",
+  "exp-siege",
+  "exp-resonance",
+  "exp-endgame"
 ]

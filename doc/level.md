@@ -252,7 +252,7 @@ data/levels/
 
 ## 教程系统
 
-新战役 6 章均有逐关 `guidance`，第一章额外提供发射方向图示。上下文提示由 `src/tutorial.js` 的 `TutorialManager` 队列化管理（详见 `doc/framework.md`），
+新战役 9 章均有逐关 `guidance`，第一章额外提供发射方向图示。上下文提示由 `src/tutorial.js` 的 `TutorialManager` 队列化管理（详见 `doc/framework.md`），
 触发点定义在 `src/main.js` 的游戏循环中：
 
 | 触发条件 | 提示内容 |
@@ -269,9 +269,9 @@ data/levels/
 
 ## 新战役编排
 
-`campaign-index.json` 的 6 章每章 4 关，共 24 个确定性场景。之后附加 `index.json` 的 23 个旧关卡。`src/campaign-data.js` 按两份索引的顺序加载并添加旧存档映射，所有 JSON 随 Webpack 的战役 chunk 打包，浏览器无需访问原始源码。
+`campaign-index.json` 的 9 章每章 4 关，共 36 个确定性场景。之后附加 `index.json` 的 23 个旧关卡。`src/campaign-data.js` 按两份索引的顺序加载并添加旧存档映射，所有 JSON 随 Webpack 的战役 chunk 打包，浏览器无需访问原始源码。
 
-每关 JSON 由 `src/campaign-authoring.cjs` 中的确定性蓝图生成：保留差异明显的堡垒，新增小型近月护卫和自由地表桁架，共 24 组明确编排的方位、轨道、载荷和中文引导。公共参数减少数据重复，运行时不调用生成器，仍可独立交给 `LevelManager.load()`。
+每关 JSON 由 `src/campaign-authoring.cjs` 的确定性蓝图生成，后三章规格位于 `src/campaign-advanced.cjs`。原 24 关保留，追加四种装甲蓝图与 12 组方位、轨道、载荷和中文引导。编排器的可选 `camera`、`parShots`、`parDeltaV` 分别覆盖初始镜头和星级预算，`braceTension` 调整可燃斜撑的初始强度；运行时 LevelDef 格式不变。公共参数减少数据重复，运行时不调用生成器，仍可独立交给 `LevelManager.load()`。
 
 阶段十四仅首关保留 `fortress-calibration-01`，其余重新编排的关卡使用 `dawn-*` ID，避免精简和调序后错用旧成绩；历史记录保留，23 个旧关继续使用原 `legacyKey`。通关要求内部目标和分数达标，节约弹药与 Δv 用于二、三星评价。`firstShot` 只驱动提示线。
 
@@ -281,4 +281,4 @@ data/levels/
 
 两关地表结构只使用 `bindToBody` 设置初始位置与速度，质点没有 `isCore`、`fixed` 或独立轨道，建筑没有 `orbit`。后续完全依靠星体碰撞、摩擦与自由桁架受力支撑。编排器的 `surfaceBase` 创建宽脚三角支撑与内部人员，不能用固定点代替稳定性调试。
 
-`npm run author:campaign` 每章生成 `lv1`–`lv4`，移除被精简的 `lv5` / `lv6`。旧版 `ch*` 不参与生成。完整关卡清单与质量验证见 `campaign.md`。
+`npm run author:campaign` 每章生成 `lv1`–`lv4`，移除被精简的 `lv5` / `lv6`。总索引同步为九章，缺失的章节目录自动创建。旧版 `ch*` 不参与生成。旧关卡的 `legacyKey` 使用当前索引减去新战役章节数量计算，不再固定减六；原关卡 ID 均保持不变。完整关卡清单与质量验证见 `campaign.md`。

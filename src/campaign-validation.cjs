@@ -8,8 +8,10 @@ const levels=json('data/levels/campaign-index.json').flatMap(dir=>json(`data/lev
 const references=json('doc/campaign-solutions.json');
 const finite=sim=>sim.buildings.every(b=>b.points.every(p=>Number.isFinite(p.x+p.y+p.vx+p.vy)))&&sim.bullets.every(b=>Number.isFinite(b.x+b.y+b.vx+b.vy+b.remainingDeltaV));
 const results=[];
-assert.equal(levels.length,24);
-assert.equal(new Set(levels.map(l=>l.id)).size,24,'Mission save IDs must be unique.');
+assert.equal(levels.length,36);
+assert.equal(new Set(levels.map(l=>l.id)).size,36,'Mission save IDs must be unique.');
+assert.equal(references.length,levels.length,'Each mission must have exactly one reference.');
+assert.equal(new Set(references.map(r=>r.id)).size,levels.length);
 assert.equal(levels.filter(l=>!l.stars.length&&!l.planets.length).length,1,'Only the initial control lesson may omit gravity.');
 assert(levels.filter(l=>l.stars.length+l.planets.length>=3).length>=8,'Keep multi-source encounters in the campaign.');
 assert(levels.filter(l=>l.stars.length+l.planets.length===4).length>=4,'Keep the four-source finale encounters.');
@@ -20,6 +22,14 @@ for(let index=0;index<levels.length;index++){
   assert(reference,`${level.id}: missing a verified solution`);
   assert(level.guidance?.text&&level.guidance?.hint&&level.objective);
   const initialTargets=initial.buildings.flatMap(b=>b.points).filter(p=>p.important).length;
+  if(index>=24){
+    assert(initialTargets>=7,`${level.id}: advanced missions require at least seven protected targets`);
+    assert(level.buildings.length>=3&&initial.allBodies.length>=3,`${level.id}: preserve multiple forts and gravity sources`);
+    assert(level.bullets.length<initialTargets,`${level.id}: ammunition must require multi-target attacks`);
+    assert(level.winCondition.parShots<level.bullets.length,`${level.id}: two stars must reward ammunition conservation`);
+    assert(level.winCondition.parDeltaV>0&&level.winCondition.parDeltaV<level.winCondition.parShots*100);
+    assert.equal(level.difficulty,index+1);
+  }
   const idle=new FlightSimulation(initial);
   const surfaceBuildings=level.buildings.map((b,i)=>b.bindToBody!=null?i:-1).filter(i=>i>=0);
   for(const bi of surfaceBuildings){
@@ -56,6 +66,7 @@ for(let index=0;index<levels.length;index++){
   assert(finite(sim),`${level.id}: invalid state after solution`);
   const result=LevelManager.checkResult(sim.buildings,level.winCondition,sim.getPerformance());
   assert(result.passed,`${level.id}: reference no longer clears the mission (${result.importantRemaining} remain)`);
+  if(index>=24)assert.equal(result.stars,3,`${level.id}: advanced three-star budget must be achievable`);
   // Replacing each planned burn with the full fuel budget must not clear introductory forts.
   const full=reference.actions.map(a=>{
     const max=initial.bullets[a.bullet].maxDeltaV,d=Math.hypot(a.dvx,a.dvy)||1;
@@ -115,4 +126,14 @@ global.document={cookie:'gravity_dawn_save='+encodeURIComponent(JSON.stringify({
 const storage=require('./storage.js');storage.configureProgress([{levels:[{id:'fortress-test'}]},{levels:[{legacyKey:'c0-l0'}]}]);
 assert.equal(storage.getBest(1,0).score,500);assert.equal(storage.getBest(0,0),null);
 storage.saveLevel(0,0,3,300,true);storage.saveLevel(0,0,0,0,false);assert.equal(storage.getBest(0,0).stars,3);
-console.log('PASS 24 mission replays, stable parking orbits, maximum-thrust counterchecks, moving frames, exact contacts, payloads, input and save regressions.');
+// Exercise the actual Webpack chapter loader, including its legacy-key offset.
+const loader={exports:{}};
+require('vm').runInNewContext(fs.readFileSync(path.join(__dirname,'campaign-data.js'),'utf8').replace('export const CHAPTERS =','module.exports ='),{
+  require:{context:()=>file=>json('data/levels/'+file.replace(/^\.\//,''))},module:loader,
+});
+const chapters=loader.exports,campaignCount=json('data/levels/campaign-index.json').length;
+assert.equal(campaignCount,9);assert.equal(chapters.length,12);
+assert(chapters.slice(0,campaignCount).every(c=>c.levels.length===4));
+chapters.slice(campaignCount).forEach((c,ci)=>c.levels.forEach((l,li)=>assert.equal(l.legacyKey,`c${ci}-l${li}`)));
+storage.configureProgress(chapters);assert.equal(storage.getBest(campaignCount,0).score,500);
+console.log('PASS 36 mission replays, advanced three-star budgets, stable parking orbits, maximum-thrust counterchecks, moving frames, exact contacts, payloads, input and expanded-campaign save regressions.');
