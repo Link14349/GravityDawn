@@ -2,6 +2,7 @@
 import { getAllBest } from './storage.js';
 import { orbitDiagram, missionDiagram } from './ui-diagrams.js';
 import { LevelManager } from './level.js';
+import gravityDawnMark from '../img/gravity-dawn-mark.png';
 import './css/style.css';
 
 export const Screen = Object.freeze({ START: 'start', LEVEL_SELECT: 'levelSelect', CUTSCENE: 'cutscene', GAME_HUD: 'gameHud', RESULT: 'result' });
@@ -106,13 +107,13 @@ export class UIManager {
     const count = chapters.reduce((n, c) => n + c.levels.length, 0);
     const complete = Object.values(getAllBest()).filter(v => v.stars > 0).length;
     this.root.innerHTML = `${this._header('2186 / 任务控制中心')}
-      <main class="home-layout"><section class="hero-copy"><div class="eyebrow"><span class="tiny-cross">+</span> 一场关于轨道力学的实验</div>
-      <h1>每一次微调，<br>都是新的<em>轨迹。</em></h1><p class="hero-description">以引力为工具，以轨道为答案。<br>观察星体，规划航线，让每一次点火恰到好处。</p>
+      <main class="home-layout"><section class="hero-copy"><img class="hero-logo" src="${gravityDawnMark}" alt="" width="1254" height="1254">
+      <h1>引力破晓</h1>
       <div class="hero-actions">${button('continue', complete ? '继续远征 <span>↗</span>' : '开始远征 <span>↗</span>', true)}${button('missions', '探索关卡 <span>→</span>')}</div>
       <div class="hero-specs"><div><strong>${pad(count)}</strong><span>实验关卡</span></div><div><strong>${pad(chapters.length)}</strong><span>研究章节</span></div><div><strong>Δv</strong><span>你的控制变量</span></div></div>
       <div class="hero-note mono">01 / 微小的改变，无限的可能。</div></section>
       <section class="hero-figure" aria-label="轨道转移示意图"><div class="figure-top mono"><span>图 01 / 轨道转移</span><span>轨道示意 <i class="status-dot"></i></span></div>${orbitDiagram('hero')}<div class="figure-caption"><span class="mono">F = G · m₁m₂ / r²</span><span>引力是工具，<br>而你是变量。</span></div></section></main>
-      <section class="principles"><article><span class="mono">01 / 观测</span><h3>读懂这片引力场。</h3><p>每一颗星体，都会改变弹体的飞行轨迹。</p></article><article><span class="mono">02 / 预测</span><h3>比现在多想一步。</h3><p>在点火之前，先用预测线找到可能的路线。</p></article><article><span class="mono">03 / 拦截</span><h3>让每次点火都有意义。</h3><p>利用动量与时机，用恰好的燃料完成拦截。</p></article></section>${this._footer()}`;
+      ${this._footer()}`;
   }
 
   _drawLevelSelect() {
