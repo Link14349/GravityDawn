@@ -57,6 +57,7 @@ export const BULLET_TYPES = {
 
 // ---- 内部用：根据质量参数推导排气速度 ----
 function deriveVe(payloadMass, fuelMass, deltaV) {
+  if (fuelMass <= 0 || deltaV <= 0) return 0;
   const m0 = payloadMass + fuelMass;
   // ve = Δv / ln(m₀ / m_payload)
   return deltaV / Math.log(m0 / payloadMass);
@@ -160,12 +161,13 @@ export class Bullet {
   }
 
   getEffectiveExplosionRadius() {
-    if (this.explosionRadius <= 0) return 0;
+    if (this.explosionRadius <= 0 || this.initialFuelMass <= 0) return 0;
     const fuelRatio = this.fuelMass / this.initialFuelMass;
     return this.explosionRadius * fuelRatio;
   }
 
   getEffectiveExplosionImpulse() {
+    if (this.initialFuelMass <= 0) return 0;
     const fuelRatio = this.fuelMass / this.initialFuelMass;
     return this.explosionImpulse * fuelRatio;
   }
@@ -295,7 +297,7 @@ export class Bullet {
     for (const sp of building.springs) {
       if (!sp.alive) continue;
       sp._burnTimer = 4;
-      sp._burnRate = 80; // 每秒降低 breakTension
+      sp._burnRate = sp.burnRate; // 每秒降低 breakTension
     }
   }
 }

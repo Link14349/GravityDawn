@@ -16,3 +16,5 @@ The player interface uses semantic HTML over a Canvas simulation. `src/css/style
 Responsive breakpoints are 1050px and 700px. Menus scroll naturally; the physics canvas keeps a 1200 × 800 logical space and fits the viewport. Input converts CSS coordinates into that logical space. Reduced motion removes diagram animation and shows briefing text immediately. Native buttons have keyboard focus indicators. The controls assume mouse / trackpad and keyboard; mobile layouts are readable but touch firing is not implemented.
 
 界面与无障碍标签统一使用中文，只保留 Δv、公式、单位和必要按键记号。关卡卡片使用 `missionDiagram(LevelManager.load(level))` 展示真实初始布局；主菜单与简报中的转移轨道为装饰性示意图。
+
+堡垒战役的真实桁架显示为双层三角网格；方框标识固定锚点，琥珀色圆环标识内部控制单元。建筑上方显示中文名称，移动堡垒显示参考轨道。瞄准时用低透明度琥珀色虚线圈显示预计内舱清除范围，弹体面板显示点火后的燃料。

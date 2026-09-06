@@ -30,14 +30,16 @@ export class GameController {
    * @param {import('./camera.js').Camera} options.camera
    * @param {() => number} [options.getTime] - 获取当前物理时间
    * @param {import('./building.js').Building[]} [options.buildings] - 建筑列表（用于碰撞预测）
+   * @param {number} [options.predictionSteps=800] - 预测窗口；堡垒战役使用 1800 步
    */
-  constructor(canvas, { physics, bullets, camera, getTime, buildings }) {
+  constructor(canvas, { physics, bullets, camera, getTime, buildings, predictionSteps = 800 }) {
     this.canvas = canvas;
     this.physics = physics;
     this.bullets = bullets;
     this.camera = camera;
     this._getTime = getTime || (() => 0);
     this._buildings = buildings || [];
+    this.predictionSteps = predictionSteps;
 
     this.state = GameState.PLAYING;
     this.paused = false;
@@ -243,7 +245,7 @@ export class GameController {
     };
 
     // 使用和实际物理相同的 dt + subSteps，保证预测精度完全一致
-    const result = this.physics.predictTrajectory(simState, 800, this.physics.dt, this._getTime(), 6);
+    const result = this.physics.predictTrajectory(simState, this.predictionSteps, this.physics.dt, this._getTime(), 6);
     let path = result.path;
     let collision = result.collision;
 
@@ -257,8 +259,8 @@ export class GameController {
             // 建筑碰撞：截断路径，设置碰撞信息
             path = path.slice(0, i + 1);
             collision = {
-              x: hit.x,
-              y: hit.y,
+              x: pt.x,
+              y: pt.y,
               sourceIndex: -1,
               time: this._getTime() + (i + 1) * this.physics.dt,
               buildingCollision: hit,
@@ -302,6 +304,16 @@ export class GameController {
   /** 获取预测碰撞点 */
   getPredictedCollision() {
     return this.predictedCollision;
+  }
+
+  /** Fuel and blast size after the proposed burn, without changing the bullet. */
+  getBurnPreview() {
+    const b = this.dragBullet, vector = this.getDragVector();
+    if (!b || !vector) return null;
+    const deltaV = Math.min(vector.magnitude, b.remainingDeltaV);
+    const fuel = b.ve > 0 ? Math.max(0, b.totalMass * Math.exp(-deltaV / b.ve) - b.payloadMass) : 0;
+    const fuelRatio = b.initialFuelMass > 0 ? fuel / b.initialFuelMass : 0;
+    return { deltaV, fuelRatio, explosionRadius: b.explosionRadius * fuelRatio };
   }
 
   /** 获取当前悬停的子弹 */

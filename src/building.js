@@ -36,6 +36,13 @@ export function pointToSegmentDist(px, py, ax, ay, bx, by) {
   return { dist: Math.sqrt((px - cx) ** 2 + (py - cy) ** 2), x: cx, y: cy };
 }
 
+// Exact contact at a beam's center still needs a finite separation normal.
+function contactNormal(p, sp, cx, cy, dist) {
+  if (dist > 1e-8) return { nx: (cx - p.x) / dist, ny: (cy - p.y) / dist };
+  const dx = sp.b.x - sp.a.x, dy = sp.b.y - sp.a.y, len = Math.hypot(dx, dy);
+  return len > 1e-8 ? { nx: -dy / len, ny: dx / len } : { nx: 1, ny: 0 };
+}
+
 // ========================
 // MassPoint
 // ========================
@@ -91,8 +98,9 @@ export class Spring {
    * @param {number} [options.stiffness=200]
    * @param {number} [options.damping=5]
    * @param {number} [options.breakTension=500]
+   * @param {number} [options.burnRate=80] - 点燃后每秒减少的断裂阈值
    */
-  constructor({ a, b, stiffness = 200, damping = 15, breakTension = 800, restLength }) {
+  constructor({ a, b, stiffness = 200, damping = 15, breakTension = 800, restLength, burnRate = 80 }) {
     this.a = a; this.b = b;
     if (restLength != null) {
       this.restLength = restLength;
@@ -103,6 +111,7 @@ export class Spring {
     this.stiffness = stiffness;
     this.damping = damping;
     this.breakTension = breakTension;
+    this.burnRate = burnRate;
     this.alive = true;
   }
   get length() {
@@ -135,6 +144,7 @@ export class Ship {
 // ========================
 export class Building {
   constructor() {
+    this.time = 0;
     /** @type {MassPoint[]} */
     this.points = [];
     /** @type {Spring[]} */
@@ -163,6 +173,7 @@ export class Building {
    * @returns {{ explosions: Array }} 本帧发生的爆炸事件
    */
   step(dt, physics, bodies, subSteps = 4) {
+    this.time += dt;
     const subDt = dt / subSteps;
     const explosions = [];
 
@@ -376,7 +387,7 @@ export class Building {
             this._damageEnemy(p, relSpeed * 0.8);
           } else {
             // 低速→完全非弹性碰撞
-            const nx = (cx - p.x) / dist, ny = (cy - p.y) / dist;
+            const { nx, ny } = contactNormal(p, sp, cx, cy, dist);
             p.x -= nx * (minDist - dist);
             p.y -= ny * (minDist - dist);
             p.vx = midVx; p.vy = midVy;
@@ -394,12 +405,12 @@ export class Building {
           } else if (relSpeed > PP_COLLISION_THRESHOLD) {
             // 中速(80-120)→切断弹簧+传递冲量
             this.cutSpringAndTransferImpulse(sp, p.explosionImpulse || 200);
-            const nx = (cx - p.x) / dist, ny = (cy - p.y) / dist;
+            const { nx, ny } = contactNormal(p, sp, cx, cy, dist);
             p.x -= nx * (minDist - dist);
             p.y -= ny * (minDist - dist);
           } else {
             // 低速(≤80)→完全非弹性碰撞，不切断弹簧
-            const nx = (cx - p.x) / dist, ny = (cy - p.y) / dist;
+            const { nx, ny } = contactNormal(p, sp, cx, cy, dist);
             p.x -= nx * (minDist - dist);
             p.y -= ny * (minDist - dist);
             p.vx = midVx; p.vy = midVy;
@@ -570,8 +581,13 @@ export class Building {
   }
 
   checkCollisionAt(x, y, r, time = null) {
-    const position = point => time !== null && point._orbit
-      ? point._orbit.getWorldPosition(time, point._orbits) : point;
+    const now = time !== null && this.frameOrbit ? this.frameOrbit.getWorldPosition(this.time, this.orbits) : null;
+    const future = now ? this.frameOrbit.getWorldPosition(time, this.orbits) : null;
+    const position = point => {
+      if (time !== null && point._orbit) return point._orbit.getWorldPosition(time, point._orbits);
+      if (future && !point.detached) return { x: point.x + future.x - now.x, y: point.y + future.y - now.y };
+      return point;
+    };
     for (const p of this.points) {
       if (!p.alive) continue;
       const pp = position(p);
@@ -720,14 +736,14 @@ export class Building {
             const relSpeed = Math.sqrt((pa.vx - midVx) ** 2 + (pa.vy - midVy) ** 2);
             if (pa.isEnemy) {
               if (relSpeed > ENEMY_PP_THRESHOLD) { a._damageEnemy(pa, relSpeed * 0.5); }
-              else { const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist; pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist); pa.vx = midVx; pa.vy = midVy; }
+              else { const { nx, ny } = contactNormal(pa, sp, cx, cy, dist); pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist); pa.vx = midVx; pa.vy = midVy; }
             } else {
               if (relSpeed > PS_COLLISION_THRESHOLD) {
                 a._triggerPointExplosion(pa, pa.explosionImpulse, pa.explosionRadius); a._killPoint(pa); a.score += pa.score; sp.alive = false;
               } else if (relSpeed > PP_COLLISION_THRESHOLD) {
-                b.cutSpringAndTransferImpulse(sp, pa.explosionImpulse || 200); const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist; pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist);
+                b.cutSpringAndTransferImpulse(sp, pa.explosionImpulse || 200); const { nx, ny } = contactNormal(pa, sp, cx, cy, dist); pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist);
               } else {
-                const nx = (cx - pa.x) / dist, ny = (cy - pa.y) / dist; pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist); pa.vx = midVx; pa.vy = midVy;
+                const { nx, ny } = contactNormal(pa, sp, cx, cy, dist); pa.x -= nx * (minDist - dist); pa.y -= ny * (minDist - dist); pa.vx = midVx; pa.vy = midVy;
               }
             }
           }
@@ -745,14 +761,14 @@ export class Building {
             const relSpeed = Math.sqrt((pb.vx - midVx) ** 2 + (pb.vy - midVy) ** 2);
             if (pb.isEnemy) {
               if (relSpeed > ENEMY_PP_THRESHOLD) { b._damageEnemy(pb, relSpeed * 0.5); }
-              else { const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist; pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist); pb.vx = midVx; pb.vy = midVy; }
+              else { const { nx, ny } = contactNormal(pb, sp, cx, cy, dist); pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist); pb.vx = midVx; pb.vy = midVy; }
             } else {
               if (relSpeed > PS_COLLISION_THRESHOLD) {
                 b._triggerPointExplosion(pb, pb.explosionImpulse, pb.explosionRadius); b._killPoint(pb); b.score += pb.score; sp.alive = false;
               } else if (relSpeed > PP_COLLISION_THRESHOLD) {
-                a.cutSpringAndTransferImpulse(sp, pb.explosionImpulse || 200); const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist; pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist);
+                a.cutSpringAndTransferImpulse(sp, pb.explosionImpulse || 200); const { nx, ny } = contactNormal(pb, sp, cx, cy, dist); pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist);
               } else {
-                const nx = (cx - pb.x) / dist, ny = (cy - pb.y) / dist; pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist); pb.vx = midVx; pb.vy = midVy;
+                const { nx, ny } = contactNormal(pb, sp, cx, cy, dist); pb.x -= nx * (minDist - dist); pb.y -= ny * (minDist - dist); pb.vx = midVx; pb.vy = midVy;
               }
             }
           }

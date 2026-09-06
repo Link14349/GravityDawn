@@ -83,7 +83,7 @@ export class Renderer {
     ctx.save(); ctx.strokeStyle = 'rgba(219,164,129,.24)'; ctx.lineWidth = 1;
     ctx.setLineDash([2, 5]);
     for (const building of buildings) for (const p of building.points) {
-      const orbit = p._orbit;
+      const orbit = building.frameOrbit || p._orbit;
       if (!p.alive || !p.important || !orbit || orbit.type === 'fixed') continue;
       ctx.beginPath();
       for (let i = 0; i <= 80; i++) {
@@ -91,6 +91,7 @@ export class Renderer {
         if (!i) ctx.moveTo(at.x, at.y); else ctx.lineTo(at.x, at.y);
       }
       ctx.stroke();
+      if (building.frameOrbit) break;
     }
     ctx.restore();
   }
@@ -101,7 +102,7 @@ export class Renderer {
     ctx.save(); ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillStyle = '#dbe6c7';
     ctx.fillText('① 悬停此弹体', probe.x, probe.y - 32);
-    ctx.fillStyle = '#dba481'; ctx.fillText('③ 命中目标', target.x, target.y - 42);
+    ctx.fillStyle = '#dba481'; ctx.fillText('③ 爆心覆盖内舱', target.x, target.y - 74);
     const endX = probe.x - vector.dvx * 2, endY = probe.y - vector.dvy * 2;
     ctx.strokeStyle = '#dbe6c7'; ctx.lineWidth = 1; ctx.setLineDash([3, 5]);
     ctx.beginPath(); ctx.moveTo(probe.x - 20, probe.y); ctx.lineTo(endX, endY); ctx.stroke();
@@ -273,6 +274,16 @@ export class Renderer {
     // 预测碰撞点 + 轮廓
     const predCol = ctrl.getPredictedCollision();
     if (predCol) {
+      const burn = ctrl.getBurnPreview();
+      if (predCol.buildingCollision && burn && burn.explosionRadius > 1) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(219,164,129,.7)'; ctx.fillStyle = 'rgba(219,164,129,.07)';
+        ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+        ctx.beginPath(); ctx.arc(predCol.x, predCol.y, burn.explosionRadius / 2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.setLineDash([]); ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#dba481';
+        ctx.fillText('内舱清除范围 / 预估', predCol.x, predCol.y - burn.explosionRadius / 2 - 14);
+        ctx.restore();
+      }
       // 橙色碰撞点
       ctx.fillStyle = '#dfaa83';
       ctx.beginPath(); ctx.arc(predCol.x, predCol.y, 6, 0, Math.PI * 2); ctx.fill();
@@ -345,6 +356,13 @@ export class Renderer {
    */
   drawBuilding(building) {
     const ctx = this.ctx;
+    if (building.name) {
+      const alive = building.points.filter(p => p.alive && !p.detached);
+      if (alive.length) {
+        ctx.fillStyle = '#a9b4a0'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(building.name, Math.min(...alive.map(p => p.x)), Math.min(...alive.map(p => p.y)) - 17);
+      }
+    }
     // 弹簧（端点死亡则跳过）
     for (const sp of building.springs) {
       if (!sp.alive || !sp.a.alive || !sp.b.alive) continue;
@@ -359,6 +377,10 @@ export class Renderer {
       if (!p.alive) continue;
       ctx.fillStyle = p.important ? '#dba481' : '#9aa992';
       ctx.beginPath(); ctx.arc(p.x, p.y, p.renderRadius, 0, Math.PI * 2); ctx.fill();
+      if (building.frameOrbit && p.fixed && !p.important) {
+        ctx.strokeStyle = '#71846d'; ctx.lineWidth = 1;
+        ctx.strokeRect(p.x - p.renderRadius - 2, p.y - p.renderRadius - 2, (p.renderRadius + 2) * 2, (p.renderRadius + 2) * 2);
+      }
       // 敌人：血量>2/3绿色，≤2/3紫色
       if (p.isEnemy) {
         const hpRatio = p.hp / p.maxHp;

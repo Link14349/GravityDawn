@@ -285,7 +285,8 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 方法 | 说明 |
 |------|------|
 | `getPredictedPath()` | 当前预测轨迹 |
-| `getPredictedCollision()` | 预测碰撞点 |
+| `getPredictedCollision()` | 预测碰撞点，使用弹体中心坐标 |
+| `getBurnPreview()` | 当前拖拽实际可用的 Δv、点火后燃料比例和爆炸半径，不修改弹体 |
 | `getDragVector()` | 拖拽 ΔV 矢量 |
 | `getHoveredBullet()` | 当前 Canvas 内悬停的子弹 |
 | `destroy()` | 中止全部事件监听，重试/离关后不再响应输入 |
@@ -321,6 +322,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 8 | 关卡系统+通关判定 |
 | 9 | 科学极简中文界面与任务简报 |
 | 10 | 36 关新战役 + 23 关旧版档案 |
+| 11 | 36 关堡垒重建、爆心引导与满推力反例验证 |
 
 ---
 
@@ -420,10 +422,18 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 
 main.js 通过真实时间累积器调用固定步进，每帧最多补 6 步；暂停时不推进。相同模拟也由关卡验证脚本调用，避免测试另写一套物理。
 
-`Building.checkCollisionAt(x,y,r,time=null)` 在提供时间时使用核心轨道的未来位置；未绑定轨道的结构按当前快照检查。瞄准预测使用当前燃料能实现的 Δv 上限，星体检测包含弹体半径。
+`Building.checkCollisionAt(x,y,r,time=null)` 使用各锚点的未来位置。建筑级 `frameOrbit` 把尚未脱离的自由构件快照平移到未来参考位置，不预测碎片的后续变形。`Building.time` 随 `step` 累加，用于计算快照与预测时刻之差。瞄准使用燃料能实现的 Δv 上限；建筑爆心为弹体中心；星体检测包含弹体半径。`GameController` 接收可选 `predictionSteps`，默认 800，新堡垒战役使用 1800，对应 30 秒飞行窗口。
 
 ## 战役与存档
 
 `campaign-data.js` 作为独立异步 chunk 加载 6 个新章节和 3 个旧章节。新关卡以稳定 `id` 保存成绩，旧关卡的 `legacyKey` 仍对应原 `cN-lN`。`configureProgress(chapters)` 建立屏幕索引映射；`getAllBest()` 返回当前 UI 索引下的成绩。`storage.js` 使用 localStorage 的 `gravity_dawn_progress_v2`，读取旧 Cookie 作为迁移来源，存储不可用时退化为当前会话内存。失败重试不会覆盖最好成绩。
 
-`npm run check:campaign` 验证全部 36 关可解、600 帧无输入稳定、缩放后的瞄准坐标、监听器销毁、燃料限制预测、移动目标预测和旧存档映射，参考解输出至 `doc/campaign-validation.json`。完整设计与验证范围见 `campaign.md`。
+`npm run author:campaign` 从确定性蓝图生成六章 JSON。`npm run check:campaign` 回放 `doc/campaign-solutions.json` 中的参考解，检查 1800 帧结构稳定、泊车轨道与堡垒/星体分离、前十关满推力反例，以及移动框架、零距离接触、特殊载荷、输入与存档回归；报告输出至 `doc/campaign-validation.json`。离线搜索器 `src/campaign-solver.cjs` 仅寻找候选动作，生产 `FlightSimulation` 回放通过后才可纳入参考解。
+
+### 堡垒建筑与材料参数（阶段十一）
+
+`BuildingDef.orbit` 指定整座堡垒的平移参考轨道，点坐标保留局部偏移；固定点分别绑定偏移轨道，自由构件继承初始速度。`pointDefaults` 和 `springDefaults` 提供共用物理参数，单元素配置覆盖共用值。`Building.name` 用于中文结构标签，详细数据格式见 `level.md`。
+
+`Spring.burnRate` 默认 80，新战役的可熔断斜撑使用 600，旧关材料参数保持原值。精确位于弹簧中线的接触使用有限的法线分离；引力源中心加速度取零；零燃料分裂弹片的 Δv 和爆炸半径保持有限，避免复杂结构和引力井产生 NaN。
+
+战役 JSON 按章节拆分异步资源，四个游戏入口共用渲染与模拟代码。阶段十一演示为 `test/phase11-demo.html`，只调用 `initGame()`。

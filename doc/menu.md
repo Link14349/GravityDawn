@@ -7,7 +7,7 @@
 | 文件 | 内容 |
 |------|------|
 | **[framework.md](framework.md)** | 游戏技术架构 — 项目概览、目录结构、模块职责、物理/渲染/相机系统 |
-| **[campaign.md](campaign.md)** | 新战役 — 36 关学习曲线、中文引导、星级目标、可解性验证 |
+| **[campaign.md](campaign.md)** | 堡垒战役 — 36 关编排、中文战术引导、参考解与满推力反例验证 |
 | **[level.md](level.md)** | 关卡系统 — LevelManager 加载流程、levels.json 数据格式、轨道系统 (Orbit)、通关结算 |
 | **[bullet.md](bullet.md)** | 子弹系统 — 8 种类型详解、齐奥尔科夫斯基公式、特殊效果（分裂/引力/燃烧） |
 | **[cutscene.md](cutscene.md)** | 播片剧情系统 — 数据格式、界面布局、交互设计、CutsceneManager API |

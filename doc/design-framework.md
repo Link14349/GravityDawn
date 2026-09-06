@@ -28,6 +28,8 @@ tools/
 
 测试模式直接复用 `src/` 下的全部游戏模块，通过 `LevelManager.load()` 从编辑器数据构建运行时对象。
 
+阶段十一的堡垒数据新增建筑级 `orbit`、`pointDefaults`、`springDefaults` 和弹簧 `burnRate`。生产加载器支持这些字段；现有编辑器属性面板未覆盖建筑参考框架和公共参数，新战役应在 `src/campaign-authoring.cjs` 中维护，并运行 `npm run author:campaign` 生成 JSON。不能把局部坐标直接当成编辑器旧格式的世界坐标修改。
+
 ## DesignerData (`tools/designer.js`)
 
 ### 核心类

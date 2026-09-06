@@ -1,7 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const fs = require('fs');
-const pages = ['index.html', 'test/phase9-demo.html', 'test/phase10-demo.html'].filter(file => fs.existsSync(path.resolve(__dirname, file)));
+const pages = ['index.html', 'test/phase9-demo.html', 'test/phase10-demo.html', 'test/phase11-demo.html'].filter(file => fs.existsSync(path.resolve(__dirname, file)));
 const pageKey = file => file === 'index.html' ? 'app' : path.basename(file, '.html');
 
 module.exports = {
@@ -74,6 +74,6 @@ module.exports = {
       inject: false,
     }),
   ],
-  optimization: { splitChunks: { chunks: 'all' }, runtimeChunk: 'single' },
+  optimization: { splitChunks: { chunks: 'all', cacheGroups: { levels: { test: /[\\/]data[\\/]levels[\\/](exp-[^/\\]+|ch\d+)[\\/]/, chunks: 'async', enforce: true, name: module => 'levels-' + module.resource.split(/[/\\]/).slice(-2,-1)[0] } } }, runtimeChunk: 'single' },
   devtool: 'source-map',
 };

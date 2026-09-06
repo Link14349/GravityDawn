@@ -15,7 +15,7 @@ import { Orbit, createOrbits } from './binding.js';
  */
 export class LevelManager {
   static load(levelData) {
-    const G = levelData.gravity || 300;
+    const G = levelData.gravity ?? 300;
 
     // 1. 构建全局 orbits 数组
     const orbits = createOrbits(levelData.orbits || []);
@@ -53,11 +53,22 @@ export class LevelManager {
     // 5. 建筑
     const buildings = (levelData.buildings || []).map(def => {
       const b = new Building();
+      b.name = def.name || '';
+      b.frameOrbit = def.orbit == null ? null : orbits[def.orbit];
+      b.orbits = orbits;
       let coreWorldX = 0, coreWorldY = 0, initVx, initVy;
+
+      // A building frame gives every anchor its own offset, including moving forts.
+      if (b.frameOrbit) {
+        const wp = b.frameOrbit.getWorldPosition(0, orbits);
+        const wv = b.frameOrbit.getWorldVelocity(0, orbits);
+        coreWorldX = wp.x; coreWorldY = wp.y;
+        initVx = wv.vx; initVy = wv.vy;
+      }
 
       // 第一遍：找出核心点（或建筑绑定）的世界位置和速度
       for (const pd of def.points) {
-        if (pd.isCore && pd.orbit != null) {
+        if (!b.frameOrbit && pd.isCore && pd.orbit != null) {
           const orb = orbits[pd.orbit];
           const wp = orb.getWorldPosition(0, orbits);
           const wv = orb.getWorldVelocity(0, orbits);
@@ -77,14 +88,25 @@ export class LevelManager {
       // 第二遍：创建质点
       const pts = [];
       for (const pd of def.points) {
-        const pt = { ...pd };
-        if (pd.isCore) {
+        const pt = { ...def.pointDefaults, ...pd };
+        if (b.frameOrbit) {
+          pt.x = (pd.x || 0) + coreWorldX;
+          pt.y = (pd.y || 0) + coreWorldY;
+          pt.vx = initVx; pt.vy = initVy;
+          if (pd.fixed || pd.isCore) {
+            pt.orbit = new Orbit({ type: 'fixed', x: pd.x || 0, y: pd.y || 0, parent: def.orbit });
+            pt.orbits = orbits;
+          }
+        } else if (pd.isCore) {
           if (pd.orbit != null) {
             pt.orbit = orbits[pd.orbit];
             pt.orbits = orbits;
+            const wp = pt.orbit.getWorldPosition(0, orbits);
+            pt.x = wp.x; pt.y = wp.y;
+          } else {
+            pt.x = pd.x ?? coreWorldX;
+            pt.y = pd.y ?? coreWorldY;
           }
-          pt.x = coreWorldX;
-          pt.y = coreWorldY;
         } else {
           pt.x = (pd.x || 0) + coreWorldX;
           pt.y = (pd.y || 0) + coreWorldY;
@@ -94,7 +116,7 @@ export class LevelManager {
       }
 
       for (const sd of (def.springs || [])) {
-        b.addSpring({ ...sd, a: pts[sd.a], b: pts[sd.b] });
+        b.addSpring({ ...def.springDefaults, ...sd, a: pts[sd.a], b: pts[sd.b] });
       }
       return b;
     });

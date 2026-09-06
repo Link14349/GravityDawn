@@ -97,6 +97,7 @@ export class PhysicsEngine {
       const dy = src.y - py;
       const distSq = dx * dx + dy * dy;
       const dist = Math.sqrt(distSq);
+      if (dist < 1e-8) continue;
       const r = Math.max(dist, MIN_DISTANCE);
 
       // a = G * M / r^2，分解到 x, y 方向
@@ -213,6 +214,7 @@ export class PhysicsEngine {
           const dy = src.y - y;
           const distSq = dx * dx + dy * dy;
           const dist = Math.sqrt(distSq);
+          if (dist < 1e-8) continue;
           const r = Math.max(dist, MIN_DISTANCE);
           const aMag = this.G * src.mass / (r * r);
           ax += aMag * dx / dist;

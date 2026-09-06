@@ -42,9 +42,10 @@ data/levels/
 
 ```js
 {
-  id: 'expedition-calibration-01', // 新战役稳定存档 ID
+  id: 'fortress-calibration-01', // 重做战役使用新 ID，保留历史成绩
   name: '前哨站',           // string — 关卡名称
-  gravity: 300,             // number — 引力常量 G
+  gravity: 300,             // number — 引力常量 G，支持 0
+  flightTimeout: 30,        // 可选：长时间飞行兜底，旧关默认 15 秒
   camera: { x: 725, y: 400, zoom: 0.75 },
 
   orbits: [OrbitDef],       // 轨道定义数组，id=索引
@@ -104,6 +105,10 @@ data/levels/
 
 ```js
 {
+  name: '01 / 双壳前哨',    // 可选：战场结构标签
+  orbit: 2,                // 可选：整个建筑的平移参考轨道
+  pointDefaults: { mass: 18, radius: 4, score: 10 },
+  springDefaults: { stiffness: 1400, damping: 65, breakTension: 6500 },
   points: [PointDef],        // 质点列表
   springs: [SpringDef],      // 弹簧列表
 }
@@ -126,6 +131,10 @@ data/levels/
 - 非核心点：`x, y` 为相对核心的世界坐标偏移，加载时自动叠加核心世界位置。
 - 所有非核心点自动继承核心轨道的世界速度。
 
+建筑级 `orbit` 存在时，所有点的 `x/y` 改为相对此参考原点的偏移；固定锚点与内部控制单元分别保留偏移并跟随轨道，自由构件继承初速度后参与弹簧模拟。没有建筑级 `orbit` 时保持上述旧格式。多个独立轨道核心在加载时分别使用自己的世界位置。
+
+`pointDefaults` / `springDefaults` 先合并，单元素配置覆盖同名公共物理参数。位置、轨道、固定属性和目标标记应逐点填写。
+
 #### SpringDef
 
 ```js
@@ -135,6 +144,7 @@ data/levels/
   stiffness: 4000,           // 劲度系数 k
   damping: 20,               // 阻尼系数
   breakTension: 7500,        // 断裂张力阈值
+  burnRate: 80,              // 可选：燃烧时每秒降低的阈值
   restLength: 50             // 原长（默认取初始距离）
 }
 ```
@@ -261,6 +271,10 @@ data/levels/
 
 `campaign-index.json` 的 6 章每章 6 关，共 36 个确定性场景。之后附加 `index.json` 的 23 个旧关卡。`src/campaign-data.js` 按两份索引的顺序加载并添加旧存档映射，所有 JSON 随 Webpack 的战役 chunk 打包，浏览器无需访问原始源码。
 
-每关静态 JSON 均含完整物理配置，可独立由 `LevelManager.load()` 构造。常规核心后方的固定支架用于形成可见结构；运动核心使用圆形或椭圆轨道，避免新手观察时目标自行坍塌。教学中保留备用弹体，评级中的 Δv 预算逐章收紧。`firstShot: {dvx,dvy}` 只驱动首关的提示线，不会自动发射。
+每关 JSON 由 `src/campaign-authoring.cjs` 中的确定性蓝图生成：11 种可组合的桁架建筑，36 组明确编排的方位、轨道、载荷和中文引导。公共参数减少数据重复，运行时不调用生成器，仍可独立交给 `LevelManager.load()`。
+
+重做战役使用 `fortress-*` ID，避免原简单关卡的成绩被当作新关成绩；历史记录保留，23 个旧关继续使用原 `legacyKey`。通关要求内部目标和分数达标，节约弹药与 Δv 用于二、三星评价。`firstShot` 只驱动提示线。
+
+`flightTimeout: 30` 与 1800 步预测相配合，允许低推力进近及绕行。弹体飞出 ±1700 世界边界也可进入结算缓冲；目标全部清除仍触发原有的 5 秒结果分析。拖拽时显示点火后燃料与预计内舱清除范围（剩余爆炸半径的一半），不预测未来全部碎片碰撞。
 
 完整关卡清单与质量验证见 `campaign.md`。

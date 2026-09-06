@@ -88,7 +88,7 @@ export async function initGame() {
     cam._panning = false;
     cam.x = camera.x; cam.y = camera.y; cam.zoom = camera.zoom;
     if (ctrl) ctrl.destroy();
-    ctrl = new GameController(canvas, { physics, bullets, camera: cam, getTime: () => physicsTime, buildings });
+    ctrl = new GameController(canvas, { physics, bullets, camera: cam, getTime: () => physicsTime, buildings, predictionSteps: levelData.flightTimeout ? levelData.flightTimeout * 60 : 800 });
     cam.enabled = true;
     cam._shouldBlockPan = () => ctrl && ctrl.getHoveredBullet() !== null;
     physicsTime = 0;
@@ -203,7 +203,7 @@ export async function initGame() {
 
     const userInteracting = ctrl.state === 'aiming' || ctrl.dragging;
     const allLaunched = bullets.every(b => b.launched || !b.alive);
-    const allSettled = bullets.every(b => !b.alive || (b.launched && (Math.sqrt(b.vx**2 + b.vy**2) < 5 || physicsTime - b.launchTime > 15)));
+    const allSettled = bullets.every(b => !b.alive || (b.launched && (Math.sqrt(b.vx**2 + b.vy**2) < 5 || physicsTime - b.launchTime > (getLevelData(currentChapter, currentLevel).flightTimeout || 15) || Math.abs(b.x) > 1700 || Math.abs(b.y) > 1700)));
     const importantAllDead = (() => {
       for (const bld of buildings) for (const p of bld.points) if (p.important && p.alive) return false;
       return true;

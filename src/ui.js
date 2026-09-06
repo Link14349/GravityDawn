@@ -136,7 +136,7 @@ export class UIManager {
     this._text('hud-score', Math.round(d.score)); this._text('hud-probes', pad(d.bulletsRemaining));
     this._text('hud-targets', `${d.importantRemaining ?? '—'} / ${d.importantTotal ?? '—'}`);
     const wc = this._level().winCondition || {};
-    this._text('hud-requirements', `得分 ≥ ${wc.minScore || 0} · 毁伤 ≥ ${Math.round((wc.destructionThreshold || 0) * 100)}%${wc.parShots != null ? ` · 三星：≤${wc.parShots} 枚，Δv≤${wc.parDeltaV}` : ''}`);
+    this._text('hud-requirements', `得分 ≥ ${wc.minScore || 0}${wc.destructionThreshold ? ` · 毁伤 ≥ ${Math.round(wc.destructionThreshold * 100)}%` : ''}${wc.parShots != null ? ` · 三星：≤${wc.parShots} 枚，Δv≤${wc.parDeltaV}` : ''}`);
     this._text('flight-time', `时间 + ${(d.time || 0).toFixed(1)} s`);
     const paused = !!this._ctrl?.isSpacePaused();
     this.root.querySelector('#pause-overlay').hidden = !paused;
@@ -145,7 +145,8 @@ export class UIManager {
     const probe = this._ctrl?.getHoveredBullet(), node = this.root.querySelector('#probe-telemetry');
     node.hidden = !probe;
     if (probe) {
-      const text = `${probe.typeName} / Δv ${probe.remainingDeltaV.toFixed(0)} · 点火 ${probe.remainingIgnitions} · 燃料 ${Math.round(probe.fuelMass / probe.initialFuelMass * 100)}%${probe.onImpact && probe.launched ? ' · 右键 / 触发' : ''}`;
+      const burn = this._ctrl?.getBurnPreview();
+      const text = `${probe.typeName} / Δv ${probe.remainingDeltaV.toFixed(0)} · 点火 ${probe.remainingIgnitions} · 燃料 ${Math.round(probe.initialFuelMass > 0 ? probe.fuelMass / probe.initialFuelMass * 100 : 0)}%${probe.onImpact && probe.launched ? ' · 右键 / 触发' : ''}${burn ? ` · 本次 Δv ${burn.deltaV.toFixed(0)} · 点火后燃料 ${Math.round(burn.fuelRatio * 100)}%` : ''}`;
       if (node.textContent !== text) node.textContent = text;
     }
     const settle = this.root.querySelector('#settle-status');
