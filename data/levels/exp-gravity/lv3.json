@@ -1,0 +1,158 @@
+{
+  "id": "expedition-gravity-03",
+  "name": "从上方经过",
+  "skill": "绕开遮挡",
+  "difficulty": 3,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 640,
+      "y": 420
+    },
+    {
+      "type": "fixed",
+      "x": 885,
+      "y": 350
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 410,
+      "radius": 44,
+      "collisionRadius": 44,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 324,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 19,
+          "renderRadius": 19,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 81,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "绕开遮挡",
+    "text": "中央星体挡住直线航路。试着从它上方绕过。",
+    "hint": "先向上预留高度，借引力把弹体拉回目标附近。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 150
+  }
+}

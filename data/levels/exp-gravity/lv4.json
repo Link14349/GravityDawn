@@ -1,0 +1,158 @@
+{
+  "id": "expedition-gravity-04",
+  "name": "下弦航线",
+  "skill": "反向偏折",
+  "difficulty": 4,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 635,
+      "y": 285
+    },
+    {
+      "type": "fixed",
+      "x": 870,
+      "y": 460
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 430,
+      "radius": 47,
+      "collisionRadius": 47,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 324,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 18,
+          "renderRadius": 18,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 81,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "反向偏折",
+    "text": "上方星体会向上吸引弹体。寻找一条下方经过的航线。",
+    "hint": "路线与上一关相反：先稍向下飞，再让引力收回高度。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 150
+  }
+}

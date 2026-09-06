@@ -1,0 +1,237 @@
+{
+  "id": "expedition-payloads-05",
+  "name": "临时引力井",
+  "skill": "引力弹实验",
+  "difficulty": 8,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 840,
+      "y": 320
+    },
+    {
+      "type": "fixed",
+      "x": 890,
+      "y": 465
+    }
+  ],
+  "stars": [],
+  "planets": [],
+  "bullets": [
+    {
+      "type": "gravity",
+      "x": 350,
+      "y": 324,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 70
+    },
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 400,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 70
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 70
+    },
+    {
+      "type": "normal",
+      "x": 422,
+      "y": 324,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 70
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 0,
+          "mass": 200,
+          "radius": 13,
+          "renderRadius": 13,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 73,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 13,
+          "renderRadius": 13,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 73,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 2 个琥珀色核心，得分达到 200 分。",
+  "guidance": {
+    "title": "引力弹实验",
+    "text": "引力弹碰撞或右键触发会留下持续三秒的引力井，影响后续弹体。",
+    "hint": "先观察引力井位置，再发射后续弹体；它也可能把航线拉偏。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200,
+    "parShots": 2,
+    "parDeltaV": 280
+  }
+}

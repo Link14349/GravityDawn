@@ -1,89 +1,18 @@
-# 引力破晓 — 美术风格设计
+# Gravity Dawn — Scientific minimalism
 
-## 整体定调
+The player interface uses semantic HTML over a Canvas simulation. `src/css/style.css` owns the full visual system; `src/ui-diagrams.js` contains decorative SVG diagrams. No bitmap artwork or remote font dependency is needed.
 
-深空玻璃拟态（Deep-Space Glassmorphism）— 动态星云背景 + 半透明玻璃面板 + 冷青发光强调。所有交互元素带时间驱动的缓动动画，营造深邃太空中的精致科技感。
+- Paper `#f4f3ed`, graphite `#252b2a`, muted text `#6d7470`, rules `#d8dad2`.
+- Burn orange `#cc5737` marks trajectories and key actions. Green indicates completion / readiness.
+- Flight view: graphite green `#171e1b`, muted sage bodies, ivory probes, amber objectives.
+- System sans for content, system monospace for measured values and labels, serif italic for the landing headline.
+- Thin rules, square buttons, restrained motion, generous spacing. No glow effects or glass panels.
+- Start: editorial headline + transfer diagram + controls / mission overview.
+- Archive: chapter navigation, progress, numbered mission cards. All missions are playable; recommended order follows chapter and mission numbering.
+- HUD: objective / thresholds, probes, score, remaining targets, pause, retry, recenter, guidance, contextual probe telemetry and simulation time.
+- Results: measured score, remaining probes and targets, three-star rating, retry / continue.
+- Briefings: two-column scientific diagram and transmission, typed dialogue, progress segments, explicit continue / skip.
 
----
+Responsive breakpoints are 1050px and 700px. Menus scroll naturally; the physics canvas keeps a 1200 × 800 logical space and fits the viewport. Input converts CSS coordinates into that logical space. Reduced motion removes diagram animation and shows briefing text immediately. Native buttons have keyboard focus indicators. The controls assume mouse / trackpad and keyboard; mobile layouts are readable but touch firing is not implemented.
 
-## 配色方案
-
-| 用途 | 色值 | 说明 |
-|------|------|------|
-| 深空底色 | `#03050d → #0a102b → #120b2e` | 三段纵向渐变（蓝黑→深蓝→深紫），非纯黑 |
-| 面板底色 | `rgba(12, 18, 44, 0.82)` | 半透明深蓝玻璃 |
-| 面板边框 | `rgba(94, 234, 219, 0.16)` | 1px 冷青细线 |
-| 主强调色 | `#4fe3d4` / 亮 `#8ffcef` | 冷青（按钮、标签、高亮、发光） |
-| 次强调色 | `#8b9cff` | 冷紫蓝（渐变搭配、次级元素） |
-| 警示 | `#ff5d6c` | 珊瑚红（失败、子弹耗尽） |
-| 黄金点缀 | `#ffd166` | 仅用于星级/分数/通关/倒计时 |
-| 成功 | `#4ade80` | 绿（奖励分数） |
-| 正文 | `#e9edf7` | 偏白冷灰 |
-| 辅助文字 | `#8b96b8` | 低饱和蓝灰 |
-
-大面积冷色（蓝紫系），小面积亮色点缀（青/金/红），避免暖色泛滥。
-
-**字体**：中文 PingFang SC / Microsoft YaHei 栈；数字与分数一律等宽字体（SF Mono / Menlo 栈）。
-
----
-
-## 动态背景（`UIManager._drawSpaceBg`）
-
-START（无背景图时）/ LEVEL_SELECT / RESULT 共用：
-
-- 三段纵向深空渐变
-- 3 团缓慢漂移的星云（青/紫蓝/微红，径向渐变）
-- 三层视差星空（110/70/34 颗，逐层增大增亮，不同速度水平漂移 + 正弦闪烁）
-- 每 7 秒一颗流星划过
-- 四周径向暗角
-
----
-
-## UI 组件规范
-
-**按钮（`_btn`）**
-- 主按钮：冷青纵向渐变实心 + 外发光（悬停增强），圆角 ≤12px，深色文字
-- 次按钮：透明微青底 + 冷青描边，悬停提亮加粗
-- 悬停状态经指数缓动过渡（`_hover`，速率 14/s），非瞬变
-- CTA 按钮可开启呼吸发光（`pulse: true`）
-- 悬停任意按钮时鼠标指针变 pointer
-
-**胶囊提示（`_pill`）**
-- 全圆角胶囊，按文字自适应宽度，用于 HUD 底部操作提示、暂停指示、教程提示
-
-**卡片（选关）**
-- 纵向渐变半透明底，圆角 14px，右上角大号等宽序号水印
-- 悬停：上浮 5px + 冷青发光边框
-- 星级用矢量五角星路径（实心金渐变 / 灰描边空心）
-
-**入场动画**
-- 界面切换：400ms 淡入 + 16px 上滑（easeOutCubic）
-- 结算星级：逐个延迟 0.22s，backOut 弹出
-- 结算总分：1.1s easeOutCubic 滚动计数
-
----
-
-## 各界面排版
-
-```
-开始界面: Logo(浮动+青光晕) + 标语(灰15px) + 开始按钮(青260×60呼吸发光) + Credits/版本
-选关界面: 标题(32px+渐变下划线) + 章节胶囊标签 + 4列关卡卡片(224×158) + 返回(左上)
-HUD:      顶部渐隐遮罩(非实心黑条) — 退出(左) + 章节/关卡名两行(中) + 得分/子弹圆点(右)
-          底部操作提示胶囊；暂停时中上金色呼吸胶囊
-结算界面: 三颗大星弹出 + 任务完成/失败(发光标题) + 玻璃面板(明细+分割线+总分滚动) + 按钮组
-```
-
-**游戏内浮层接口**（main.js 调用）：
-- `ui.drawTutorialHint({text, alpha, slide, progress})` — 教程提示条：「教程」徽章 + 文本 + 剩余时间进度条，
-  滑入滑出动画；空格暂停时自动下移避开暂停胶囊（入参由 TutorialManager.current() 提供）
-- `ui.drawSettleCountdown(remaining, total)` — 结算沉淀倒计时卡片（底部居中，金色进度条）
-
----
-
-## 游戏内素材
-
-**星体** — 纯色+径向渐变+光晕，扁平无纹理
-**建筑** — 质点纯色圆，核心金色粗边，弹簧半透明白线
-**子弹** — 未发射白描边，发射后消失；轨迹同色渐变
-**敌人** — 绿色(正常)→紫色(受伤)
-**爆炸** — 橙色冲击环+白色十字
+界面与无障碍标签统一使用中文，只保留 Δv、公式、单位和必要按键记号。关卡卡片使用 `missionDiagram(LevelManager.load(level))` 展示真实初始布局；主菜单与简报中的转移轨道为装饰性示意图。

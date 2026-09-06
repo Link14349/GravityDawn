@@ -1,0 +1,242 @@
+{
+  "id": "expedition-gravity-06",
+  "name": "双向回响",
+  "skill": "引力与多目标",
+  "difficulty": 4,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 635,
+      "y": 410
+    },
+    {
+      "type": "fixed",
+      "x": 865,
+      "y": 280
+    },
+    {
+      "type": "fixed",
+      "x": 905,
+      "y": 495
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 320,
+      "radius": 40,
+      "collisionRadius": 40,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 324,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 16,
+          "renderRadius": 16,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 81,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 16,
+          "renderRadius": 16,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 81,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 2 个琥珀色核心，得分达到 200 分。",
+  "guidance": {
+    "title": "引力与多目标",
+    "text": "一颗星体，两条路线。分别寻找上侧与下侧的拦截通道。",
+    "hint": "每次只关注一个目标；先规划绕行方向，再调整力度。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200,
+    "parShots": 2,
+    "parDeltaV": 300
+  }
+}

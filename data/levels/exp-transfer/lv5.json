@@ -1,0 +1,255 @@
+{
+  "id": "expedition-transfer-05",
+  "name": "交叉引力场",
+  "skill": "不对称双星",
+  "difficulty": 10,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 605,
+      "y": 350
+    },
+    {
+      "type": "fixed",
+      "x": 735,
+      "y": 555
+    },
+    {
+      "type": "fixed",
+      "x": 875,
+      "y": 260
+    },
+    {
+      "type": "fixed",
+      "x": 925,
+      "y": 490
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 350,
+      "radius": 37,
+      "collisionRadius": 37,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    },
+    {
+      "mass": 460,
+      "radius": 43,
+      "collisionRadius": 43,
+      "orbit": 1,
+      "color": "#7a8d72",
+      "label": "引力源 2"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 324,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    },
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 400,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 320,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 69,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 3,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 69,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 2 个琥珀色核心，得分达到 200 分。",
+  "guidance": {
+    "title": "不对称双星",
+    "text": "两个不同质量的星体构成不对称航场，需要两条不同路线。",
+    "hint": "留出修正燃料，避开较重星体的近距离区域。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200,
+    "parShots": 2,
+    "parDeltaV": 260
+  }
+}

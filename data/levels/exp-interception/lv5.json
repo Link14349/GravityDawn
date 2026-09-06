@@ -1,0 +1,124 @@
+{
+  "id": "expedition-interception-05",
+  "name": "交错窗口",
+  "skill": "双目标会合",
+  "difficulty": 6,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 640,
+      "y": 540
+    },
+    {
+      "type": "circular",
+      "x": 805,
+      "y": 275,
+      "radius": 32,
+      "period": 24,
+      "phase": 0.6
+    },
+    {
+      "type": "circular",
+      "x": 885,
+      "y": 455,
+      "radius": 38,
+      "period": 22,
+      "phase": 1.2
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 320,
+      "radius": 39,
+      "collisionRadius": 39,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 324,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 15,
+          "renderRadius": 15,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 77,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 15,
+          "renderRadius": 15,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 77,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    }
+  ],
+  "objective": "摧毁全部 2 个琥珀色核心，得分达到 200 分。",
+  "guidance": {
+    "title": "双目标会合",
+    "text": "两个运动窗口交替出现，分开完成拦截。",
+    "hint": "靠近时悬停并调整；右上角可以暂停观察，但恢复后才能发射。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200,
+    "parShots": 2,
+    "parDeltaV": 290
+  }
+}

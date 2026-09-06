@@ -67,12 +67,16 @@ export class GameController {
 
   /** 绑定 Canvas 鼠标事件 */
   _bindEvents() {
-    this.canvas.addEventListener('mousemove', (e) => this._onMouseMove(e));
-    this.canvas.addEventListener('mousedown', (e) => this._onMouseDown(e));
-    this.canvas.addEventListener('mouseup', (e) => this._onMouseUp(e));
-    this.canvas.addEventListener('mouseleave', (e) => this._onMouseLeave(e));
-    this.canvas.addEventListener('mouseenter', (e) => this._onMouseEnter(e));
-    this.canvas.addEventListener('contextmenu', (e) => {
+    this._abort = new AbortController();
+    const listen = (target, type, handler) => target.addEventListener(type, e => {
+      if (this.enabled !== false) handler(e);
+    }, { signal: this._abort.signal });
+    listen(this.canvas, 'mousemove', (e) => this._onMouseMove(e));
+    listen(this.canvas, 'mousedown', (e) => this._onMouseDown(e));
+    listen(this.canvas, 'mouseup', (e) => this._onMouseUp(e));
+    listen(this.canvas, 'mouseleave', (e) => this._onMouseLeave(e));
+    listen(this.canvas, 'mouseenter', (e) => this._onMouseEnter(e));
+    listen(this.canvas, 'contextmenu', (e) => {
       e.preventDefault();
       // 右键点击子弹 → 触发特殊效果
       const pos = this._getCanvasPos(e);
@@ -85,8 +89,8 @@ export class GameController {
         }
       }
     });
-    window.addEventListener('keydown', (e) => {
-      if (e.key === ' ' || e.code === 'Space') {
+    listen(window, 'keydown', (e) => {
+      if (!e.repeat && (e.key === ' ' || e.code === 'Space')) {
         e.preventDefault();
         if (this.state === GameState.PLAYING || this.state === GameState.AIMING) {
           this._spacePaused = !this._spacePaused;
@@ -99,8 +103,8 @@ export class GameController {
   /** 获取鼠标在 canvas 中的世界坐标 */
   _getCanvasPos(e) {
     const rect = this.canvas.getBoundingClientRect();
-    const sx = e.clientX - rect.left;
-    const sy = e.clientY - rect.top;
+    const sx = (e.clientX - rect.left) * this.canvas.width / rect.width;
+    const sy = (e.clientY - rect.top) * this.canvas.height / rect.height;
     if (this.camera) {
       return this.camera.screenToWorld(sx, sy);
     }
@@ -132,6 +136,7 @@ export class GameController {
 
   _onMouseMove(e) {
     const pos = this._getCanvasPos(e);
+    this.mouseInCanvas = true;
     this.mouseX = pos.x;
     this.mouseY = pos.y;
 
@@ -188,8 +193,8 @@ export class GameController {
     const dvx = -(this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
     const dvy = -(this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
 
-    this.dragBullet.applyDeltaV(dvx, dvy);
-    if (!this.dragBullet._launchTimeSet) {
+    const applied = this.dragBullet.applyDeltaV(dvx, dvy);
+    if (applied && !this.dragBullet._launchTimeSet) {
       this.dragBullet.launchTime = (this._getTime ? this._getTime() : 0);
       this.dragBullet._launchTimeSet = true;
     }
@@ -226,17 +231,19 @@ export class GameController {
     const dvx = -(this.dragCurrentX - this.dragStartX) * DRAG_TO_DV_SCALE;
     const dvy = -(this.dragCurrentY - this.dragStartY) * DRAG_TO_DV_SCALE;
 
+    const ratio = Math.min(1, this.dragBullet.remainingDeltaV / (Math.hypot(dvx, dvy) || 1));
+    // Use the same fuel budget as the actual burn.
     // 临时应用 Delta-V 来预测轨迹
     const simState = {
       x: this.dragBullet.x,
       y: this.dragBullet.y,
-      vx: this.dragBullet.vx + dvx,
-      vy: this.dragBullet.vy + dvy,
+      vx: this.dragBullet.vx + dvx * ratio,
+      vy: this.dragBullet.vy + dvy * ratio,
       mass: this.dragBullet.totalMass,
     };
 
     // 使用和实际物理相同的 dt + subSteps，保证预测精度完全一致
-    const result = this.physics.predictTrajectory(simState, 800, this.physics.dt, this._getTime());
+    const result = this.physics.predictTrajectory(simState, 800, this.physics.dt, this._getTime(), 6);
     let path = result.path;
     let collision = result.collision;
 
@@ -245,7 +252,7 @@ export class GameController {
       for (let i = 0; i < path.length; i++) {
         const pt = path[i];
         for (const bld of this._buildings) {
-          const hit = bld.checkCollisionAt(pt.x, pt.y, 6);
+          const hit = bld.checkCollisionAt(pt.x, pt.y, this.dragBullet.maxHp > 0 ? this.dragBullet.renderRadius : 6, this._getTime() + (i + 1) * this.physics.dt);
           if (hit) {
             // 建筑碰撞：截断路径，设置碰撞信息
             path = path.slice(0, i + 1);
@@ -253,7 +260,7 @@ export class GameController {
               x: hit.x,
               y: hit.y,
               sourceIndex: -1,
-              time: this._getTime() + i * this.physics.dt,
+              time: this._getTime() + (i + 1) * this.physics.dt,
               buildingCollision: hit,
             };
             break;
@@ -299,7 +306,14 @@ export class GameController {
 
   /** 获取当前悬停的子弹 */
   getHoveredBullet() {
-    return this._findBulletUnderMouse(this.mouseX, this.mouseY);
+    return this.mouseInCanvas && this.enabled !== false ? this._findBulletUnderMouse(this.mouseX, this.mouseY) : null;
+  }
+
+  /** Detach inputs when leaving or restarting a flight. */
+  destroy() {
+    this.enabled = false;
+    this._abort.abort();
+    this.dragging = false;
   }
 
   /** 是否应该暂停物理模拟 */

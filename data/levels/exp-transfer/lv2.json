@@ -1,0 +1,171 @@
+{
+  "id": "expedition-transfer-02",
+  "name": "狭窄走廊",
+  "skill": "间隙规划",
+  "difficulty": 9,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 640,
+      "y": 295
+    },
+    {
+      "type": "fixed",
+      "x": 650,
+      "y": 505
+    },
+    {
+      "type": "fixed",
+      "x": 910,
+      "y": 395
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 480,
+      "radius": 52,
+      "collisionRadius": 52,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    },
+    {
+      "mass": 480,
+      "radius": 52,
+      "collisionRadius": 52,
+      "orbit": 1,
+      "color": "#7a8d72",
+      "label": "引力源 2"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 324,
+      "deltaV": 320,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 320,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    },
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 476,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 14,
+          "renderRadius": 14,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 69,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "间隙规划",
+    "text": "上下星体缩小了安全通道；轻微的角度变化都会改变终点。",
+    "hint": "在中间通道里使用适中的推力，避免长时间贴近任一星体。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 130
+  }
+}

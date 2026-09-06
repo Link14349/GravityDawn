@@ -1,0 +1,149 @@
+{
+  "id": "expedition-gravity-02",
+  "name": "贴近与远离",
+  "skill": "引力随距离变化",
+  "difficulty": 3,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 645,
+      "y": 490
+    },
+    {
+      "type": "fixed",
+      "x": 870,
+      "y": 335
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 340,
+      "radius": 44,
+      "collisionRadius": 44,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 485,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 20,
+          "renderRadius": 20,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 81,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "引力随距离变化",
+    "text": "比较贴近星体与远离星体的两条路线，观察弯曲程度。",
+    "hint": "靠近星体时偏折更明显。保留安全距离，不要让曲线穿进星体。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 150
+  }
+}

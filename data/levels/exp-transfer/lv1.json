@@ -1,0 +1,191 @@
+{
+  "id": "expedition-transfer-01",
+  "name": "双重遮挡",
+  "skill": "连续绕行",
+  "difficulty": 9,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 575,
+      "y": 435
+    },
+    {
+      "type": "fixed",
+      "x": 755,
+      "y": 510
+    },
+    {
+      "type": "fixed",
+      "x": 900,
+      "y": 370
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 380,
+      "radius": 42,
+      "collisionRadius": 42,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    },
+    {
+      "mass": 360,
+      "radius": 40,
+      "collisionRadius": 40,
+      "orbit": 1,
+      "color": "#7a8d72",
+      "label": "引力源 2"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 324,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 320,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 320,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 15,
+          "renderRadius": 15,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 69,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "连续绕行",
+    "text": "两个星体形成连续偏折。尝试从上方绕开第一颗。",
+    "hint": "先保证预测线不穿过任一星体，再微调终点。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 130
+  },
+  "cutscene": {
+    "title": "局部最优，不是最终答案。",
+    "kicker": "第 05 章 / 复合航线",
+    "scenes": [
+      {
+        "title": "局部最优，不是最终答案。",
+        "dialogue": {
+          "speaker": "任务控制中心",
+          "text": "一个漂亮的弯道只是开始。这里需要同时考虑星体遮挡、目标顺序与燃料。先选最容易到达的目标，为后续机动保留余地。"
+        }
+      },
+      {
+        "title": "本次实验",
+        "dialogue": {
+          "speaker": "飞行教官",
+          "text": "两个星体形成连续偏折。尝试从上方绕开第一颗。 先保证预测线不穿过任一星体，再微调终点。"
+        }
+      }
+    ]
+  }
+}

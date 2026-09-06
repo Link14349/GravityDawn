@@ -1,11 +1,15 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const fs = require('fs');
+const pages = ['index.html', 'test/phase9-demo.html', 'test/phase10-demo.html'].filter(file => fs.existsSync(path.resolve(__dirname, file)));
+const pageKey = file => file === 'index.html' ? 'app' : path.basename(file, '.html');
 
 module.exports = {
   mode: 'development',
-  entry: './src/main.js',
+  entry: Object.fromEntries(pages.map(file => [pageKey(file), `./src/page-entry-loader.cjs!./${file}`])),
   output: {
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
+    publicPath: '/',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
@@ -14,7 +18,9 @@ module.exports = {
       { directory: './dist' },
       { directory: './' },
     ],
-    hot: true,
+    hot: false,
+    client: false,
+    liveReload: false,
     port: process.env.PORT || 8080,
   },
   module: {
@@ -56,16 +62,18 @@ module.exports = {
     ],
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: './index.html',
-      filename: 'index.html',
-      inject: false, // 不注入 script，保留原始 inline module
-    }),
+    ...pages.map(file => new HtmlWebpackPlugin({
+      templateContent: () => fs.readFileSync(path.resolve(__dirname, file), 'utf8').replace(/<script\s+type="module"[^>]*>[\s\S]*?<\/script>/g, ''),
+      filename: file,
+      chunks: [pageKey(file)],
+      inject: 'body',
+    })),
     new HtmlWebpackPlugin({
       template: './tools/design.html',
       filename: 'tools/design.html',
       inject: false,
     }),
   ],
+  optimization: { splitChunks: { chunks: 'all' }, runtimeChunk: 'single' },
   devtool: 'source-map',
 };

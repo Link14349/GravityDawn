@@ -1,0 +1,237 @@
+{
+  "id": "expedition-payloads-06",
+  "name": "结构灼烧",
+  "skill": "燃烧弹实验",
+  "difficulty": 8,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 840,
+      "y": 325
+    },
+    {
+      "type": "fixed",
+      "x": 885,
+      "y": 470
+    }
+  ],
+  "stars": [],
+  "planets": [],
+  "bullets": [
+    {
+      "type": "incendiary",
+      "x": 350,
+      "y": 324,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 0
+    },
+    {
+      "type": "explosive",
+      "x": 350,
+      "y": 400,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 200
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 70
+    },
+    {
+      "type": "normal",
+      "x": 422,
+      "y": 324,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 70
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 0,
+          "mass": 200,
+          "radius": 12,
+          "renderRadius": 12,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 73,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 12,
+          "renderRadius": 12,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 73,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 2 个琥珀色核心，得分达到 200 分。",
+  "guidance": {
+    "title": "燃烧弹实验",
+    "text": "燃烧弹命中结构后会削弱连接。配合后续弹体拆解目标。",
+    "hint": "先接触支架，再用爆炸弹处理核心；每种弹体都有不同用途。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200,
+    "parShots": 2,
+    "parDeltaV": 280
+  }
+}

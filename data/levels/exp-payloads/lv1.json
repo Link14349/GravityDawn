@@ -1,0 +1,248 @@
+{
+  "id": "expedition-payloads-01",
+  "name": "范围效应",
+  "skill": "爆炸弹实验",
+  "difficulty": 7,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 820,
+      "y": 370
+    },
+    {
+      "type": "fixed",
+      "x": 870,
+      "y": 410
+    }
+  ],
+  "stars": [],
+  "planets": [],
+  "bullets": [
+    {
+      "type": "explosive",
+      "x": 350,
+      "y": 324,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 200
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 70
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 330,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 70
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 0,
+          "mass": 200,
+          "radius": 17,
+          "renderRadius": 17,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 73,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 17,
+          "renderRadius": 17,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 73,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 2 个琥珀色核心，得分达到 200 分。",
+  "guidance": {
+    "title": "爆炸弹实验",
+    "text": "爆炸弹靠近目标群后，右键点击它，可在空中提前引爆。",
+    "hint": "少用燃料，保留爆炸半径；两目标之间是合适的引爆位置。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200,
+    "parShots": 2,
+    "parDeltaV": 280
+  },
+  "cutscene": {
+    "title": "同一条航线，不同的结果。",
+    "kicker": "第 04 章 / 载荷实验",
+    "scenes": [
+      {
+        "title": "同一条航线，不同的结果。",
+        "dialogue": {
+          "speaker": "任务控制中心",
+          "text": "新的载荷已经送达。悬停可查看弹种；特殊弹在飞行中可右键触发。每项实验都备有备用弹体，先熟悉效果，再追求效率。"
+        }
+      },
+      {
+        "title": "本次实验",
+        "dialogue": {
+          "speaker": "飞行教官",
+          "text": "爆炸弹靠近目标群后，右键点击它，可在空中提前引爆。 少用燃料，保留爆炸半径；两目标之间是合适的引爆位置。"
+        }
+      }
+    ]
+  }
+}

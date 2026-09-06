@@ -1,0 +1,105 @@
+{
+  "id": "expedition-interception-01",
+  "name": "缓慢公转",
+  "skill": "运动目标",
+  "difficulty": 5,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "circular",
+      "x": 810,
+      "y": 380,
+      "radius": 35,
+      "period": 32,
+      "phase": 0.6
+    }
+  ],
+  "stars": [],
+  "planets": [],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 324,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 0,
+          "mass": 200,
+          "radius": 19,
+          "renderRadius": 19,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 77,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "运动目标",
+    "text": "目标沿小圆缓慢运动。先观察它的方向，再瞄准前方。",
+    "hint": "弹体有飞行时间。不要只瞄准目标现在的位置。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 145
+  },
+  "cutscene": {
+    "title": "与未来的位置相遇。",
+    "kicker": "第 03 章 / 动态拦截",
+    "scenes": [
+      {
+        "title": "与未来的位置相遇。",
+        "dialogue": {
+          "speaker": "任务控制中心",
+          "text": "现在，目标也在运动。预测线是弹体的航迹，不保证目标会停在原地。观察轨道节奏，瞄准它即将到达的位置。"
+        }
+      },
+      {
+        "title": "本次实验",
+        "dialogue": {
+          "speaker": "飞行教官",
+          "text": "目标沿小圆缓慢运动。先观察它的方向，再瞄准前方。 弹体有飞行时间。不要只瞄准目标现在的位置。"
+        }
+      }
+    ]
+  }
+}

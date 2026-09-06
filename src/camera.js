@@ -99,39 +99,41 @@ export class Camera {
 
   /** 鼠标滚轮缩放 */
   _onWheel(e) {
+    if (this.enabled === false) return;
     e.preventDefault();
     const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
     const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, this.zoom + delta));
 
     // 以鼠标位置为中心缩放
-    const worldBefore = this.screenToWorld(e.clientX - this.canvas.getBoundingClientRect().left,
-                                            e.clientY - this.canvas.getBoundingClientRect().top);
+    const rect = this.canvas.getBoundingClientRect();
+    const sx = (e.clientX - rect.left) * this.canvas.width / rect.width;
+    const sy = (e.clientY - rect.top) * this.canvas.height / rect.height;
+    const worldBefore = this.screenToWorld(sx, sy);
     this.zoom = newZoom;
-    const worldAfter = this.screenToWorld(e.clientX - this.canvas.getBoundingClientRect().left,
-                                           e.clientY - this.canvas.getBoundingClientRect().top);
+    const worldAfter = this.screenToWorld(sx, sy);
     this.x += worldBefore.x - worldAfter.x;
     this.y += worldBefore.y - worldAfter.y;
   }
 
   /** 平移：左键在空白处按住拖动 */
   _onPanStart(e) {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || this.enabled === false) return;
     // 如果鼠标在交互目标（如子弹）上，不启动平移
     if (this._shouldBlockPan()) return;
     e.preventDefault();
     const rect = this.canvas.getBoundingClientRect();
     this._panning = true;
-    this._panStartX = e.clientX - rect.left;
-    this._panStartY = e.clientY - rect.top;
+    this._panStartX = (e.clientX - rect.left) * this.canvas.width / rect.width;
+    this._panStartY = (e.clientY - rect.top) * this.canvas.height / rect.height;
     this._panCamStartX = this.x;
     this._panCamStartY = this.y;
   }
 
   _onPanMove(e) {
-    if (!this._panning) return;
+    if (!this._panning || this.enabled === false) return;
     const rect = this.canvas.getBoundingClientRect();
-    const sx = e.clientX - rect.left;
-    const sy = e.clientY - rect.top;
+    const sx = (e.clientX - rect.left) * this.canvas.width / rect.width;
+    const sy = (e.clientY - rect.top) * this.canvas.height / rect.height;
     const dx = sx - this._panStartX;
     const dy = sy - this._panStartY;
     this.x = this._panCamStartX - dx / this.zoom;

@@ -569,19 +569,21 @@ export class Building {
     return null;
   }
 
-  checkCollisionAt(x, y, r) {
+  checkCollisionAt(x, y, r, time = null) {
+    const position = point => time !== null && point._orbit
+      ? point._orbit.getWorldPosition(time, point._orbits) : point;
     for (const p of this.points) {
       if (!p.alive) continue;
-      const dx = p.x - x, dy = p.y - y;
-      if (Math.sqrt(dx * dx + dy * dy) < p.radius + r) {
+      const pp = position(p);
+      if (Math.hypot(pp.x - x, pp.y - y) < p.radius + r) {
         return { type: 'point', point: p, x, y };
       }
     }
-    const st = 2;
     for (const sp of this.springs) {
-      if (!sp.alive) continue;
-      const { dist, x: cx, y: cy } = pointToSegmentDist(x, y, sp.a.x, sp.a.y, sp.b.x, sp.b.y);
-      if (dist < st + r) return { type: 'spring', spring: sp, x: cx, y: cy };
+      if (!sp.alive || !sp.a.alive || !sp.b.alive) continue;
+      const a = position(sp.a), b = position(sp.b);
+      const { dist, x: cx, y: cy } = pointToSegmentDist(x, y, a.x, a.y, b.x, b.y);
+      if (dist < 2 + r) return { type: 'spring', spring: sp, x: cx, y: cy };
     }
     return null;
   }

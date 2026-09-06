@@ -174,7 +174,7 @@ export class PhysicsEngine {
    * @param {number} [startTime=0] - 当前物理时间（用于轨道函数求值）
    * @returns {{ path: {x:number,y:number}[], collision: {x:number,y:number,sourceIndex:number}|null }}
    */
-  predictTrajectory(initialState, steps = PREDICTION_STEPS, predDt = PREDICTION_DT, startTime = 0) {
+  predictTrajectory(initialState, steps = PREDICTION_STEPS, predDt = PREDICTION_DT, startTime = 0, objectRadius = 0) {
     const path = [];
     let x = initialState.x;
     let y = initialState.y;
@@ -234,7 +234,7 @@ export class PhysicsEngine {
         if (src.collisionRadius <= 0) continue;
         const dx = src.x - x;
         const dy = src.y - y;
-        if (Math.sqrt(dx * dx + dy * dy) < src.collisionRadius) {
+        if (Math.sqrt(dx * dx + dy * dy) < src.collisionRadius + objectRadius) {
           return { path, collision: { x, y, sourceIndex: j, time: t } };
         }
       }

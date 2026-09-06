@@ -108,7 +108,7 @@ export class LevelManager {
   /**
    * 判定通关结果
    */
-  static checkResult(buildings, winCondition) {
+  static checkResult(buildings, winCondition, performance = null) {
     let totalPoints = 0, alivePoints = 0;
     let importantTotal = 0, importantAlive = 0;
     let totalScore = 0;
@@ -137,8 +137,15 @@ export class LevelManager {
     let stars = 0;
     if (passed) {
       stars = 1;
-      if (totalScore >= (winCondition.minScore || 0) * 1.5) stars = 2;
-      if (maxScore > 0 && totalScore >= maxScore * 0.8) stars = 3;
+      if (performance && winCondition.parShots != null) {
+        if (performance.shotsUsed <= winCondition.parShots) {
+          stars = 2;
+          if (performance.deltaVSpent <= winCondition.parDeltaV) stars = 3;
+        }
+      } else {
+        if (totalScore >= (winCondition.minScore || 0) * 1.5) stars = 2;
+        if (maxScore > 0 && totalScore >= maxScore * 0.8) stars = 3;
+      }
     }
 
     return {

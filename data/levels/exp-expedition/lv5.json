@@ -1,0 +1,124 @@
+{
+  "id": "expedition-expedition-05",
+  "name": "最后的窗口",
+  "skill": "动态与遮挡",
+  "difficulty": 12,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 650,
+      "y": 400
+    },
+    {
+      "type": "circular",
+      "x": 855,
+      "y": 275,
+      "radius": 32,
+      "period": 22,
+      "phase": 0.6
+    },
+    {
+      "type": "circular",
+      "x": 945,
+      "y": 465,
+      "radius": 36,
+      "period": 24,
+      "phase": 1.2
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 410,
+      "radius": 43,
+      "collisionRadius": 43,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 324,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 65,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 65,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    }
+  ],
+  "objective": "摧毁全部 2 个琥珀色核心，得分达到 200 分。",
+  "guidance": {
+    "title": "动态与遮挡",
+    "text": "遮挡后的两个目标都在移动。观察、发射、修正，完成最后的练习。",
+    "hint": "第一段只负责安全绕行，第二段点火负责精确会合。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200,
+    "parShots": 2,
+    "parDeltaV": 240
+  }
+}

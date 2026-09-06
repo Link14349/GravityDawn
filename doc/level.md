@@ -12,7 +12,8 @@
 
 ```
 data/levels/
-  index.json            → ["ch1", "ch2"]              // 章节文件夹列表
+  campaign-index.json   → ["exp-calibration", ...]     // 新战役
+  index.json            → ["ch0", "ch1", "ch2"]              // 章节文件夹列表
   ch1/
     index.json          → { name, levels: [...] }      // 章节名 + 关卡文件列表
     lv1.json            → LevelDef                     // 单关完整数据
@@ -41,6 +42,7 @@ data/levels/
 
 ```js
 {
+  id: 'expedition-calibration-01', // 新战役稳定存档 ID
   name: '前哨站',           // string — 关卡名称
   gravity: 300,             // number — 引力常量 G
   camera: { x: 725, y: 400, zoom: 0.75 },
@@ -50,6 +52,11 @@ data/levels/
   planets: [PlanetDef],     // 行星列表
   bullets: [BulletDef],     // 子弹配置
   buildings: [BuildingDef], // 建筑配置
+  objective: '摧毁全部核心。', // 中文任务说明
+  skill: '方向与发射',       // 选关显示的学习主题
+  difficulty: 1,            // 章节内递进的难度标识
+  guidance: { title, text, hint, firstShot? }, // 常驻中文引导
+  cutscene: { title, kicker, scenes }, // 章节开场简报
   winCondition: WinCond,    // 通关条件
 }
 ```
@@ -155,6 +162,8 @@ data/levels/
   destructionThreshold: 0.3,   // 质点毁伤比例阈值 (0-1)
   importantTargetsAll: true,   // 是否要求所有重要目标摧毁
   minScore: 100,               // 最低分数
+  parShots: 1,                 // 可选：2 星允许的原始弹体发射数
+  parDeltaV: 160,              // 可选：3 星允许的总 Δv 消耗（还须满足 parShots）
 }
 ```
 
@@ -177,7 +186,7 @@ data/levels/
 | `physics` | `PhysicsEngine` | 已配置的物理引擎 |
 | `camera` | `{x, y, zoom}` | 初始镜头位置 |
 
-### `LevelManager.checkResult(buildings, winCondition) → Result`
+### `LevelManager.checkResult(buildings, winCondition, performance?) → Result`
 
 ```js
 {
@@ -189,7 +198,7 @@ data/levels/
 }
 ```
 
-星级：1星=通关, 2星=总分≥minScore×1.5, 3星=总分≥maxScore×0.8
+新战役传入 `FlightSimulation.getPerformance()`：1 星为通关；2 星发射数 ≤ parShots；3 星再满足总 Δv ≤ parDeltaV。旧数据没有 parShots 时维持原规则：2 星总分≥minScore×1.5，3 星总分≥maxScore×0.8。
 
 ---
 
@@ -233,16 +242,25 @@ data/levels/
 
 ## 教程系统
 
-`ch0` 为教程章，由 `src/tutorial.js` 的 `TutorialManager` 队列化管理（详见 `doc/framework.md`），
+新战役 6 章均有逐关 `guidance`，第一章额外提供发射方向图示。上下文提示由 `src/tutorial.js` 的 `TutorialManager` 队列化管理（详见 `doc/framework.md`），
 触发点定义在 `src/main.js` 的游戏循环中：
 
 | 触发条件 | 提示内容 |
 |---------|---------|
-| 进入关卡（队列依次展示） | 平移镜头 → 滚轮缩放 → 悬停子弹瞄准发射 |
+| 进入关卡（队列依次展示） | 本关学习目标（常驻面板同时提供策略提示） |
 | 悬停某类型的未发射子弹 | 该类型弹药的特性教学（覆盖全部 7 种） |
 | 首次发射 | 可多次点火修正 |
 | 特殊弹在飞行中 | 右键可手动触发效果 |
 | 首次空格暂停 | 空格暂停/恢复说明 |
 | 首次摧毁重要目标 | 通关条件说明 |
 
-每条提示同一会话只显示一次（跨关卡去重），多条触发时排队逐条展示，其他章节不显示。
+每条提示同一会话只显示一次（跨关卡去重），多条触发时排队逐条展示，所有章节均启用；按 H 切换的常驻引导独立于去重队列。
+
+
+## 新战役编排
+
+`campaign-index.json` 的 6 章每章 6 关，共 36 个确定性场景。之后附加 `index.json` 的 23 个旧关卡。`src/campaign-data.js` 按两份索引的顺序加载并添加旧存档映射，所有 JSON 随 Webpack 的战役 chunk 打包，浏览器无需访问原始源码。
+
+每关静态 JSON 均含完整物理配置，可独立由 `LevelManager.load()` 构造。常规核心后方的固定支架用于形成可见结构；运动核心使用圆形或椭圆轨道，避免新手观察时目标自行坍塌。教学中保留备用弹体，评级中的 Δv 预算逐章收紧。`firstShot: {dvx,dvy}` 只驱动首关的提示线，不会自动发射。
+
+完整关卡清单与质量验证见 `campaign.md`。

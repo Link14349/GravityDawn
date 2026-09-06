@@ -1,0 +1,99 @@
+{
+  "id": "expedition-interception-04",
+  "name": "引力会合",
+  "skill": "偏折与提前量",
+  "difficulty": 6,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 630,
+      "y": 525
+    },
+    {
+      "type": "circular",
+      "x": 855,
+      "y": 350,
+      "radius": 40,
+      "period": 26,
+      "phase": 0.6
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 360,
+      "radius": 43,
+      "collisionRadius": 43,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 324,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 16,
+          "renderRadius": 16,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 77,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "偏折与提前量",
+    "text": "让引力弯曲航线，同时预判目标的下一位置。",
+    "hint": "不要一开始就耗尽燃料；中途修正能同时补偿引力和目标移动。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 145
+  }
+}

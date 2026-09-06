@@ -1,0 +1,144 @@
+{
+  "id": "expedition-interception-06",
+  "name": "时序考核",
+  "skill": "动态综合",
+  "difficulty": 6,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "circular",
+      "x": 800,
+      "y": 265,
+      "radius": 32,
+      "period": 22,
+      "phase": 0.6
+    },
+    {
+      "type": "circular",
+      "x": 890,
+      "y": 420,
+      "radius": 38,
+      "period": 20,
+      "phase": 1.2
+    },
+    {
+      "type": "circular",
+      "x": 805,
+      "y": 535,
+      "radius": 25,
+      "period": 26,
+      "phase": 1.7999999999999998
+    }
+  ],
+  "stars": [],
+  "planets": [],
+  "bullets": [
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 324,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 422,
+      "y": 324,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 0,
+          "mass": 200,
+          "radius": 14,
+          "renderRadius": 14,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 77,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 14,
+          "renderRadius": 14,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 77,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 14,
+          "renderRadius": 14,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 77,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    }
+  ],
+  "objective": "摧毁全部 3 个琥珀色核心，得分达到 300 分。",
+  "guidance": {
+    "title": "动态综合",
+    "text": "三种节奏，三次独立判断。用短促点火而不是一次拉满。",
+    "hint": "按目标当前的运动方向打提前量；失败时重试会恢复同一初始相位。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 300,
+    "parShots": 3,
+    "parDeltaV": 435
+  }
+}

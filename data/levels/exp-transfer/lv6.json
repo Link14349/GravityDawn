@@ -1,0 +1,276 @@
+{
+  "id": "expedition-transfer-06",
+  "name": "复合考核",
+  "skill": "路线与载荷",
+  "difficulty": 10,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 670,
+      "y": 405
+    },
+    {
+      "type": "circular",
+      "x": 805,
+      "y": 265,
+      "radius": 26,
+      "period": 28,
+      "phase": 0.6
+    },
+    {
+      "type": "fixed",
+      "x": 925,
+      "y": 405
+    },
+    {
+      "type": "fixed",
+      "x": 825,
+      "y": 530
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 320,
+      "radius": 39,
+      "collisionRadius": 39,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "explosive",
+      "x": 350,
+      "y": 324,
+      "deltaV": 320,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 200
+    },
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 400,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 320,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    },
+    {
+      "type": "normal",
+      "x": 422,
+      "y": 324,
+      "deltaV": 320,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 65
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 69,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 69,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 3,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 69,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 3 个琥珀色核心，得分达到 300 分。",
+  "guidance": {
+    "title": "路线与载荷",
+    "text": "结合范围伤害、机动能力与目标顺序，完成本章综合实验。",
+    "hint": "先用最适合的载荷处理最难的目标，普通弹留给清晰的直达路线。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 300,
+    "parShots": 3,
+    "parDeltaV": 390
+  }
+}

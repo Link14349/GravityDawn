@@ -1,0 +1,103 @@
+{
+  "id": "expedition-expedition-02",
+  "name": "双星巡航",
+  "skill": "复合引力",
+  "difficulty": 11,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 575,
+      "y": 485
+    },
+    {
+      "type": "fixed",
+      "x": 770,
+      "y": 540
+    },
+    {
+      "type": "circular",
+      "x": 940,
+      "y": 380,
+      "radius": 32,
+      "period": 26,
+      "phase": 0.6
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 440,
+      "radius": 43,
+      "collisionRadius": 43,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    },
+    {
+      "mass": 510,
+      "radius": 44,
+      "collisionRadius": 44,
+      "orbit": 1,
+      "color": "#7a8d72",
+      "label": "引力源 2"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 400,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 485,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 12,
+          "renderRadius": 12,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 65,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "复合引力",
+    "text": "两次引力偏折后，与运动目标完成会合。",
+    "hint": "在第二颗星体附近检查航向，有必要时进行小幅修正。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 120
+  }
+}

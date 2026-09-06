@@ -1,74 +1,39 @@
-/**
- * 本地存储 — Cookie 持久化关卡分数和进度
- */
-const COOKIE_KEY = 'gravity_dawn_save';
-const COOKIE_DAYS = 365;
+/** Stable mission IDs with best-effort local storage and legacy cookie migration. */
+const SAVE_KEY = 'gravity_dawn_progress_v2';
+let missionKeys = null;
+let cached = null;
 
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
+export function configureProgress(chapters) {
+  missionKeys = chapters.map((chapter, ci) => chapter.levels.map((level, li) => level.id || level.legacyKey || `c${ci}-l${li}`));
 }
-
-function setCookie(name, value, days) {
-  const d = new Date();
-  d.setTime(d.getTime() + days * 86400000);
-  document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
-}
-
-function loadSaveData() {
+function load() {
+  if (cached) return cached;
+  cached = { levels: {} };
   try {
-    const raw = getCookie(COOKIE_KEY);
-    return raw ? JSON.parse(raw) : { levels: {} };
-  } catch { return { levels: {} }; }
+    const legacy = document.cookie.match(/(?:^|; )gravity_dawn_save=([^;]+)/);
+    if (legacy) Object.assign(cached.levels, JSON.parse(decodeURIComponent(legacy[1])).levels || {});
+  } catch { /* Corrupt legacy saves must not stop a new expedition. */ }
+  try {
+    const data = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+    Object.assign(cached.levels, data.levels || {});
+  } catch { /* In restricted environments, retain progress for this session. */ }
+  return cached;
 }
-
-function saveSaveData(data) {
-  setCookie(COOKIE_KEY, JSON.stringify(data), COOKIE_DAYS);
+const keyFor = (ci, li) => missionKeys?.[ci]?.[li] || `c${ci}-l${li}`;
+export function getBest(ci, li) { return load().levels[keyFor(ci, li)] || null; }
+export function saveLevel(ci, li, stars, score, passed) {
+  const data = load(), key = keyFor(ci, li), prev = data.levels[key];
+  if (passed) {
+    data.levels[key] = { stars: Math.max(prev?.stars || 0, stars), score: Math.max(prev?.score || 0, score) };
+  } else if (!prev) data.levels[key] = { stars: 0, score: 0 };
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch { /* Session progress remains usable. */ }
 }
-
-/** 构建存储 key */
-function mkKey(chapterIdx, levelIdx) {
-  return `c${chapterIdx}-l${levelIdx}`;
-}
-
-/**
- * 获取某关最佳成绩
- * @param {number} chapterIdx
- * @param {number} levelIdx
- * @returns {{ stars: number, score: number } | null}
- */
-export function getBest(chapterIdx, levelIdx) {
-  const data = loadSaveData();
-  return data.levels[mkKey(chapterIdx, levelIdx)] || null;
-}
-
-/**
- * 保存某关成绩（仅当比历史更优时更新）
- * @param {number} chapterIdx
- * @param {number} levelIdx
- * @param {number} stars
- * @param {number} score
- * @param {boolean} passed
- */
-export function saveLevel(chapterIdx, levelIdx, stars, score, passed) {
-  const data = loadSaveData();
-  const key = mkKey(chapterIdx, levelIdx);
-  const prev = data.levels[key];
-  if (!passed) {
-    if (!prev) data.levels[key] = { stars: 0, score: 0 };
-    saveSaveData(data);
-    return;
-  }
-  if (!prev || stars > prev.stars || (stars === prev.stars && score > prev.score)) {
-    data.levels[key] = { stars, score };
-  }
-  saveSaveData(data);
-}
-
-/**
- * 获取所有关卡最佳成绩
- * @returns {Object} { 'c0-l1': { stars, score }, ... }
- */
 export function getAllBest() {
-  return loadSaveData().levels;
+  if (!missionKeys) return load().levels;
+  const best = {};
+  missionKeys.forEach((levels, ci) => levels.forEach((key, li) => {
+    const saved = load().levels[key];
+    if (saved && Number.isFinite(saved.stars) && saved.stars >= 0 && saved.stars <= 3) best[`c${ci}-l${li}`] = saved;
+  }));
+  return best;
 }

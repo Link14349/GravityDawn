@@ -1,0 +1,171 @@
+{
+  "id": "expedition-gravity-05",
+  "name": "双星之间",
+  "skill": "叠加引力",
+  "difficulty": 4,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 605,
+      "y": 255
+    },
+    {
+      "type": "fixed",
+      "x": 660,
+      "y": 550
+    },
+    {
+      "type": "fixed",
+      "x": 885,
+      "y": 400
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 340,
+      "radius": 40,
+      "collisionRadius": 40,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    },
+    {
+      "mass": 340,
+      "radius": 40,
+      "collisionRadius": 40,
+      "orbit": 1,
+      "color": "#7a8d72",
+      "label": "引力源 2"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 324,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 17,
+          "renderRadius": 17,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 81,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "叠加引力",
+    "text": "上下两个引力源共同影响航迹；中间的通道相对平缓。",
+    "hint": "沿中间区域试射，比较两颗星体对预测线的共同影响。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 150
+  }
+}

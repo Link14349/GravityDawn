@@ -1,0 +1,169 @@
+{
+  "id": "expedition-gravity-01",
+  "name": "轻微偏折",
+  "skill": "初识引力",
+  "difficulty": 3,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 630,
+      "y": 540
+    },
+    {
+      "type": "fixed",
+      "x": 850,
+      "y": 360
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 180,
+      "radius": 42,
+      "collisionRadius": 42,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 485,
+      "deltaV": 350,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 80
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 21,
+          "renderRadius": 21,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 81,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "初识引力",
+    "text": "下方星体会将弹体向下拉。把初始方向略微抬高。",
+    "hint": "以预测线为准，而不是只看发射时的箭头。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 150
+  },
+  "cutscene": {
+    "title": "直线不再是唯一答案。",
+    "kicker": "第 02 章 / 引力入门",
+    "scenes": [
+      {
+        "title": "直线不再是唯一答案。",
+        "dialogue": {
+          "speaker": "任务控制中心",
+          "text": "引力会持续改变速度。把预测曲线当作观测仪器：先看它向哪里弯，再决定怎样点火。"
+        }
+      },
+      {
+        "title": "本次实验",
+        "dialogue": {
+          "speaker": "飞行教官",
+          "text": "下方星体会将弹体向下拉。把初始方向略微抬高。 以预测线为准，而不是只看发射时的箭头。"
+        }
+      }
+    ]
+  }
+}

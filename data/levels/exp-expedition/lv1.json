@@ -1,0 +1,262 @@
+{
+  "id": "expedition-expedition-01",
+  "name": "远航许可",
+  "skill": "燃料约束",
+  "difficulty": 11,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 650,
+      "y": 410
+    },
+    {
+      "type": "fixed",
+      "x": 915,
+      "y": 315
+    },
+    {
+      "type": "fixed",
+      "x": 920,
+      "y": 480
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 350,
+      "radius": 40,
+      "collisionRadius": 40,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 324,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 1,
+          "mass": 200,
+          "radius": 13,
+          "renderRadius": 13,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 65,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 13,
+          "renderRadius": 13,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 65,
+          "explosionImpulse": 1200
+        },
+        {
+          "x": 28,
+          "y": -23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        },
+        {
+          "x": 28,
+          "y": 23,
+          "fixed": true,
+          "mass": 30,
+          "radius": 4,
+          "score": 10,
+          "color": "#9aa992",
+          "explosionRadius": 10,
+          "explosionImpulse": 200
+        }
+      ],
+      "springs": [
+        {
+          "a": 0,
+          "b": 1,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 1,
+          "b": 2,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        },
+        {
+          "a": 3,
+          "b": 0,
+          "stiffness": 500,
+          "damping": 25,
+          "breakTension": 2000
+        }
+      ]
+    }
+  ],
+  "objective": "摧毁全部 2 个琥珀色核心，得分达到 200 分。",
+  "guidance": {
+    "title": "燃料约束",
+    "text": "目标更远，容错更少。用精确方向减少多余的燃料消耗。",
+    "hint": "把预算留给修正；接近目标时的一次轻推比远处的重推更可靠。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 200,
+    "parShots": 2,
+    "parDeltaV": 240
+  },
+  "cutscene": {
+    "title": "把所有经验带向远方。",
+    "kicker": "第 06 章 / 远征考核",
+    "scenes": [
+      {
+        "title": "把所有经验带向远方。",
+        "dialogue": {
+          "speaker": "任务控制中心",
+          "text": "你已经掌握所有工具。最后六项实验将检验你的航线规划能力。引导仍然可以查看，但具体的轨迹由你决定。"
+        }
+      },
+      {
+        "title": "本次实验",
+        "dialogue": {
+          "speaker": "飞行教官",
+          "text": "目标更远，容错更少。用精确方向减少多余的燃料消耗。 把预算留给修正；接近目标时的一次轻推比远处的重推更可靠。"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "expedition-interception-02",
+  "name": "椭圆回声",
+  "skill": "变化的提前量",
+  "difficulty": 5,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "elliptical",
+      "x": 850,
+      "y": 370,
+      "period": 27,
+      "phase": 0.6,
+      "rx": 55,
+      "ry": 32
+    }
+  ],
+  "stars": [],
+  "planets": [],
+  "bullets": [
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 324,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 400,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 340,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 75
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 0,
+          "mass": 200,
+          "radius": 18,
+          "renderRadius": 18,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 77,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    }
+  ],
+  "objective": "摧毁全部 1 个琥珀色核心，得分达到 100 分。",
+  "guidance": {
+    "title": "变化的提前量",
+    "text": "轨道变宽，目标在不同位置的运动方向变化更明显。",
+    "hint": "短距离修正更容易：先飞到目标区域，再悬停做第二次点火。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 100,
+    "parShots": 1,
+    "parDeltaV": 145
+  }
+}

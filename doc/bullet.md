@@ -118,6 +118,8 @@ explosionRadius=0，无爆炸冲击。靠 HP(300)+碰撞速度扣血穿透建筑
 ## 实现文件
 
 - `src/bullet.js` — Bullet 类 + BULLET_TYPES 字典 + 特殊效果方法
-- `src/main.js` — 分裂弹/引力弹/燃烧弹效果触发 + 临时引力源管理
+- `src/flight-simulation.js` — 分裂弹/引力弹/燃烧弹效果触发 + 临时引力源管理（游戏与验证共用）
 - `src/renderer.js` — `drawGravityWell()` + `drawBurnEffect()`
 - `src/building.js` — 弹簧燃烧效果处理
+
+新战役可通过关卡字段覆盖默认 Δv、点火次数、爆炸半径和渲染半径；实际余量以游戏弹体面板为准。所有界面与提示使用中文。

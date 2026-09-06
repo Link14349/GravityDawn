@@ -1,0 +1,171 @@
+{
+  "id": "expedition-expedition-06",
+  "name": "引力破晓",
+  "skill": "远征终试",
+  "difficulty": 12,
+  "gravity": 120,
+  "camera": {
+    "x": 600,
+    "y": 400,
+    "zoom": 1
+  },
+  "orbits": [
+    {
+      "type": "fixed",
+      "x": 605,
+      "y": 400
+    },
+    {
+      "type": "fixed",
+      "x": 770,
+      "y": 585
+    },
+    {
+      "type": "circular",
+      "x": 845,
+      "y": 255,
+      "radius": 25,
+      "period": 24,
+      "phase": 0.6
+    },
+    {
+      "type": "circular",
+      "x": 955,
+      "y": 395,
+      "radius": 30,
+      "period": 22,
+      "phase": 1.2
+    },
+    {
+      "type": "circular",
+      "x": 850,
+      "y": 535,
+      "radius": 25,
+      "period": 26,
+      "phase": 1.7999999999999998
+    }
+  ],
+  "stars": [],
+  "planets": [
+    {
+      "mass": 350,
+      "radius": 38,
+      "collisionRadius": 38,
+      "orbit": 0,
+      "color": "#7a8d72",
+      "label": "引力源 1"
+    },
+    {
+      "mass": 360,
+      "radius": 33,
+      "collisionRadius": 33,
+      "orbit": 1,
+      "color": "#7a8d72",
+      "label": "引力源 2"
+    }
+  ],
+  "bullets": [
+    {
+      "type": "agile",
+      "x": 350,
+      "y": 324,
+      "deltaV": 650,
+      "ignitionCount": 6,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    },
+    {
+      "type": "explosive",
+      "x": 350,
+      "y": 400,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 200
+    },
+    {
+      "type": "normal",
+      "x": 350,
+      "y": 476,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    },
+    {
+      "type": "normal",
+      "x": 422,
+      "y": 324,
+      "deltaV": 310,
+      "ignitionCount": 3,
+      "renderRadius": 11,
+      "explosionRadius": 60
+    }
+  ],
+  "buildings": [
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 2,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 65,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 3,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 65,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    },
+    {
+      "points": [
+        {
+          "isCore": true,
+          "orbit": 4,
+          "mass": 200,
+          "radius": 11,
+          "renderRadius": 11,
+          "score": 100,
+          "important": true,
+          "color": "#dba481",
+          "explosionRadius": 65,
+          "explosionImpulse": 1200
+        }
+      ],
+      "springs": []
+    }
+  ],
+  "objective": "摧毁全部 3 个琥珀色核心，得分达到 300 分。",
+  "guidance": {
+    "title": "远征终试",
+    "text": "清理全部核心，完成远征。此前学习的路线、时序与载荷都可派上用场。",
+    "hint": "先观察全局，再逐个完成拦截。即使最后一枚弹体，也可能改变结局。"
+  },
+  "winCondition": {
+    "destructionThreshold": 0.2,
+    "importantTargetsAll": true,
+    "minScore": 300,
+    "parShots": 3,
+    "parDeltaV": 360
+  }
+}

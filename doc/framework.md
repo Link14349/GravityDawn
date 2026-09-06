@@ -31,7 +31,10 @@ gravity-shooter/
     ui.js               — UI管理器 (开始/选关/HUD/结算)
     tutorial.js        — 教程提示系统 (队列化、会话去重)
     level.js            — 关卡系统 (数据格式 + 加载器 + 通关判定)
-    main.js            — 入口
+    main.js            — 入口与屏幕流程
+    flight-simulation.js — 共享飞行步进
+    campaign-data.js    — 新旧战役数据加载
+    campaign-validation.cjs — 关卡可解性与回归检查
   test/
     phaseN-demo.html   — 各阶段演示页面
   doc/
@@ -64,7 +67,7 @@ a = Σ (G·M_i / r_i²) · û_i
 | `addGravitySource(x,y,mass,colR,orbitFn)` | 添加引力源（星体），可选碰撞半径和轨道函数 |
 | `calcGravityAccel(px,py)` | 计算某点的总引力加速度 |
 | `stepParticle(p, dtOverride, objRadius)` | 推进单个粒子，返回碰撞信息 |
-| `predictTrajectory(state, steps, dt, t0)` | 轨迹预测：同步推进星体轨道+粒子+碰撞检测，返回 `{path, collision}` |
+| `predictTrajectory(state, steps, dt, t0, objectRadius=0)` | 轨迹预测：同步推进星体轨道+粒子+碰撞检测，含弹体碰撞半径，返回 `{path, collision}` |
 | `updateSourcePosition(i,x,y)` | 每帧更新移动星体的位置 |
 | `checkSourceCollision(px,py,r)` | 检测粒子与星体碰撞 |
 
@@ -248,7 +251,9 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 方法 | 说明 |
 |------|------|
 | `clear()` | 星空背景 |
-| `drawCelestialBody(body)` | 星体+光晕渐变 |
+| `drawCelestialBody(body)` | 扁平科学地图星体、经纬线与质量标注 |
+| `drawTargetOrbits(buildings)` | 运动核心的实际轨道线 |
+| `drawFirstShotGuide(probe,target,vector)` | 首关拖拽方向与目标指示 |
 | `drawOrbitPath(body)` | 轨道虚线 |
 | `drawBullet(x,y,vx,vy,r,launched,hovered,color)` | 子弹+悬停光环+发射描边 |
 | `drawBuilding(building)` | 弹簧+质点+敌人/核心标记 |
@@ -282,7 +287,8 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | `getPredictedPath()` | 当前预测轨迹 |
 | `getPredictedCollision()` | 预测碰撞点 |
 | `getDragVector()` | 拖拽 ΔV 矢量 |
-| `getHoveredBullet()` | 悬停的子弹 |
+| `getHoveredBullet()` | 当前 Canvas 内悬停的子弹 |
+| `destroy()` | 中止全部事件监听，重试/离关后不再响应输入 |
 
 ---
 
@@ -313,6 +319,8 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 6 | 爆炸毁伤+记分+敌人+跨建筑碰撞 |
 | 7 | UI系统（开始/选关/HUD/结算） |
 | 8 | 关卡系统+通关判定 |
+| 9 | 科学极简中文界面与任务简报 |
+| 10 | 36 关新战役 + 23 关旧版档案 |
 
 ---
 
@@ -329,14 +337,14 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 - `physics` — 已配置好的物理引擎
 - `camera` — 初始镜头位置
 
-**`LevelManager.checkResult(buildings, winCondition)`** — 通关判定：
+**`LevelManager.checkResult(buildings, winCondition, performance?)`** — 通关判定：
 - `passed` — 是否通关
 - `stars` — 星级 (0-3)
 - `totalScore` — 总分
 - `destructionRate` — 毁伤比例
 - `importantRemaining` — 剩余重要目标数
 
-星级：1星=通关, 2星=重要目标全灭, 3星=总分≥minScore×1.5
+新战役星级：1 星满足通关条件；2 星额外满足 `shotsUsed ≤ parShots`；3 星再满足 `deltaVSpent ≤ parDeltaV`。旧数据未设经济性目标时沿用原评分：2 星为分数 ≥ minScore×1.5，3 星为分数 ≥ 最大分数×0.8。
 
 详细数据格式见 `doc/level.md`。
 
@@ -344,26 +352,21 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 
 ## UI 系统 (ui.js)
 
-### UIManager 类
+`UIManager(canvas)` creates the DOM overlay `#interface`. Screens remain `START`, `LEVEL_SELECT`, `CUTSCENE`, `GAME_HUD`, `RESULT`. `goTo(screen)` replaces the screen; `render()` updates live HUD values without rebuilding controls every frame. `gameData` also carries `time`, `importantTotal`, `importantRemaining`, chapters and mission metadata.
 
-Canvas 绘制的界面系统，四个屏幕状态：`START → LEVEL_SELECT → GAME_HUD → RESULT`。
-
-| 屏幕 | 说明 |
-|------|------|
-| START | Logo + 开始按钮 + Credits |
-| LEVEL_SELECT | 关卡卡片网格 + 锁定/星级 |
-| GAME_HUD | 半透明顶栏（关卡名/分数/子弹） |
-| RESULT | 星级 + 任务完成/失败 + 分数面板 + 操作按钮 |
-
-按钮通过鼠标坐标碰撞检测实现点击交互。
-
----
+- `_onReplay()` restarts without briefing; `_onFocus()` restores the level camera.
+- `drawTutorialHint(hint|null)` updates / hides contextual guidance.
+- `drawSettleCountdown(remaining)` updates the result countdown.
+- `src/ui-diagrams.js` holds decorative scientific SVG. `src/css/style.css` controls layout and responsive behavior.
+- `CutsceneManager` owns a separate DOM overlay; see `cutscene.md`.
+- Controller `destroy()` aborts event listeners. `enabled=false` blocks input during cutscenes. Camera supports `enabled=false`. Scaled Canvas input is normalized into the 1200 × 800 logical space.
+- Webpack extracts the inline module from `index.html` and phase 9+ HTML demos through `src/page-entry-loader.cjs`. Shared chunks include the game modules and bundled JSON; production does not fetch raw source files. Demos have no standalone JavaScript files.
 
 ## 教程提示系统 (tutorial.js)
 
 ### TutorialManager 类
 
-教程章（ch0）的队列化提示管理，由 main.js 在游戏循环中驱动：
+所有章节的队列化提示管理，由 main.js 在游戏循环中驱动。每关常驻 `guidance` 面板可按 H 切换，不受队列去重影响：
 
 | 方法 | 说明 |
 |------|------|
@@ -372,7 +375,7 @@ Canvas 绘制的界面系统，四个屏幕状态：`START → LEVEL_SELECT → 
 | `update(paused)` | 每帧推进；真实时钟计时；paused 时冻结倒计时（入场动画/出队照常） |
 | `current()` | 当前提示展示状态 `{text, alpha, slide, progress}`，交给 `UIManager.drawTutorialHint` 绘制 |
 
-触发点（main.js）：开场基础操作按队列依次展示；悬停某类型子弹 → 该类型教学；
+触发点（main.js）：进关显示该关学习目标；悬停某类型子弹 → 该类型教学；
 首次发射 → 中途修正提示；特殊弹飞行中 → 右键触发提示；首次空格暂停、首次摧毁重要目标。
 
 ---
@@ -410,3 +413,17 @@ Canvas 绘制的界面系统，四个屏幕状态：`START → LEVEL_SELECT → 
 ```
 
 关卡分章节分文件存储在 `data/levels/`，详见 `doc/level.md`。
+
+## 共享飞行步进（flight-simulation.js）
+
+`new FlightSimulation(LevelManager.load(levelData))` 持有星体、建筑、弹体、物理引擎、爆炸、临时引力源与 `physicsTime`。`step(controller?)` 以固定 1/60 秒执行一次生产物理步进，返回本帧是否发生碰撞/爆炸事件；可选 controller 提供右键触发队列。`getPerformance()` 返回原始弹体的已发射数 `shotsUsed` 和累计消耗 `deltaVSpent`，分裂出的子弹不重复计入经济性评价。
+
+main.js 通过真实时间累积器调用固定步进，每帧最多补 6 步；暂停时不推进。相同模拟也由关卡验证脚本调用，避免测试另写一套物理。
+
+`Building.checkCollisionAt(x,y,r,time=null)` 在提供时间时使用核心轨道的未来位置；未绑定轨道的结构按当前快照检查。瞄准预测使用当前燃料能实现的 Δv 上限，星体检测包含弹体半径。
+
+## 战役与存档
+
+`campaign-data.js` 作为独立异步 chunk 加载 6 个新章节和 3 个旧章节。新关卡以稳定 `id` 保存成绩，旧关卡的 `legacyKey` 仍对应原 `cN-lN`。`configureProgress(chapters)` 建立屏幕索引映射；`getAllBest()` 返回当前 UI 索引下的成绩。`storage.js` 使用 localStorage 的 `gravity_dawn_progress_v2`，读取旧 Cookie 作为迁移来源，存储不可用时退化为当前会话内存。失败重试不会覆盖最好成绩。
+
+`npm run check:campaign` 验证全部 36 关可解、600 帧无输入稳定、缩放后的瞄准坐标、监听器销毁、燃料限制预测、移动目标预测和旧存档映射，参考解输出至 `doc/campaign-validation.json`。完整设计与验证范围见 `campaign.md`。
