@@ -253,6 +253,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 方法 | 说明 |
 |------|------|
 | `clear()` | 与菜单一致的暖白背景、淡灰网格与星点 |
+| `resize(width,height)` | 更新 Canvas、渲染尺寸及背景星点，返回是否改变尺寸 |
 | `drawCelestialBody(body)` | 扁平科学地图星体、经纬线与质量标注 |
 | `drawTargetOrbits(buildings)` | 运动核心的实际轨道线 |
 | `drawFirstShotGuide(probe,target,vector)` | 首关拖拽方向与目标指示 |
@@ -331,6 +332,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 16 | 主菜单大标题、Logo、大尺寸入口按钮与三栏说明移除 |
 | 17 | 移除主菜单顶栏，主内容填充腾出的空间 |
 | 18 | 暖白战场与 HUD、浅色背景下的弹药可见性、选关顶栏 Logo |
+| 19 | 全窗口 Canvas、左缘平移缩放与发射、窗口尺寸变化 |
 
 ---
 
@@ -374,7 +376,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 - `src/ui-diagrams.js` holds decorative scientific SVG. `src/css/style.css` controls layout and responsive behavior.
 - `_drawStart()` 以「引力破晓」大标题和 `img/gravity-dawn-mark.png` 透明 Logo 展示游戏名称，移除旧主标语与三栏说明。首页不调用 `_header()`，只输出主内容和页脚，主内容自动填满剩余视口；选关与结算仍使用共享顶栏。Logo 通过 ES 模块导入，由 Webpack 图片 loader 打包；两枚主入口按钮在小窗口中保持放大且不撑高页面。
 - `CutsceneManager` owns a separate DOM overlay; see `cutscene.md`.
-- Controller `destroy()` aborts event listeners. `enabled=false` blocks input during cutscenes. Camera supports `enabled=false`. Scaled Canvas input is normalized into the 1200 × 800 logical space.
+- Controller `destroy()` aborts event listeners. `enabled=false` blocks input during cutscenes. Camera supports `enabled=false`. Canvas input is normalized into the current drawing-buffer dimensions before camera conversion. `main.js` observes the full-viewport Canvas with `ResizeObserver`, computes `scale = min(cssWidth / 1200, cssHeight / 800)`, and calls `Renderer.resize(cssWidth / scale, cssHeight / scale)`. The world is shown at a uniform scale, expanding into the former side margins. Resize cancels controller / camera drags and refreshes UI dimensions, while preserving camera center and zoom. Existing `Camera` conversions use the live canvas width / height, so pan, zoom, hover, firing and right-click actions also work at the window edges.
 - Webpack extracts the inline module from `index.html` and phase 9+ HTML demos through `src/page-entry-loader.cjs`. Shared chunks include the game modules and bundled JSON; production does not fetch raw source files. Demos have no standalone JavaScript files.
 
 ## 教程提示系统 (tutorial.js)

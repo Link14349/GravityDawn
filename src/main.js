@@ -75,6 +75,21 @@ export async function initGame() {
   let simulation = null;
   let cutsceneMgr = null; // 播片管理器
 
+  // 按原 1200 × 800 画面等比缩放，多出的窗口区域用于扩展视野。
+  const resizeCanvas = () => {
+    const { width, height } = canvas.getBoundingClientRect();
+    if (!width || !height) return;
+    const scale = Math.min(width / 1200, height / 800);
+    if (!r.resize(width / scale, height / scale)) return;
+    ui.w = canvas.width; ui.h = canvas.height;
+    // 尺寸变化后旧拖拽坐标不再有效，取消操作，保留镜头中心和缩放。
+    ctrl?._onMouseLeave();
+    if (cam) cam._panning = false;
+  };
+  const canvasResizeObserver = new ResizeObserver(resizeCanvas);
+  canvasResizeObserver.observe(canvas);
+  resizeCanvas();
+
   function startLevel(chapterIdx, levelIdx, skipCutscene = false) {
     currentChapter = chapterIdx;
     currentLevel = levelIdx;

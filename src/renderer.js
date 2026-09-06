@@ -33,6 +33,17 @@ export class Renderer {
     this.stars = this._generateStars(55);
   }
 
+  /** 更新画布尺寸和背景范围；返回尺寸是否发生变化。 */
+  resize(width, height) {
+    width = Math.max(1, Math.round(width));
+    height = Math.max(1, Math.round(height));
+    if (this.width === width && this.height === height) return false;
+    this.canvas.width = this.width = width;
+    this.canvas.height = this.height = height;
+    this.stars = this._generateStars(55);
+    return true;
+  }
+
   /** 生成伪随机星星 */
   _generateStars(count) {
     const stars = [];
