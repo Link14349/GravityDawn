@@ -195,9 +195,11 @@ export async function initGame() {
 
     if (!gameActive) { gameActive = true; }
     let frameHadEvent = false;
+    const simulationSteps = ctrl.shouldPause() ? 0 : frameSteps * ctrl.timeScale;
 
-    if (!ctrl.shouldPause()) {
-      for (let step = 0; step < frameSteps; step++) frameHadEvent = simulation.step(ctrl) || frameHadEvent;
+    if (simulationSteps > 0) {
+      // 加速只增加固定步进次数，不放大物理 dt，保持碰撞与轨迹精度。
+      for (let step = 0; step < simulationSteps; step++) frameHadEvent = simulation.step(ctrl) || frameHadEvent;
       physicsTime = simulation.physicsTime;
     }
 
@@ -216,7 +218,7 @@ export async function initGame() {
     } else {
       // 暂停或用户操作时不计时
       if (!ctrl.shouldPause() && !userInteracting) {
-        settleTimer += frameSteps / 60;
+        settleTimer += simulationSteps / 60;
       }
       if (frameHadEvent) { settling = false; settleTimer = 0; }
       if (userInteracting || ctrl.shouldPause() || (condB && frameHadEvent)) { settling = false; settleTimer = 0; }

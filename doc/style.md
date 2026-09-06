@@ -9,7 +9,7 @@ The player interface uses semantic HTML over a Canvas simulation. `src/css/style
 - Thin rules, square buttons, restrained motion, generous spacing. No glow effects or glass panels.
 - Start: editorial headline + transfer diagram + controls / mission overview.
 - Archive: chapter navigation, progress, numbered mission cards. All missions are playable; recommended order follows chapter and mission numbering.
-- HUD: objective / thresholds, probes, score, remaining targets, pause, retry, recenter, guidance, contextual probe telemetry and simulation time.
+- HUD: objective / thresholds, probes, score, remaining targets, pause, time acceleration (1×–10×), retry, recenter, guidance, contextual probe telemetry and simulation time. The speed button sits below pause in the flight controls; each click adds 1× and wraps from 10× to 1×.
 - Results: measured score, remaining probes and targets, three-star rating, retry / continue.
 - Briefings: two-column scientific diagram and transmission, typed dialogue, progress segments, explicit continue / skip.
 

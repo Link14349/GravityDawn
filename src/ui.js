@@ -56,6 +56,7 @@ export class UIManager {
     if (action === 'retry' && this._onReplay) this._onReplay();
     if (action === 'focus' && this._onFocus) this._onFocus();
     if (action === 'pause' && this._ctrl) { this._ctrl._spacePaused = !this._ctrl._spacePaused; this._updateHUD(); }
+    if (action === 'speed' && this._ctrl) { this._ctrl.cycleTimeScale(); this._updateHUD(); }
     if (action === 'guide') { this._guideOpen = !this._guideOpen; this._updateHUD(); }
     if (action === 'help') this._showHelp();
     if (action === 'close-help') this.root.querySelector('.help-dialog')?.remove();
@@ -124,7 +125,7 @@ export class UIManager {
     this._guideOpen = true;
     this.root.innerHTML = `<header class="flight-top"><div class="flight-title">${button('missions', '← 关卡')}<div><span class="mono">第 ${pad(d.currentChapter + 1)} 章 / 实验 ${pad(d.currentLevel + 1)}</span><h1>${escapeHTML(lv.name)}</h1></div></div><div class="flight-metrics"><div><span>剩余目标</span><strong id="hud-targets">—</strong></div><div><span>待发弹体</span><strong id="hud-probes">—</strong></div><div><span>得分</span><strong id="hud-score">0</strong></div></div></header>
       <aside class="objective-panel"><div class="eyebrow">任务目标</div><p>${escapeHTML(lv.objective || '摧毁所有标记目标，并达到分数与毁伤要求。')}</p><small id="hud-requirements"></small></aside>
-      <nav class="flight-tools" aria-label="飞行控制">${button('pause', 'Ⅱ 暂停 <kbd>空格</kbd>')}${button('retry', '↻ 重试 <kbd>R</kbd>')}${button('focus', '⊕ 复位 <kbd>F</kbd>')}${button('guide', '? 引导 <kbd>H</kbd>')}</nav>
+      <nav class="flight-tools" aria-label="飞行控制">${button('pause', 'Ⅱ 暂停 <kbd>空格</kbd>')}${button('speed', '时间加速 <span id="time-scale">1×</span>', false, 'title="每次点击增加 1 倍，10 倍后回到 1 倍"')}${button('retry', '↻ 重试 <kbd>R</kbd>')}${button('focus', '⊕ 复位 <kbd>F</kbd>')}${button('guide', '? 引导 <kbd>H</kbd>')}</nav>
       <div class="pause-overlay" id="pause-overlay" hidden><span class="eyebrow">模拟已暂停</span><h2>慢慢来，时间由你掌控。</h2><p>观察战场，想好下一步，再继续飞行。</p>${button('pause', '继续飞行 →', true)}</div>
       <aside class="guidance-panel" id="guidance-panel"><span class="eyebrow">飞行笔记 / ${escapeHTML(lv.guidance?.title || '基础操作')}</span><p>${escapeHTML(lv.guidance?.text || '悬停弹体即可暂停时间。向目标的反方向拖拽，松手发射；虚线显示预测轨迹。')}</p><span class="guide-detail">${escapeHTML(lv.guidance?.hint || '预留燃料以便中途修正。拖得越远，燃料消耗越大，剩余爆炸威力越小。')}</span></aside>
       <div id="probe-telemetry" class="probe-telemetry" hidden></div><div id="tutorial-hint" class="tutorial-hint" role="status" hidden></div><div id="settle-status" class="settle-status" role="status" hidden></div>
@@ -138,6 +139,7 @@ export class UIManager {
     const wc = this._level().winCondition || {};
     this._text('hud-requirements', `得分 ≥ ${wc.minScore || 0}${wc.destructionThreshold ? ` · 毁伤 ≥ ${Math.round(wc.destructionThreshold * 100)}%` : ''}${wc.parShots != null ? ` · 三星：≤${wc.parShots} 枚，Δv≤${wc.parDeltaV}` : ''}`);
     this._text('flight-time', `时间 + ${(d.time || 0).toFixed(1)} s`);
+    this._text('time-scale', `${this._ctrl?.timeScale || 1}×`);
     const paused = !!this._ctrl?.isSpacePaused();
     this.root.querySelector('#pause-overlay').hidden = !paused;
     this.root.querySelector('#guidance-panel').hidden = !this._guideOpen;

@@ -43,6 +43,7 @@ export class GameController {
 
     this.state = GameState.PLAYING;
     this.paused = false;
+    this.timeScale = 1;
 
     // 鼠标状态
     this.mouseX = 0;
@@ -331,6 +332,12 @@ export class GameController {
   /** 是否应该暂停物理模拟 */
   shouldPause() {
     return this.paused || this._spacePaused;
+  }
+
+  /** 每次增加 1 倍模拟速度，10 倍后回到正常速度。 */
+  cycleTimeScale() {
+    this.timeScale = this.timeScale >= 10 ? 1 : this.timeScale + 1;
+    return this.timeScale;
   }
 
   /** 是否空格暂停 */
