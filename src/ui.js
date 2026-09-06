@@ -106,8 +106,7 @@ export class UIManager {
     const chapters = this.gameData.chapters;
     const count = chapters.reduce((n, c) => n + c.levels.length, 0);
     const complete = Object.values(getAllBest()).filter(v => v.stars > 0).length;
-    this.root.innerHTML = `${this._header('2186 / 任务控制中心')}
-      <main class="home-layout"><section class="hero-copy"><img class="hero-logo" src="${gravityDawnMark}" alt="" width="1254" height="1254">
+    this.root.innerHTML = `<main class="home-layout"><section class="hero-copy"><img class="hero-logo" src="${gravityDawnMark}" alt="" width="1254" height="1254">
       <h1>引力破晓</h1>
       <div class="hero-actions">${button('continue', complete ? '继续远征 <span>↗</span>' : '开始远征 <span>↗</span>', true)}${button('missions', '探索关卡 <span>→</span>')}</div>
       <div class="hero-specs"><div><strong>${pad(count)}</strong><span>实验关卡</span></div><div><strong>${pad(chapters.length)}</strong><span>研究章节</span></div><div><strong>Δv</strong><span>你的控制变量</span></div></div>

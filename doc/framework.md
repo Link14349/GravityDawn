@@ -327,6 +327,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 14 | 精简至 24 关，移动天体、多引力源与无锚点地表建筑 |
 | 15 | 单屏主界面、章节与关卡独立滚动、窄屏和低窗口适配 |
 | 16 | 主菜单大标题、Logo、大尺寸入口按钮与三栏说明移除 |
+| 17 | 移除主菜单顶栏，主内容填充腾出的空间 |
 
 ---
 
@@ -367,7 +368,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 - `drawTutorialHint(hint|null)` updates / hides contextual guidance.
 - `drawSettleCountdown(remaining)` updates the result countdown.
 - `src/ui-diagrams.js` holds decorative scientific SVG. `src/css/style.css` controls layout and responsive behavior.
-- `_drawStart()` 以「引力破晓」大标题和 `img/gravity-dawn-mark.png` 透明 Logo 展示游戏名称，移除旧主标语与三栏说明。Logo 通过 ES 模块导入，由 Webpack 图片 loader 打包；两枚主入口按钮在小窗口中保持放大且不撑高页面。
+- `_drawStart()` 以「引力破晓」大标题和 `img/gravity-dawn-mark.png` 透明 Logo 展示游戏名称，移除旧主标语与三栏说明。首页不调用 `_header()`，只输出主内容和页脚，主内容自动填满剩余视口；选关与结算仍使用共享顶栏。Logo 通过 ES 模块导入，由 Webpack 图片 loader 打包；两枚主入口按钮在小窗口中保持放大且不撑高页面。
 - `CutsceneManager` owns a separate DOM overlay; see `cutscene.md`.
 - Controller `destroy()` aborts event listeners. `enabled=false` blocks input during cutscenes. Camera supports `enabled=false`. Scaled Canvas input is normalized into the 1200 × 800 logical space.
 - Webpack extracts the inline module from `index.html` and phase 9+ HTML demos through `src/page-entry-loader.cjs`. Shared chunks include the game modules and bundled JSON; production does not fetch raw source files. Demos have no standalone JavaScript files.
