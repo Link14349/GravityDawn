@@ -3,8 +3,8 @@
  *
  * 核心交互：
  *   鼠标悬停子弹 → 时间暂停
- *   点击拖拽子弹 → Delta-V 矢量（方向=拖动方向，大小=拖动长度）
- *   松开鼠标 → 发射（应用 Delta-V）
+ *   点击拖拽子弹 → Delta-V 矢量（方向与拖动相反，大小=拖动长度）
+ *   圈内松开鼠标 → 发射；拖出剩余 Delta-V 点线圈 → 取消规划
  */
 
 import { TIME_SCALES } from './constants.js';
@@ -17,7 +17,7 @@ export const GameState = Object.freeze({
   SETTLING: 'settling',   // 等待结算
 });
 
-// 缩放因子：鼠标拖动像素 → Delta-V 单位
+// 缩放因子：鼠标拖动世界距离 → Delta-V 单位
 const DRAG_TO_DV_SCALE = 0.5;
 
 // 子弹悬停检测半径（像素）
@@ -148,6 +148,7 @@ export class GameController {
     if (this.dragging) {
       this.dragCurrentX = pos.x;
       this.dragCurrentY = pos.y;
+      if (this._cancelIfBeyondLimit()) return;
       this._updatePrediction();
       return;
     }
@@ -180,12 +181,20 @@ export class GameController {
       this.dragCurrentY = pos.y;
       this.paused = true;
       this.state = GameState.AIMING;
+      if (this._cancelIfBeyondLimit()) return;
       this._updatePrediction();
     }
   }
 
   _onMouseUp(e) {
-    if (!this.dragging) return;
+    if (e.button !== 0 || !this.dragging) return;
+    // 松手事件可能没有对应的最后一次 mousemove，必须检查实际松手位置。
+    const pos = this._getCanvasPos(e);
+    this.mouseX = pos.x;
+    this.mouseY = pos.y;
+    this.dragCurrentX = pos.x;
+    this.dragCurrentY = pos.y;
+    if (this._cancelIfBeyondLimit()) return;
     if (this._spacePaused) {
       this.dragging = false;
       this.dragBullet = null;
@@ -212,17 +221,26 @@ export class GameController {
     this.state = GameState.PLAYING;
   }
 
-  _onMouseLeave() {
-    this.mouseInCanvas = false;
-    if (this.dragging) {
-      // 拖拽中鼠标离开→取消拖拽
-      this.dragging = false;
-      this.dragBullet = null;
-    }
+  /** 超出剩余 ΔV 对应的拖拽半径后立即取消，不应用点火。 */
+  _cancelIfBeyondLimit() {
+    const limit = this.getAimLimit();
+    if (limit && Math.hypot(this.dragCurrentX - this.dragStartX, this.dragCurrentY - this.dragStartY) <= limit.radius) return false;
+    this._cancelDrag();
+    return true;
+  }
+
+  _cancelDrag() {
+    this.dragging = false;
+    this.dragBullet = null;
     this.paused = false;
     this.state = GameState.PLAYING;
     this.predictedPath = [];
     this.predictedCollision = null;
+  }
+
+  _onMouseLeave() {
+    this.mouseInCanvas = false;
+    this._cancelDrag();
   }
 
   _onMouseEnter() {
@@ -296,6 +314,18 @@ export class GameController {
       dvx,
       dvy,
       magnitude: Math.sqrt(dvx * dvx + dvy * dvy),
+    };
+  }
+
+  /** 当前可机动弹体的 ΔV 点线圈，使用与输入一致的世界坐标。 */
+  getAimLimit() {
+    const bullet = this.dragBullet || this.getHoveredBullet();
+    if (!bullet || bullet.remainingIgnitions <= 0 || bullet.remainingDeltaV <= 0) return null;
+    return {
+      x: this.dragging ? this.dragStartX : bullet.x,
+      y: this.dragging ? this.dragStartY : bullet.y,
+      radius: bullet.remainingDeltaV / DRAG_TO_DV_SCALE,
+      deltaV: bullet.remainingDeltaV,
     };
   }
 

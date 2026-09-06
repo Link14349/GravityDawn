@@ -183,7 +183,7 @@ export class UIManager {
   _text(id, value) { const el = this.root.querySelector(`#${id}`); if (el && el.textContent !== String(value)) el.textContent = value; }
   _showHelp() {
     if (this.root.querySelector('.help-dialog')) return;
-    this.root.insertAdjacentHTML('beforeend', `<div class="help-dialog" role="dialog" aria-modal="true" aria-label="飞行手册"><section><div class="eyebrow">飞行手册 / 第二版</div><h2>用轨迹思考。</h2><dl><div><dt>悬停弹体</dt><dd>暂停模拟，查看剩余燃料和点火次数。</dd></div><div><dt>反向拖拽，松手发射</dt><dd>像弹弓一样操作：加速方向与拖拽方向相反。</dd></div><div><dt>在飞行中修正</dt><dd>只要还有燃料与点火次数，就能再次悬停、拖拽，调整轨道。</dd></div><div><dt>特殊弹体</dt><dd>在飞行途中右键点击特殊弹体，可以主动触发它的效果。</dd></div><div><dt>空格 · R · F · H</dt><dd>分别对应暂停、重试、镜头复位、切换引导。拖拽空白处平移镜头，滚轮缩放。</dd></div></dl><p>更大的推力消耗更多燃料，剩余燃料决定爆炸威力。通关需要同时满足标记目标、分数与毁伤要求。</p>${button('close-help', '明白了 →', true)}</section></div>`);
+    this.root.insertAdjacentHTML('beforeend', `<div class="help-dialog" role="dialog" aria-modal="true" aria-label="飞行手册"><section><div class="eyebrow">飞行手册 / 第二版</div><h2>用轨迹思考。</h2><dl><div><dt>悬停弹体</dt><dd>暂停模拟，查看剩余燃料和点火次数。</dd></div><div><dt>反向拖拽，松手发射</dt><dd>像弹弓一样操作：加速方向与拖拽方向相反。点线圈标记剩余 ΔV 上限，拖出圈外立即取消，不消耗燃料或点火次数。</dd></div><div><dt>在飞行中修正</dt><dd>只要还有燃料与点火次数，就能再次悬停、拖拽，调整轨道。</dd></div><div><dt>特殊弹体</dt><dd>在飞行途中右键点击特殊弹体，可以主动触发它的效果。</dd></div><div><dt>空格 · R · F · H</dt><dd>分别对应暂停、重试、镜头复位、切换引导。拖拽空白处平移镜头，滚轮缩放。</dd></div></dl><p>更大的推力消耗更多燃料，剩余燃料决定爆炸威力。通关需要同时满足标记目标、分数与毁伤要求。</p>${button('close-help', '明白了 →', true)}</section></div>`);
     this.root.querySelector('[data-action="close-help"]').focus();
   }
   drawTutorialHint(hint) {

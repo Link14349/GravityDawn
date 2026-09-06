@@ -279,12 +279,25 @@ export class Renderer {
   }
 
   /**
-   * 绘制瞄准叠加层：预测轨迹 + 碰撞点 + 行星虚线轮廓 + 拖拽线 + ΔV 箭头
-   * @param {Object} ctrl - GameController 实例（需提供 getPredictedPath/getPredictedCollision/getDragVector）
+   * 绘制瞄准叠加层：ΔV 上限点线圈 + 预测轨迹 + 碰撞点 + 行星虚线轮廓 + 拖拽线 + ΔV 箭头
+   * @param {Object} ctrl - GameController 实例
    * @param {import('./celestial.js').CelestialBody[]} bodies - 所有星体（用于碰撞轮廓）
    */
   drawAimOverlay(ctrl, bodies = []) {
     const ctx = this.ctx;
+
+    // 圆周对应剩余燃料允许的最大拖拽距离，与镜头一起缩放。
+    const limit = ctrl.getAimLimit();
+    if (limit) {
+      ctx.save();
+      ctx.strokeStyle = PALETTE.accent; ctx.lineWidth = 1.5;
+      ctx.lineCap = 'round'; ctx.setLineDash([1, 7]);
+      ctx.beginPath(); ctx.arc(limit.x, limit.y, limit.radius, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]); ctx.fillStyle = PALETTE.accent;
+      ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(`ΔV 上限 ${limit.deltaV.toFixed(0)} · 拖出点线圈取消`, limit.x, limit.y + 38);
+      ctx.restore();
+    }
 
     // 预测轨迹虚线
     const pred = ctrl.getPredictedPath();

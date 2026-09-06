@@ -261,7 +261,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | `drawBullet(x,y,vx,vy,r,launched,hovered,color,canManeuver=true)` | 弹体与外圈使用传入的类型颜色，发射/悬停时保持；实心圆深色细描边保证浅色弹药在白底可见，墨色待发射描边与悬停光环表示可交互状态，不可机动时为橙色光环 |
 | `drawBuilding(building)` | 弹簧+质点+敌人/核心标记 |
 | `drawFadingTrail(points)` | 衰减轨迹线 |
-| `drawAimOverlay(ctrl, bodies)` | 瞄准叠加（预测线+碰撞点+ΔV箭头） |
+| `drawAimOverlay(ctrl, bodies)` | 瞄准叠加（剩余 ΔV 上限点线圈+预测线+碰撞点+ΔV箭头） |
 | `drawExplosion(x,y,r,maxR)` | 橙色爆炸光环+墨色爆心十字 |
 | `drawGravityWell(x,y,elapsed,duration,mass)` | 引力弹脉动紫色光环 |
 | `drawBurnEffect(spring)` | 燃烧弹火焰粒子 |
@@ -281,7 +281,9 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 **弹弓式操作：**
 - 鼠标悬停子弹 → 时间暂停
 - 拖拽方向 **相反**于 ΔV 方向（向后拉=向前射）
-- 松开 → 应用 Delta-V
+- 悬停或拖拽时显示剩余 ΔV 上限点线圈，世界半径为 `remainingDeltaV / 0.5`，随镜头缩放
+- 圈内或圆周上松开左键 → 应用 Delta-V；拖出圆周立即取消，清除轨迹、碰撞与燃料预览，不消耗燃料/点火，也不修改原速度或发射状态
+- 松手时再次检查实际位置；取消后拖回圈内再松手不会发射，需重新按下左键规划。取消恢复模拟，已有空格暂停仍保持
 - 支持多次点火（`remainingIgnitions > 0`）
 
 **关键方法：**
@@ -291,6 +293,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | `getPredictedCollision()` | 预测碰撞点，使用弹体中心坐标 |
 | `getBurnPreview()` | 当前拖拽实际可用的 Δv、点火后燃料比例和爆炸半径，不修改弹体 |
 | `getDragVector()` | 拖拽 ΔV 矢量 |
+| `getAimLimit()` | 悬停或拖拽可机动弹体的 `{ x, y, radius, deltaV }`，坐标和半径使用世界单位；无可机动弹体时返回 null |
 | `getHoveredBullet()` | 当前 Canvas 内悬停的子弹 |
 | `setTimeScale(value)` | 将 `timeScale` 设置为 `TIME_SCALES` 中的倍率并返回当前倍率；不支持的值保持原倍率，重建控制器时恢复 1 |
 | `destroy()` | 中止全部事件监听，重试/离关后不再响应输入 |
@@ -320,7 +323,7 @@ isVaporized(dist, r₀) → dist < r₀ / 3
 | 1 | 构建链验证 |
 | 2 | 引力+粒子轨迹 |
 | 3 | 多星体轨道 |
-| 4 | 子弹发射+轨迹预测+Camera |
+| 4 | 剩余 ΔV 点线圈、越界取消、正常点火与 Camera 缩放；调用生产模块的交互演示 |
 | 5 | 弹簧质点建筑+碰撞 |
 | 6 | 爆炸毁伤+记分+敌人+跨建筑碰撞 |
 | 7 | UI系统（开始/选关/HUD/结算） |

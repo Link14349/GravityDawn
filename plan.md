@@ -64,6 +64,7 @@ index.html            — 主页面
 - [x] CelestialBody 新增 collisionRadius 碰撞半径属性
 - [x] PhysicsEngine 新增：重力源碰撞半径、updateSourcePosition、checkSourceCollision
 - [x] Demo 场景重构：恒星 + 多行星 + 子弹绕行星轨道 + 碰撞爆炸效果
+- [x] 交互修正：用点线圈标记剩余 ΔV 上限，拖出圈外取消规划；更新 phase4-demo，build + 11 项输入/渲染检查 + 浏览器验证通过
 
 ## Phase 5：建筑与目标系统 [x]
 - [x] 实现 src/building.js：Building、MassPoint、Spring、Ship 类

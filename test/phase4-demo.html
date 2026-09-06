@@ -3,224 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Phase 4 Demo — 子弹系统</title>
+  <title>阶段四 — ΔV 上限与取消规划</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-    canvas { display: block; margin: 0 auto; cursor: crosshair; }
-    #hud {
-      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-      color: #ddd; font-family: monospace; font-size: 12px; pointer-events: none;
-      text-align: center; line-height: 1.5;
-      background: rgba(0,0,0,0.55); padding: 4px 16px; border-radius: 6px;
-    }
+    body { margin: 0; padding: 20px; background: #f4f3ed; color: #252b2a; font: 14px/1.7 system-ui, sans-serif; }
+    main { max-width: 1000px; margin: auto; }
+    h1 { font-size: 24px; font-weight: 500; margin: 0; }
+    canvas { display: block; width: 100%; height: auto; border: 1px solid #d8dad2; }
+    button, a { color: inherit; margin-right: 16px; }
+    #status { font-variant-numeric: tabular-nums; }
   </style>
 </head>
-<body>
-  <canvas id="c"></canvas>
-  <div id="hud"></div>
-  <script type="module">
-    import { PhysicsEngine } from '../src/physics.js';
-    import { Renderer } from '../src/renderer.js';
-    import { CelestialBody } from '../src/celestial.js';
-    import { Bullet } from '../src/bullet.js';
-    import { GameController, GameState } from '../src/game-controller.js';
-    import { Camera } from '../src/camera.js';
+<body><main>
+  <h1>ΔV 上限与取消规划</h1>
+  <p>悬停红色弹体查看点线圈。圈内反向拖拽并松手点火；拖出圈外立即取消，不消耗燃料或点火。滚轮缩放，空格暂停。</p>
+  <p><button id="reset">重置弹体</button><a href="/">进入完整游戏 →</a></p>
+  <canvas id="c" width="1000" height="600" aria-label="ΔV 取消规划演示，拖出点线圈取消"></canvas>
+  <p id="status" role="status"></p>
+</main>
+<script type="module">
+import { PhysicsEngine } from '../src/physics.js';
+import { Bullet } from '../src/bullet.js';
+import { GameController } from '../src/game-controller.js';
+import { Camera } from '../src/camera.js';
+import { Renderer } from '../src/renderer.js';
+import { FlightSimulation } from '../src/flight-simulation.js';
 
-    const canvas = document.getElementById('c');
-    canvas.width = 1200;
-    canvas.height = 800;
-
-    const G_PHYS = 300;
-    const BULLET_R = 6;
-
-    // =====================
-    // 星体
-    // =====================
-
-    // 中心恒星（固定）
-    const star = new CelestialBody({
-      mass: 8000, orbit: CelestialBody.fixedPosition(600, 400),
-      radius: 50, collisionRadius: 45, color: '#ffbb33', label: '恒星',
-    });
-
-    // 行星 A — 子弹绕它转
-    const planetA = new CelestialBody({
-      mass: 800, orbit: CelestialBody.circularOrbit(600, 400, 200, 10, 0),
-      radius: 28, collisionRadius: 25, color: '#44ccbb', label: '水蓝星',
-    });
-
-    // 行星 B — 远处目标
-    const planetB = new CelestialBody({
-      mass: 500, orbit: CelestialBody.ellipticalOrbit(600, 400, 350, 280, 18, Math.PI/2),
-      radius: 22, collisionRadius: 20, color: '#ff6688', label: '赤红星',
-    });
-
-    const allBodies = [star, planetA, planetB];
-
-    // =====================
-    // 物理引擎（带轨道函数，用于轨迹预测）
-    // =====================
-    const phys = new PhysicsEngine({ G: G_PHYS });
-    let physicsTime = 0;
-    for (const b of allBodies) {
-      const p = b.getPosition();
-      phys.addGravitySource(p.x, p.y, b.mass, b.collisionRadius, b.orbitFn);
-    }
-
-    // =====================
-    // 子弹 — 绕行星 A 轨道，3 发不同相位（同轨道分散分布）
-    // =====================
-    const bullets = [
-      new Bullet({ payloadMass: 5, fuelMass: 30, ve: 300, ignitionCount: 2, explosionRadius: 70, explosionImpulse: 4000 }),
-      new Bullet({ payloadMass: 8, fuelMass: 20, ve: 250, ignitionCount: 3, explosionRadius: 50, explosionImpulse: 3000 }),
-      new Bullet({ payloadMass: 3, fuelMass: 40, ve: 350, ignitionCount: 1, explosionRadius: 90, explosionImpulse: 6000 }),
-    ];
-    // 同轨道、不同相位（120° 间隔）
-    for (let i = 0; i < bullets.length; i++) {
-      bullets[i].bindOrbit(planetA, 50, planetA.radius, (i * 2 * Math.PI) / 3, G_PHYS);
-    }
-
-    // =====================
-    // 控制器 + 镜头
-    // =====================
-    const ctrl = new GameController(canvas, { physics: phys, bullets, camera: null, getTime: () => physicsTime });
-    const camera = new Camera(canvas, {
-      shouldBlockPan: () => ctrl.getHoveredBullet() !== null,
-    });
-    ctrl.camera = camera;
-    // 镜头对准恒星
-    camera.x = 600; camera.y = 400; camera.zoom = 0.85;
-
-    const r = new Renderer(canvas);
-    const ctx = r.ctx;
-
-    // =====================
-    // 爆炸效果
-    // =====================
-    const explosions = []; // { x, y, r, maxR, t }
-
-    // 每个子弹独立的轨迹数组
-    for (const b of bullets) {
-      b._trail = [];
-    }
-
-    // =====================
-    // HUD
-    // =====================
-    function hud() {
-      const h = document.getElementById('hud');
-      const st = ctrl.state;
-      let s = '';
-      if (st === GameState.PLAYING) s = '▶ 运行中';
-      else if (st === GameState.AIMING) s = '⏸ 瞄准中 — 拖拽发射';
-      // 显示悬停子弹信息
-      const hb = ctrl.getHoveredBullet();
-      const info = hb ? ` | 悬停: 点火${hb.remainingIgnitions}/${hb.ignitionCount} ΔV${hb.remainingDeltaV.toFixed(0)}m/s 质量${hb.totalMass.toFixed(1)}` : '';
-      const alive = bullets.filter(b => b.alive).length;
-      h.innerHTML = `${s} | 存活:${alive}/${bullets.length}${info}`;
-    }
-
-    // =====================
-    // 主循环
-    // =====================
-    function loop() {
-      hud();
-
-      // --- 更新星体位置到物理引擎 ---
-      for (let i = 0; i < allBodies.length; i++) {
-        const b = allBodies[i];
-        if (!ctrl.shouldPause()) b.update(1 / 60);
-        const p = b.getPosition();
-        phys.updateSourcePosition(i, p.x, p.y);
-      }
-
-      // --- 物理步进 ---
-      if (!ctrl.shouldPause()) {
-        physicsTime += 1 / 60;
-        for (const b of bullets) {
-          if (!b.alive) continue;
-          if (!b.launched) {
-            b.updateOrbitPosition(1 / 60);
-          } else {
-            // stepParticle 内部自动碰撞检测，返回碰撞信息
-            const col = phys.stepParticle(b, undefined, BULLET_R);
-            b._trail.push({ x: b.x, y: b.y, life: 1.0 });
-            // 限制轨迹最大长度（约 5 秒），超出部分丢弃
-            if (b._trail.length > 300) b._trail.shift();
-            if (col) {
-              explosions.push({
-                x: b.x, y: b.y, r: 0,
-                maxR: b.getEffectiveExplosionRadius() || 50,
-              });
-              b.alive = false;
-            }
-          }
-        }
-      }
-
-      // --- 更新爆炸动画 ---
-      for (const ex of explosions) {
-        ex.r += 4;
-      }
-
-      // =====================
-      // 渲染
-      // =====================
-      r.clear();
-      camera.applyTransform(ctx);
-
-      // 星体
-      for (const b of allBodies) r.drawCelestialBody(b);
-
-      // 子弹轨道虚线圆（绕行星A）
-      {
-        const pa = planetA.getPosition();
-        const orbR = planetA.radius + 50;
-        ctx.strokeStyle = 'rgba(120, 200, 255, 0.22)';
-        ctx.lineWidth = 1; ctx.setLineDash([2, 6]);
-        ctx.beginPath(); ctx.arc(pa.x, pa.y, orbR, 0, Math.PI * 2); ctx.stroke();
-        ctx.setLineDash([]);
-      }
-
-      // 各子弹独立飞行轨迹（委托给 Renderer，含衰减+绘制）
-      for (const b of bullets) {
-        r.drawFadingTrail(b._trail);
-      }
-
-      // 瞄准叠加层（预测轨迹、碰撞点、行星轮廓、拖拽线、ΔV 箭头）
-      r.drawAimOverlay(ctrl, allBodies);
-
-      // 子弹（委托给 Renderer）
-      const hoveredBullet = ctrl.getHoveredBullet();
-      for (const b of bullets) {
-        if (!b.alive || !isFinite(b.x) || !isFinite(b.y)) continue;
-        r.drawBullet(b.x, b.y, b.vx, b.vy, BULLET_R, b.launched, b === hoveredBullet);
-      }
-
-      // 爆炸效果
-      for (let i = explosions.length - 1; i >= 0; i--) {
-        const ex = explosions[i];
-        const alpha = 1 - ex.r / ex.maxR;
-        if (alpha <= 0) { explosions.splice(i, 1); continue; }
-        ctx.strokeStyle = `rgba(255, 180, 60, ${alpha})`;
-        ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(ex.x, ex.y, ex.r, 0, Math.PI * 2); ctx.stroke();
-        ctx.fillStyle = `rgba(255, 200, 80, ${alpha * 0.3})`;
-        ctx.beginPath(); ctx.arc(ex.x, ex.y, ex.r, 0, Math.PI * 2); ctx.fill();
-      }
-
-      camera.restoreTransform(ctx);
-
-      // 屏幕空间 HUD
-      ctx.fillStyle = 'rgba(255,255,255,0.45)';
-      ctx.font = '11px monospace'; ctx.textAlign = 'left';
-      ctx.fillText(`缩放:${camera.zoom.toFixed(1)}x | 镜头:(${camera.x.toFixed(0)},${camera.y.toFixed(0)}) | 滚轮缩放 | 空白处拖拽平移`, 10, 790);
-
-      requestAnimationFrame(loop);
-    }
-
-    loop();
-  </script>
-</body>
-</html>
+const canvas = document.getElementById('c'), renderer = new Renderer(canvas);
+let bullet, simulation, ctrl;
+const camera = new Camera(canvas, { shouldBlockPan: () => !!ctrl?.getHoveredBullet() });
+function reset() {
+  ctrl?.destroy();
+  bullet = new Bullet({ x: 0, y: 0, deltaV: 120, ignitionCount: 3 });
+  const physics = new PhysicsEngine({ G: 0 });
+  simulation = new FlightSimulation({ physics, bullets: [bullet], allBodies: [], buildings: [] });
+  ctrl = new GameController(canvas, { physics, bullets: [bullet], camera, getTime: () => simulation.physicsTime });
+  camera.x = 0; camera.y = 0; camera.zoom = 1; camera._panning = false;
+}
+document.getElementById('reset').addEventListener('click', reset);
+reset();
+let previous = performance.now(), accumulator = 0;
+function frame(now) {
+  accumulator += Math.min((now - previous) / 1000, 0.1); previous = now;
+  while (accumulator >= 1 / 60) { if (!ctrl.shouldPause()) simulation.step(ctrl); accumulator -= 1 / 60; }
+  renderer.clear(); camera.applyTransform(renderer.ctx);
+  renderer.drawFadingTrail(bullet._trail);
+  renderer.drawAimOverlay(ctrl);
+  renderer.drawBullet(bullet.x, bullet.y, bullet.vx, bullet.vy, bullet.renderRadius, bullet.launched, bullet === ctrl.getHoveredBullet(), bullet.color);
+  camera.restoreTransform(renderer.ctx);
+  document.getElementById('status').textContent = `${ctrl.shouldPause() ? '规划 / 暂停' : '运行中'} · ${bullet.launched ? '已发射' : '待发射'} · 剩余 ΔV ${bullet.remainingDeltaV.toFixed(1)} · 点火 ${bullet.remainingIgnitions} · 燃料 ${bullet.fuelMass.toFixed(3)} · 缩放 ${camera.zoom.toFixed(1)}×`;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script></body></html>
